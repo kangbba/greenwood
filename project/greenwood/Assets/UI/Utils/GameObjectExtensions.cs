@@ -6,6 +6,40 @@ public static class GameObjectExtensions
     /// <summary>
     /// GameObject의 활성화/비활성화 애니메이션 (Alpha Fade In/Out 후 SetActive 적용)
     /// </summary>
+    public static void SetAnim(this GameObject obj, bool isActive, float duration)
+    {
+        if (obj == null) return;
+
+        CanvasGroup canvasGroup = obj.GetOrAddCanvasGroup();
+
+        if (duration == 0)
+        {
+            obj.SetActive(isActive);
+            canvasGroup.alpha = isActive ? 1 : 0;
+            canvasGroup.SetInteractable(isActive);
+            return;
+        }
+
+        if (isActive)
+        {
+            obj.SetActive(true);
+            canvasGroup.alpha = 0;
+            canvasGroup.SetInteractable(false);
+
+            canvasGroup.DOFade(1, duration).OnComplete(() =>
+            {
+                canvasGroup.SetInteractable(true);
+            });
+        }
+        else
+        {
+            canvasGroup.SetInteractable(false);
+
+            canvasGroup.DOFade(0, duration).OnComplete(() =>
+            {
+            });
+        }
+    }
     public static void SetAnimActive(this GameObject obj, bool isActive, float duration)
     {
         if (obj == null) return;

@@ -12,7 +12,6 @@ public class RevealingWord : MonoBehaviour
     private RectTransform _maskTransform;
 
     private float _remainingPadding;
-    private float _speed;
     private bool _isPaused;
     private bool _isPlaying;
 
@@ -63,7 +62,6 @@ public class RevealingWord : MonoBehaviour
     {
         if (_isPlaying) return; // 이미 실행 중이면 중복 실행 방지
 
-        _speed = speed;
         _isPlaying = true;
         _isPaused = false;
 
@@ -74,7 +72,7 @@ public class RevealingWord : MonoBehaviour
                 await UniTask.WaitUntil(() => !_isPaused);
             }
 
-            _remainingPadding = Mathf.Max(0, _remainingPadding - (_speed * Time.deltaTime));
+            _remainingPadding = Mathf.Max(0, _remainingPadding - (speed * Time.deltaTime));
             _mask.padding = new Vector4(0, 0, _remainingPadding, 0);
 
             await UniTask.Yield();

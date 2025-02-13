@@ -4,6 +4,7 @@ using TMPro;
 using Cysharp.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System;
+using System.Linq;
 
 public class RevealingSentence : MonoBehaviour
 {
@@ -17,9 +18,7 @@ public class RevealingSentence : MonoBehaviour
     [SerializeField] private float _wordSpacing = 10f;
     [SerializeField] private float _extraLineSpacing = 0f; 
 
-    [Header("Play Speed")]
-    [HideInInspector][SerializeField] // Inspector에서 보이지 않게!
-    private float _playSpeed = 150f;
+    private float _playSpeed = 5000;
 
     /// <summary>
     /// 구두점(문장부호) 뒤에 대기할 것인지 여부
@@ -32,6 +31,11 @@ public class RevealingSentence : MonoBehaviour
     private Dictionary<RevealingWord, bool> _punctuationDict = new Dictionary<RevealingWord, bool>();
 
     private List<RevealingWord> _activeWords = new List<RevealingWord>();
+
+    private RevealingWord _lastWord;
+
+    public RevealingWord LastWord { get => _lastWord; }
+
 
     /// <summary>
     /// 문장부호 뒤 대기를 켜거나 끄는 함수
@@ -75,7 +79,7 @@ public class RevealingSentence : MonoBehaviour
             RevealingWord wordInstance = Instantiate(_revealingWordPrefab, _container);
 
             // highlightWords에 포함되면 노란색 표시
-            bool shouldHighlight = (highlightWords != null && highlightWords.Contains(element));
+            bool shouldHighlight = highlightWords != null && highlightWords.Contains(element);
             if (shouldHighlight)
             {
                 wordInstance.Init($"<color=#FFFF00>{element}</color>");
@@ -112,7 +116,7 @@ public class RevealingSentence : MonoBehaviour
         }
     }
 
-    public async UniTask PlaySentence( Func<UniTask> OnStart = null,  Func<UniTask> OnWordStart = null, Func<UniTask> OnComplete = null, Func<UniTask> OnPunctuationMet = null)
+    public async UniTask PlaySentence(Func<UniTask> OnStart = null, Func<UniTask> OnComplete = null, Func<UniTask> OnPunctuationMet = null)
     {
         // 시작 시 OnStart 실행 (필수 아님)
         if (OnStart != null) await OnStart();
@@ -122,23 +126,17 @@ public class RevealingSentence : MonoBehaviour
         {
             var word = _activeWords[i];
 
-            // 단어 시작 시 OnWordStart 실행 (필수 아님)
-            if (OnWordStart != null) await OnWordStart();
-
             await word.Play(_playSpeed);
-
+            
+            _lastWord = word;
+                
             // 마지막 단어가 아니라면 구두점 멈춤 로직 적용
             if (i < _activeWords.Count - 1)
             {
                 if (_usePunctuationStop && _punctuationDict.TryGetValue(word, out bool isPunc) && isPunc)
                 {
-                    Debug.Log("구두점에서 멈춤 이벤트 실행 중...");
-
                     // 외부에서 전달된 대기 로직 실행 (필수 아님)
-                    if (OnPunctuationMet != null)
-                        await OnPunctuationMet();
-                    else
-                        await UniTask.WaitUntil(() => Input.GetMouseButtonDown(0)); // 기본 동작
+                    if (OnPunctuationMet != null) await OnPunctuationMet();
                 }
             }
         }
