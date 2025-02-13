@@ -15,6 +15,8 @@ public class RevealingText : MonoBehaviour
     private bool _isPaused;
     private bool _isPlaying;
 
+    public float TextPreferredHeight { get => _textMesh.preferredHeight; }
+
     private void Awake()
     {
         _mask = GetComponent<RectMask2D>();

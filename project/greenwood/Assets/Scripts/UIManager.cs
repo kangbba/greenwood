@@ -16,14 +16,26 @@ public class UIManager : MonoBehaviour
         Instance = this;
     }
 
+    private void Start()
+    {
+    }
+
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Space)){
+
+            ShowDialog("안녕하세요", "네", "아니오").Forget();
+        }
+    }
+
     /// <summary>
     /// 다이얼로그를 생성하고 사용자의 선택을 반환
     /// </summary>
-    public async UniTask<bool?> ShowDialog(string message, string yesText = "확인", string noText = null)
+    public async UniTask<bool?> ShowDialog(string message, string yesText, string noText)
     {
-        GameObject dialog = Instantiate(dialogPrefab, popupCanvas.transform);
-        DialogBox dialogBox = dialog.GetComponent<DialogBox>();
-
+        DialogBox dialogBox = Instantiate(dialogPrefab, popupCanvas.transform).GetComponent<DialogBox>();
+        dialogBox.gameObject.SetAnimActive(false,0f);
+        dialogBox.gameObject.SetAnimActive(true, .2f);
         return await dialogBox.Initialize(message, yesText, noText);
     }
 }
