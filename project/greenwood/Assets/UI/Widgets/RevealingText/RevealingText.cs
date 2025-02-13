@@ -8,6 +8,7 @@ public class RevealingText : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _textMesh; // 미리 설정된 TextMeshProUGUI
     private RectMask2D _mask;
+    
     private RectTransform _maskTransform;
 
     private float _remainingPadding;
@@ -15,7 +16,8 @@ public class RevealingText : MonoBehaviour
     private bool _isPaused;
     private bool _isPlaying;
 
-    public float TextPreferredHeight { get => _textMesh.preferredHeight; }
+    public RectTransform RectTransform => GetComponent<RectTransform>();
+    public TextMeshProUGUI TextMesh { get => _textMesh;  }
 
     private void Awake()
     {

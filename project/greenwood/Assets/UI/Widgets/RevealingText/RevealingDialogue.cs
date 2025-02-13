@@ -14,17 +14,14 @@ public class RevealingDialogue : MonoBehaviour
 
     private List<RevealingText> _activeTexts = new List<RevealingText>();
 
-    private void Start()
-    {
-        // 예시 대사
-        Init("안녕하세요. 길게 말을 해보겠습니다. 잘 되고 있나요? 하하하하하! 정말로? 네, 좋아요. 더욱더 길게 말을 해보자.");
-        PlayDialogue().Forget();
-    }
 
     /// <summary>
     /// 긴 대사를 원본 간격을 유지하며 미리 생성 (문장부호 포함)
+    /// highlightWords에 포함된 단어는 노란색으로 표시.
     /// </summary>
-    public void Init(string dialogue)
+    /// <param name="dialogue">전체 대사 문자열</param>
+    /// <param name="highlightWords">하이라이트할 단어 리스트 (옵션)</param>
+    public void SetText(string dialogue, List<string> highlightWords = null)
     {
         ClearDialogue();
         List<string> elements = SplitDialogue(dialogue);
@@ -43,7 +40,18 @@ public class RevealingDialogue : MonoBehaviour
 
             // 프리팹 인스턴스화 및 초기화
             RevealingText textInstance = Instantiate(_revealingTextPrefab, _container);
-            textInstance.Init(element);
+
+            // 만약 highlightWords에 현재 단어가 포함되어 있다면 노란색으로 표시
+            bool shouldHighlight = (highlightWords != null && highlightWords.Contains(element));
+            if (shouldHighlight)
+            {
+                textInstance.Init($"<color=#FFFF00>{element}</color>");
+            }
+            else
+            {
+                textInstance.Init(element);
+            }
+
             RectTransform textTransform = textInstance.GetComponent<RectTransform>();
 
             // 컨테이너 폭을 초과하면 줄바꿈
