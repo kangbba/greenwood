@@ -1,5 +1,6 @@
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
 
 public class UIManager : MonoBehaviour
 {
@@ -16,14 +17,11 @@ public class UIManager : MonoBehaviour
         Instance = this;
     }
 
-    private void Start()
-    {
-    }
-
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Space)){
-
+        // 스페이스바를 누르면 예전처럼 DialogBox 출력
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
             ShowDialog("안녕하세요", "네", "아니오").Forget();
         }
     }
@@ -34,8 +32,10 @@ public class UIManager : MonoBehaviour
     public async UniTask<bool?> ShowDialog(string message, string yesText, string noText)
     {
         DialogBox dialogBox = Instantiate(dialogPrefab, popupCanvas.transform).GetComponent<DialogBox>();
-        dialogBox.gameObject.SetAnimActive(false,0f);
-        dialogBox.gameObject.SetAnimActive(true, .2f);
+        // 열리는 애니메이션 (예: scale, alpha 등)
+        dialogBox.gameObject.SetAnimActive(false, 0f);
+        dialogBox.gameObject.SetAnimActive(true, 0.2f);
+
         return await dialogBox.Initialize(message, yesText, noText);
     }
 }

@@ -4,11 +4,11 @@ using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
 
 [RequireComponent(typeof(RectMask2D))]
-public class RevealingText : MonoBehaviour
+public class RevealingWord : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _textMesh; // 미리 설정된 TextMeshProUGUI
     private RectMask2D _mask;
-    
+
     private RectTransform _maskTransform;
 
     private float _remainingPadding;
@@ -17,7 +17,7 @@ public class RevealingText : MonoBehaviour
     private bool _isPlaying;
 
     public RectTransform RectTransform => GetComponent<RectTransform>();
-    public TextMeshProUGUI TextMesh { get => _textMesh;  }
+    public TextMeshProUGUI TextMesh => _textMesh;
 
     private void Awake()
     {
@@ -51,7 +51,8 @@ public class RevealingText : MonoBehaviour
         _maskTransform.sizeDelta = new Vector2(textWidth, _maskTransform.sizeDelta.y);
         _textMesh.rectTransform.sizeDelta = new Vector2(textWidth, _maskTransform.sizeDelta.y);
 
-        _mask.padding = new Vector4(0, 0, textWidth, 0); // 처음엔 모든 글자를 가림
+        // 처음엔 오른쪽 패딩을 textWidth로 줘서 전부 가린 상태로 시작
+        _mask.padding = new Vector4(0, 0, textWidth, 0);
         _remainingPadding = textWidth;
     }
 
@@ -75,6 +76,7 @@ public class RevealingText : MonoBehaviour
 
             _remainingPadding = Mathf.Max(0, _remainingPadding - (_speed * Time.deltaTime));
             _mask.padding = new Vector4(0, 0, _remainingPadding, 0);
+
             await UniTask.Yield();
         }
 
@@ -95,10 +97,7 @@ public class RevealingText : MonoBehaviour
     /// </summary>
     public void Resume()
     {
-        if (_isPaused)
-        {
-            _isPaused = false;
-        }
+        _isPaused = false;
     }
 
     /// <summary>
