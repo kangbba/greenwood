@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfe9eac5d923f4e2a84ddce452fd914c, type: 3}
+  m_Name: CharacterSetting Kate
+  m_EditorClassIdentifier: 
+  _characterName: 2
+  _displayName: "\uCF00\uC774\uD2B8"
+  _characterColor: {r: 0.93457973, g: 0.9528302, b: 0.30113026, a: 1}

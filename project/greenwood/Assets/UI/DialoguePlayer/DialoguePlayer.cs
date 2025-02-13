@@ -2,6 +2,7 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using System;
+using TMPro;
 
 public class DialoguePlayer : MonoBehaviour
 {
@@ -9,10 +10,13 @@ public class DialoguePlayer : MonoBehaviour
 
     [Header("Arrow Prefab")]
     [SerializeField] private DialogueArrow _arrowPrefab;
+    [SerializeField] private TextMeshProUGUI _characterText;
     private DialogueArrow _activeArrow; // 현재 활성화된 화살표 인스턴스 저장
 
     [Header("Revealing Sentence")]
     [SerializeField] private RevealingSentence _revealingSentence;
+    [SerializeField] private Transform _parent;
+    private bool _isOn;
 
     private void Awake()
     {
@@ -27,10 +31,19 @@ public class DialoguePlayer : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        SetAnim(false, 0f);   
+    }
+
     public async UniTask PlayDialogue(Dialogue dialogue)
     {
-        _revealingSentence.gameObject.SetAnim(true, .3f);
+        CharacterSetting characterSetting = CharacterManager.Instance.GetCharacterSetting(dialogue.CharacterName);
+        _characterText.SetText(characterSetting.DisplayName);
+        _characterText.color = characterSetting.CharacterColor;
+        SetAnim(true, .3f);
         await UniTask.WaitForSeconds(.3f);
+
         for (int i = 0; i < dialogue.Sentences.Count; i++)
         {
             string sentence = dialogue.Sentences[i];
@@ -51,7 +64,7 @@ public class DialoguePlayer : MonoBehaviour
                 OnPunctuationMet: async () =>
                 {
                     Debug.Log("[대기] 구두점에서 마우스 입력을 기다림...");
-                    SpawnArrow(-90);
+                    SpawnArrow(90);
                     await UniTask.WaitUntil(() => Input.GetMouseButtonDown(0));
                     DestroyArrow();
                 },
@@ -64,9 +77,14 @@ public class DialoguePlayer : MonoBehaviour
                 }
             );
         }
-        _revealingSentence.gameObject.SetAnim(false, .3f);
+        SetAnim(false, .3f);
         await UniTask.WaitForSeconds(.3f);
         _revealingSentence.ClearSentence();
+    }
+
+    private void SetAnim(bool b, float duration){
+        _isOn = b;
+        _parent.gameObject.SetAnim(b, duration);
     }
 
     public void SkipCurrentDialogue()

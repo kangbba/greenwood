@@ -4,12 +4,12 @@ using System.Collections.Generic;
 
 public class Dialogue : Element
 {
-    private string _characterID;          // 캡슐화된 캐릭터 ID
+    private CharacterName _characterName;          // 캡슐화된 캐릭터 ID
     private List<string> _sentences;          // 캡슐화된 대사 목록
     private float _speed;
 
     // 읽기 전용 프로퍼티
-    public string CharacterID => _characterID;
+    public CharacterName CharacterName => _characterName;
 
     public List<string> Sentences { get => _sentences;  }
     public float Speed { get => _speed; }
@@ -17,9 +17,9 @@ public class Dialogue : Element
     /// <summary>
     /// 생성자
     /// </summary>
-    public Dialogue(string characterID, List<string> lines, float speedMultiplier = 1f)
+    public Dialogue(CharacterName characterName, List<string> lines, float speedMultiplier = 1f)
     {
-        _characterID = characterID;
+        _characterName = characterName;
         _sentences = lines;
         _speed = 1500 * speedMultiplier;
     }

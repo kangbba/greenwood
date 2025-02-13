@@ -27,33 +27,35 @@ public class GameManager : MonoBehaviour
     {
         // 테스트용 Dialogue 3개를 _elements에 추가
         _elements.Add(new Dialogue(
-            "NPC1", 
+            CharacterName.Kate, 
             new List<string>
             {
-                "안녕하세요! 첫 번째 대사입니다. 첫번째 대사는! 좀 길게 말을 해보겠습니다.",
-                "두 번째 문장도, 출력해 봅시다."
+                "어이, 여기 봐! 나 완전 신나는 소식 가져왔어!",
+                "들어봐~! 오늘 진짜 재밌는 일이 있었거든!",
+                "근데 말이야, 너 진짜 이런 거 관심 없지? 하하!"
             }
         ));
 
         _elements.Add(new Dialogue(
-            "NPC2", 
+            CharacterName.Mono, 
             new List<string>
             {
-                "여기는 두 번째 대화입니다.",
-                "조금 더 길게, 말을 해 볼까요?",
-                "문장부호도 있습니다!"
+                "조용하다... 이런 적막은 오랜만이네.",
+                "그러니까, 내가 여기 온 이유는...",
+                "흠, 대체 어디서부터 잘못된 걸까..."
             }
         ));
 
         _elements.Add(new Dialogue(
-            "NPC3", 
+            CharacterName.Lisa, 
             new List<string>
             {
-                "마지막 대화입니다.",
-                "긴 여행이었네요.",
-                "이제 곧 끝납니다!"
+                "시간 낭비야. 대체 뭘 기대하는 거지?",
+                "흥, 이런 일엔 관심 없어.",
+                "됐어. 더 이상 말할 필요 없잖아."
             }
         ));
+
 
         // 순서대로 Elements를 실행
         await ExecuteElementsSequence();
