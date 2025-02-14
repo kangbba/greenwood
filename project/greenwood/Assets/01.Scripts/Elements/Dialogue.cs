@@ -4,15 +4,14 @@ using System.Collections.Generic;
 
 public class Dialogue : Element
 {
-    private CharacterName _characterName;          // 캡슐화된 캐릭터 ID
-    private List<string> _sentences;          // 캡슐화된 대사 목록
+    private CharacterName _characterName;  // 캡슐화된 캐릭터 ID
+    private List<string> _sentences;       // 캡슐화된 대사 목록
     private float _speed;
 
     // 읽기 전용 프로퍼티
     public CharacterName CharacterName => _characterName;
-
-    public List<string> Sentences { get => _sentences;  }
-    public float Speed { get => _speed; }
+    public List<string> Sentences => _sentences;
+    public float Speed => _speed;
 
     /// <summary>
     /// 생성자
@@ -23,17 +22,23 @@ public class Dialogue : Element
         _sentences = lines;
         _speed = 1500 * speedMultiplier;
     }
+    public Dialogue(CharacterName characterName, string line, float speedMultiplier = 1f)
+    {
+        _characterName = characterName;
+        _sentences = new List<string>(){line};
+        _speed = 1500 * speedMultiplier;
+    }
 
     /// <summary>
     /// 즉시 스킵(완료) 로직 (필요하다면 추가 구현)
     /// </summary>
     public override void ExecuteInstantly()
     {
-        // 예: 즉시 표시, 페이드 스킵 등
+        DialogueService.SkipCurrentDialogue();
     }
 
     /// <summary>
-    /// 실제 재생은 DialogueController에 위임
+    /// 다이얼로그 실행 → DialogueService로 위임
     /// </summary>
     public override async UniTask ExecuteAsync()
     {
@@ -43,6 +48,6 @@ public class Dialogue : Element
             return;
         }
 
-        await UIManager.Instance.DialoguePlayer.PlayDialogue(this);
+        await DialogueService.ShowDialogue(this);
     }
 }

@@ -6,17 +6,16 @@ using DG.Tweening;
 
 public enum SAnimObjectType
 {
+    Unknown,
     TextMeshPro,
     Image,
     CanvasGroup,
     Transform,
-    Material,
-    Unknown
 }
 
 public class SAnimObject : MonoBehaviour
 {
-    [SerializeField] private SAnimObjectType? _objectType;
+    [SerializeField] private SAnimObjectType _objectType = SAnimObjectType.Unknown;
 
     private TextMeshProUGUI _textMeshPro;
     private Image _image;
@@ -39,11 +38,10 @@ public class SAnimObject : MonoBehaviour
         if (_textMeshPro != null) return SAnimObjectType.TextMeshPro;
         if (_image != null) return SAnimObjectType.Image;
         if (_canvasGroup != null) return SAnimObjectType.CanvasGroup;
-        if (_renderer != null) return SAnimObjectType.Material;
         return SAnimObjectType.Transform;
     }
 
-    public SAnimObjectType ObjectType => _objectType ?? DetermineObjectType();
+    public SAnimObjectType ObjectType => DetermineObjectType();
 
     public Color ObjectColor =>
         _textMeshPro != null ? _textMeshPro.color :
@@ -69,28 +67,38 @@ public class SAnimObject : MonoBehaviour
             return;
         }
 
-        Debug.Log($"{gameObject.name}에서 애니메이션 실행: 색상 {animData.targetColor}, 크기 {animData.targetScale}, 지속 시간 {animData.duration}");
+        Debug.Log($"{gameObject.name}에서 애니메이션 실행: 색상 {animData.targetColor}, 크기 {animData.targetLocalScale}, 지속 시간 {animData.duration}");
 
-        if (_textMeshPro != null)
+        switch (_objectType)
         {
-            _textMeshPro.DOColor(animData.targetColor, animData.duration).SetEase(animData.easeType);
-        }
-        else if (_image != null)
-        {
-            _image.DOColor(animData.targetColor, animData.duration).SetEase(animData.easeType);
-            _image.DOFillAmount(animData.targetFillAmount, animData.duration).SetEase(animData.easeType);
-        }
-        else if (_canvasGroup != null)
-        {
-            _canvasGroup.DOFade(animData.targetColor.a, animData.duration).SetEase(animData.easeType);
-        }
-        else if (_renderer != null && _renderer.material.HasProperty("_Color"))
-        {
-            _renderer.material.DOColor(animData.targetColor, animData.duration).SetEase(animData.easeType);
-        }
-        else
-        {
-            transform.DOScale(animData.targetScale, animData.duration).SetEase(animData.easeType);
+            case SAnimObjectType.TextMeshPro:
+                _textMeshPro.DOColor(animData.targetColor, animData.duration).SetEase(animData.easeType);
+                _textMeshPro.transform.DOScale(animData.targetLocalScale, animData.duration).SetEase(animData.easeType);
+                break;
+
+            case SAnimObjectType.Image:
+                _image.DOColor(animData.targetColor, animData.duration).SetEase(animData.easeType);
+                _image.transform.DOScale(animData.targetLocalScale, animData.duration).SetEase(animData.easeType);
+                if (_image.type == Image.Type.Filled)
+                {
+                    _image.DOFillAmount(animData.targetFillAmount, animData.duration).SetEase(animData.easeType);
+                }
+                break;
+
+            case SAnimObjectType.CanvasGroup:
+                _canvasGroup.DOFade(animData.targetColor.a, animData.duration).SetEase(animData.easeType);
+                _canvasGroup.transform.DOScale(animData.targetLocalScale, animData.duration).SetEase(animData.easeType);
+                break;
+
+            case SAnimObjectType.Transform:
+                transform.DOScale(animData.targetLocalScale, animData.duration).SetEase(animData.easeType);
+                transform.DOLocalMove(animData.targetLocalPosition, animData.duration).SetEase(animData.easeType);
+                transform.DOLocalRotateQuaternion(animData.targetLocalRotation, animData.duration).SetEase(animData.easeType);
+                break;
+
+            default:
+                Debug.LogWarning($"{gameObject.name}의 애니메이션을 실행할 수 없습니다.");
+                break;
         }
     }
 }

@@ -5,7 +5,9 @@ using DG.Tweening;
 public class SAnimData
 {
     public Color targetColor;
-    public Vector3 targetScale;
+    public Vector3 targetLocalScale;
+    public Vector3 targetLocalPosition;
+    public Quaternion targetLocalRotation;
     public float targetFillAmount;
     public float duration;
     public Ease easeType;
@@ -14,17 +16,17 @@ public class SAnimData
     public SAnimData()
     {
         targetColor = Color.white;
-        targetScale = Vector3.one * 1.15f;
+        targetLocalScale = Vector3.one * 1.15f;
         targetFillAmount = 1f;
         duration = 0.25f;
         easeType = Ease.OutQuad;
     }
 
     // 사용자 정의 생성자
-    public SAnimData(Color color, Vector3 scale, float fillAmount, float duration, Ease ease)
+    public SAnimData(Color color, Vector3 localScale, float fillAmount, float duration, Ease ease)
     {
         targetColor = color;
-        targetScale = scale;
+        targetLocalScale = localScale;
         targetFillAmount = fillAmount;
         this.duration = duration;
         easeType = ease;

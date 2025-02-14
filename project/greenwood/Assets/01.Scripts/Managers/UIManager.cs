@@ -1,6 +1,5 @@
 using UnityEngine;
 using Cysharp.Threading.Tasks;
-using System.Collections.Generic;
 
 public class UIManager : MonoBehaviour
 {
@@ -13,12 +12,17 @@ public class UIManager : MonoBehaviour
 
     [Header("UI Prefabs")]
     [SerializeField] private AskDialog _askDialogPrefab;
-    [SerializeField] private DialoguePlayer _dialoguePlayer;
+    [SerializeField] private ChoiceSetWindowDouble _choiceSetDoublePrefab;
+    [SerializeField] private ChoiceSetWindowMultiple _choiceWindowMultiplePrefab;
+    [SerializeField] private DialoguePlayer _dialoguePlayerPrefab;
 
     public Canvas GameCanvas => _gameCanvas;
     public Canvas UICanvas => _uiCanvas;
     public Canvas PopupCanvas => _popupCanvas;
-    public DialoguePlayer DialoguePlayer => _dialoguePlayer;
+    public DialoguePlayer DialoguePlayerPrefab => _dialoguePlayerPrefab;
+
+    public ChoiceSetWindowDouble ChoiceSetWindowDoublePrefab { get => _choiceSetDoublePrefab; }
+    public ChoiceSetWindowMultiple ChoiceSetWindowMultiplePrefab { get => _choiceWindowMultiplePrefab; }
 
     private void Awake()
     {
@@ -31,7 +35,6 @@ public class UIManager : MonoBehaviour
     public async UniTask<bool?> ShowAskDialog(string message, string yesText, string noText)
     {
         AskDialog askDialog = Instantiate(_askDialogPrefab, _popupCanvas.transform);
-        // 열리는 애니메이션 (예: scale, alpha 등)
         askDialog.gameObject.SetAnimActive(false, 0f);
         askDialog.gameObject.SetAnimActive(true, 0.2f);
 
