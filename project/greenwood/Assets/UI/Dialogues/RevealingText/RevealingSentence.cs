@@ -15,7 +15,7 @@ public class RevealingSentence : MonoBehaviour
     [SerializeField] private RectTransform _container;
 
     [Header("Layout Settings")]
-    [SerializeField] private float _wordSpacing = 10f;
+    [SerializeField] private float _wordSpacing = 20f;
     [SerializeField] private float _extraLineSpacing = 0f;
 
     private float _playSpeed = 5000f;
