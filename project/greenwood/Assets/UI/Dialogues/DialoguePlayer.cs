@@ -27,10 +27,9 @@ public class DialoguePlayer : MonoBehaviour
     /// <summary>
     /// 다이얼로그 초기화
     /// </summary>
-    public void Init(string ownerName, Color ownerTextColor, Color ownerBackgroundColor, List<string> sentences, List<string> importantWords, float speed)
+    public void Init(string ownerName, Color ownerTextColor, Color ownerBackgroundColor, List<string> sentences, float speed)
     {   
         _sentences = sentences;
-        _importantWords = importantWords;
         _initialSpeed = speed;
 
         _ownerText.SetText(ownerName);

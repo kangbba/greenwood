@@ -6,8 +6,11 @@ public class GameCanvas : MonoBehaviour
 
     [Header("🔹 UI 레이어")]
     [SerializeField] private Transform _characterLayer; 
+    [SerializeField] private Transform _placeLayer; 
 
     public Transform CharacterLayer => _characterLayer;
+
+    public Transform PlaceLayer { get => _placeLayer; }
 
     private void Awake()
     {

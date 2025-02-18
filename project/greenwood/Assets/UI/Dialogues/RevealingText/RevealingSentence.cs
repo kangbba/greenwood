@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using TMPro;
 using Cysharp.Threading.Tasks;
+using UnityEngine.UI;
 
 public class RevealingSentence : MonoBehaviour
 {
@@ -15,7 +16,7 @@ public class RevealingSentence : MonoBehaviour
     [SerializeField] private RectTransform _container;
 
     [Header("Layout Settings")]
-    [SerializeField] private float _wordSpacing = 20f;
+    [SerializeField] private float _punctuationOffset = 10f; 
     [SerializeField] private float _extraLineSpacing = 0f;
 
     private float _playSpeed = 5000f;
@@ -45,6 +46,15 @@ public class RevealingSentence : MonoBehaviour
     /// </summary>
     private readonly List<string> _punctuationToPause = new List<string> { "!", ".", "?", "..." };
 
+    // 캐시: 길이 내림차순으로 정렬된 문장부호 리스트
+    private List<string> _sortedPunctuationToPause;
+    
+    private void Awake()
+    {
+        // _punctuationToPause 리스트를 길이 내림차순으로 정렬한 새로운 리스트 생성
+        _sortedPunctuationToPause = _punctuationToPause.OrderByDescending(s => s.Length).ToList();
+    }
+
     // -------------------------
     // Public API
     // -------------------------
@@ -62,13 +72,13 @@ public class RevealingSentence : MonoBehaviour
     /// 긴 문장을 (문장 조각)으로 분리하여 미리 생성합니다.
     /// { 와 }는 제거된 채로 분리한 후, 후처리를 통해 복원합니다.
     /// </summary>
-    public void SetText(string dialogue)
+    public void SetText(string sentence)
     {
         ClearSentence();
 
         // 1. 원본 대화에서 중괄호 정보를 추출하고 모두 제거
-        Dictionary<int, string> bracePositions = ExtractBraces(dialogue);
-        string cleanDialogue = dialogue.Replace("{", "").Replace("}", "");
+        Dictionary<int, string> bracePositions = ExtractBraces(sentence);
+        string cleanDialogue = sentence.Replace("{", "").Replace("}", "");
 
         // 2. 깨끗한 텍스트를 기반으로 토큰 분리
         List<string> elements = SplitDialogue(cleanDialogue);
@@ -92,17 +102,23 @@ public class RevealingSentence : MonoBehaviour
                 continue;
             }
 
-            // 만약 토큰이 미리 정의한 문장부호라면, 이전 조각에 붙임
             if (_punctuationToPause.Contains(token))
             {
                 if (_activeWords.Count > 0)
                 {
                     RevealingWord prevChunk = _activeWords.Last();
                     prevChunk.AppendText(token);
+                    // 강제로 레이아웃 갱신하여 RectTransform 크기를 최신화합니다.
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(prevChunk.RectTransform);
                     _splitReasonDict[prevChunk] = SplitReason.EndsWithPunctuation;
+
+                    // 업데이트된 크기를 기반으로 currentXOffset 갱신 + _punctuationOffset 추가
+                    RectTransform prevTransform = prevChunk.RectTransform;
+                    currentXOffset = prevTransform.anchoredPosition.x + prevTransform.sizeDelta.x + _punctuationOffset;
                 }
                 else
                 {
+                    // 이전 조각이 없으면 새로 생성
                     RevealingWord wordInstance = Instantiate(_revealingWordPrefab, _container);
                     wordInstance.Init(token);
                     _splitReasonDict[wordInstance] = SplitReason.Normal;
@@ -114,51 +130,41 @@ public class RevealingSentence : MonoBehaviour
                     }
                     wordTransform.anchoredPosition = new Vector2(currentXOffset, currentYOffset);
                     _activeWords.Add(wordInstance);
-                    currentXOffset += wordTransform.sizeDelta.x + _wordSpacing;
+                    currentXOffset += wordTransform.sizeDelta.x;
                 }
                 continue;
             }
 
+
+
+
             // 일반 텍스트 토큰 처리 (필요 시 분할)
             while (!string.IsNullOrEmpty(token))
             {
-                RevealingWord tempWord = Instantiate(_revealingWordPrefab);
-                tempWord.Init(token);
-                float tokenWidth = tempWord.RectTransform.sizeDelta.x;
-                Destroy(tempWord.gameObject);
-
+                // 미리 단어의 폭을 확인하기 위해 임시 인스턴스 생성
+                float tokenWidth = GetTextWidth(token);
                 if (currentXOffset + tokenWidth <= containerWidth)
                 {
-                    RevealingWord wordInstance = Instantiate(_revealingWordPrefab, _container);
-                    wordInstance.Init(token);
+                    RevealingWord wordInstance = CreateWordChunk(token, ref currentXOffset, ref currentYOffset, containerWidth, baseLineHeight);
                     _splitReasonDict[wordInstance] = SplitReason.Normal;
-                    RectTransform wordTransform = wordInstance.RectTransform;
-                    if (currentXOffset + wordTransform.sizeDelta.x > containerWidth)
-                    {
-                        currentXOffset = 0f;
-                        currentYOffset -= baseLineHeight;
-                    }
-                    wordTransform.anchoredPosition = new Vector2(currentXOffset, currentYOffset);
-                    _activeWords.Add(wordInstance);
-                    currentXOffset += wordTransform.sizeDelta.x + _wordSpacing;
                     token = "";
                 }
                 else
                 {
+                    // 토큰이 container를 넘어가는 경우, 일부만 표시하고 나머지는 다음 줄에
                     string fitPart, remainder;
                     SplitTokenToFit(token, containerWidth - currentXOffset, out fitPart, out remainder);
                     if (!string.IsNullOrEmpty(fitPart))
                     {
-                        RevealingWord wordInstance = Instantiate(_revealingWordPrefab, _container);
-                        wordInstance.Init(fitPart);
+                        RevealingWord wordInstance = CreateWordChunk(fitPart, ref currentXOffset, ref currentYOffset, containerWidth, baseLineHeight);
                         _splitReasonDict[wordInstance] = SplitReason.EndsAtContainerMax;
-                        RectTransform wordTransform = wordInstance.RectTransform;
-                        wordTransform.anchoredPosition = new Vector2(currentXOffset, currentYOffset);
-                        _activeWords.Add(wordInstance);
-                        currentXOffset += wordTransform.sizeDelta.x + _wordSpacing;
                     }
-                    currentXOffset = 0f;
-                    currentYOffset -= baseLineHeight;
+                    else
+                    {
+                        // fitPart가 없으면 강제로 줄바꿈
+                        currentXOffset = 0f;
+                        currentYOffset -= baseLineHeight;
+                    }
                     token = remainder;
                 }
             }
@@ -173,17 +179,49 @@ public class RevealingSentence : MonoBehaviour
     }
 
     /// <summary>
+    /// 중복되는 단어 인스턴스 생성과 줄바꿈 오프셋 조정 로직을 분리
+    /// </summary>
+    private RevealingWord CreateWordChunk(string text, ref float currentXOffset, ref float currentYOffset, float containerWidth, float baseLineHeight)
+    {
+        RevealingWord wordInstance = Instantiate(_revealingWordPrefab, _container);
+        wordInstance.Init(text);
+        RectTransform wordTransform = wordInstance.RectTransform;
+        // 만약 현재 오프셋에 단어가 들어가지 않는다면 줄바꿈 처리
+        if (currentXOffset + wordTransform.sizeDelta.x > containerWidth)
+        {
+            currentXOffset = 0f;
+            currentYOffset -= baseLineHeight;
+        }
+        wordTransform.anchoredPosition = new Vector2(currentXOffset, currentYOffset);
+        _activeWords.Add(wordInstance);
+        currentXOffset += wordTransform.sizeDelta.x;
+        return wordInstance;
+    }
+
+    /// <summary>
+    /// 텍스트의 폭을 확인하기 위해 임시 인스턴스를 생성 후 계산
+    /// </summary>
+    private float GetTextWidth(string text)
+    {
+        RevealingWord tempWord = Instantiate(_revealingWordPrefab);
+        tempWord.Init(text);
+        float width = tempWord.RectTransform.sizeDelta.x;
+        Destroy(tempWord.gameObject);
+        return width;
+    }
+
+    /// <summary>
     /// 원본 문자열에서 {, }의 위치를 추출합니다.
     /// </summary>
-    private Dictionary<int, string> ExtractBraces(string dialogue)
+    private Dictionary<int, string> ExtractBraces(string sentence)
     {
         Dictionary<int, string> bracePositions = new Dictionary<int, string>();
         int offset = 0;
-        for (int i = 0; i < dialogue.Length; i++)
+        for (int i = 0; i < sentence.Length; i++)
         {
-            if (dialogue[i] == '{' || dialogue[i] == '}')
+            if (sentence[i] == '{' || sentence[i] == '}')
             {
-                bracePositions[i - offset] = dialogue[i].ToString();
+                bracePositions[i - offset] = sentence[i].ToString();
                 offset++;
             }
         }
@@ -260,15 +298,15 @@ public class RevealingSentence : MonoBehaviour
     /// <summary>
     /// 문자열을 분리하는 함수: 미리 정의한 문장부호 및 줄바꿈에서만 분리 (띄어쓰기는 유지)
     /// </summary>
-    private List<string> SplitDialogue(string dialogue)
+    private List<string> SplitDialogue(string sentence)
     {
         List<string> elements = new List<string>();
-        dialogue = dialogue.Replace("\r\n", "\n").Replace("\r", "\n");
+        sentence = sentence.Replace("\r\n", "\n").Replace("\r", "\n");
         int i = 0;
         string buffer = "";
-        while (i < dialogue.Length)
+        while (i < sentence.Length)
         {
-            if (dialogue[i] == '\n')
+            if (sentence[i] == '\n')
             {
                 if (!string.IsNullOrEmpty(buffer))
                 {
@@ -280,9 +318,9 @@ public class RevealingSentence : MonoBehaviour
                 continue;
             }
             bool matched = false;
-            foreach (string token in _punctuationToPause.OrderByDescending(t => t.Length))
+            foreach (string token in _sortedPunctuationToPause)
             {
-                if (i + token.Length <= dialogue.Length && dialogue.Substring(i, token.Length) == token)
+                if (i + token.Length <= sentence.Length && sentence.Substring(i, token.Length) == token)
                 {
                     if (!string.IsNullOrEmpty(buffer))
                     {
@@ -297,7 +335,7 @@ public class RevealingSentence : MonoBehaviour
             }
             if (matched)
                 continue;
-            buffer += dialogue[i];
+            buffer += sentence[i];
             i++;
         }
         if (!string.IsNullOrEmpty(buffer))
@@ -339,7 +377,7 @@ public class RevealingSentence : MonoBehaviour
                         currentChunk.TextMesh.text = currentText;
                     }
                     // 다음 조각에서 가장 가까운 '}'를 찾아, 만약 그 조각의 시작이 '{'가 아니라면,
-                    // 그 조각 앞에 '<color=#FFFF00>'를 추가하여 보완
+                    // 그 조각 앞에 '{'를 추가하여 보완합니다.
                     if (i + 1 < _activeWords.Count)
                     {
                         RevealingWord nextChunk = _activeWords[i + 1];
@@ -368,11 +406,11 @@ public class RevealingSentence : MonoBehaviour
             word.TextMesh.text = newText;
             if (_splitReasonDict.TryGetValue(word, out SplitReason reason))
             {
-                word.gameObject.name = $"Chunk: \"{newText}\" [{reason}]";
+                word.gameObject.name = $"[{reason}]";
             }
             else
             {
-                word.gameObject.name = $"Chunk: \"{newText}\" [Unknown]";
+                word.gameObject.name = $"[Unknown]";
             }
         }
     }

@@ -5,20 +5,28 @@ public class TestStory : Story
 {
     public override List<Element> UpdateElements { get; } = new List<Element>
     {
-        new CharacterEnter(ECharacterName.Kate, KateEmotionType.Concerned, KatePoseType.HandsBack, CharacterLocation.Center, 1f),
 
+        new PlaceMove(
+            "Bakery",
+            1f
+        ),
+        new CharacterEnter(ECharacterName.Kate, KateEmotionType.Concerned, KatePoseType.HandsBack, CharacterLocation.Center, 1f),
         new Dialogue(ECharacterName.Kate, 
             new List<string>
             {
                 "또 왔어? 바쁜 {예비 신랑님}이 {왜 이 시간}에 여기 앉아 있는 {거야}!",
                 "설마, {결혼 준비} 귀찮다고 {여기로 온 건} 아니지?",
-                "{선물}이라구, {선물}...",
-                "{선물}이라구, {선물}!",
-                "{선물}이라구, {선물}...?"
             }
         ),
+
+        new CharacterExit(ECharacterName.Kate),
+
+        new PlaceMove(
+            "Bakery2",
+            1f
+        ),
         
-        new EmotionChange(ECharacterName.Kate, KateEmotionType.Shy, KatePoseType.ArmCrossed),
+        new CharacterEnter(ECharacterName.Kate, KateEmotionType.Shy, KatePoseType.ArmCrossed, CharacterLocation.Center, 1f),
 
         new Dialogue(ECharacterName.Kate, 
             new List<string>
