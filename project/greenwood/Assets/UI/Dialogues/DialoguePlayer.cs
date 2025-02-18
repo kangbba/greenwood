@@ -56,7 +56,7 @@ public class DialoguePlayer : MonoBehaviour
             _revealingSentence.ClearSentence();
             _revealingSentence.SetPlaySpeed(_currentSpeed);
             _revealingSentence.SetPunctuationStop(true);
-            _revealingSentence.SetText(sentence, _importantWords);
+            _revealingSentence.SetText(sentence);
 
             // PlaySentence() 실행 시 개별 상황에 대한 async 메서드 전달
             await _revealingSentence.PlaySentence(

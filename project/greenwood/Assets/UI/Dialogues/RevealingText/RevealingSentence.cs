@@ -1,10 +1,10 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using TMPro;
 using Cysharp.Threading.Tasks;
-using System.Text.RegularExpressions;
-using System;
-using System.Linq;
 
 public class RevealingSentence : MonoBehaviour
 {
@@ -16,206 +16,390 @@ public class RevealingSentence : MonoBehaviour
 
     [Header("Layout Settings")]
     [SerializeField] private float _wordSpacing = 10f;
-    [SerializeField] private float _extraLineSpacing = 0f; 
+    [SerializeField] private float _extraLineSpacing = 0f;
 
-    private float _playSpeed = 5000;
-
-    /// <summary>
-    /// 구두점(문장부호) 뒤에 대기할 것인지 여부
-    /// </summary>
+    private float _playSpeed = 5000f;
     private bool _usePunctuationStop = false;
 
     /// <summary>
-    /// 각 단어(RevealingWord)가 구두점인지 여부를 매핑
+    /// 각 조각(RevealingWord)이 분리된 이유를 매핑
     /// </summary>
-    private Dictionary<RevealingWord, bool> _punctuationDict = new Dictionary<RevealingWord, bool>();
+    private Dictionary<RevealingWord, SplitReason> _splitReasonDict = new Dictionary<RevealingWord, SplitReason>();
 
     private List<RevealingWord> _activeWords = new List<RevealingWord>();
-
     private RevealingWord _lastWord;
-
-    public RevealingWord LastWord { get => _lastWord; }
-
+    public RevealingWord LastWord => _lastWord;
 
     /// <summary>
-    /// 문장부호 뒤 대기를 켜거나 끄는 함수
+    /// 분리 이유 열거형
     /// </summary>
+    public enum SplitReason
+    {
+        Normal,
+        EndsWithPunctuation,
+        EndsAtContainerMax
+    }
+
+    /// <summary>
+    /// 미리 정의한 분리 기준 문장부호 목록 (쉼표 제외)
+    /// </summary>
+    private readonly List<string> _punctuationToPause = new List<string> { "!", ".", "?", "..." };
+
+    // -------------------------
+    // Public API
+    // -------------------------
     public void SetPunctuationStop(bool value)
     {
         _usePunctuationStop = value;
     }
 
-    /// <summary>
-    /// 재생 속도 설정
-    /// </summary>
     public void SetPlaySpeed(float speed)
     {
         _playSpeed = speed;
     }
 
     /// <summary>
-    /// 긴 문장을 (단어+문장부호)로 분리하여 미리 생성
-    /// highlightWords에 포함된 단어는 노란색
+    /// 긴 문장을 (문장 조각)으로 분리하여 미리 생성합니다.
+    /// { 와 }는 제거된 채로 분리한 후, 후처리를 통해 복원합니다.
     /// </summary>
-    public void SetText(string dialogue, List<string> highlightWords = null)
+    public void SetText(string dialogue)
     {
         ClearSentence();
 
-        List<string> elements = SplitDialogue(dialogue);
+        // 1. 원본 대화에서 중괄호 정보를 추출하고 모두 제거
+        Dictionary<int, string> bracePositions = ExtractBraces(dialogue);
+        string cleanDialogue = dialogue.Replace("{", "").Replace("}", "");
+
+        // 2. 깨끗한 텍스트를 기반으로 토큰 분리
+        List<string> elements = SplitDialogue(cleanDialogue);
+
         float currentXOffset = 0f;
         float currentYOffset = 0f;
         float containerWidth = _container.rect.width;
-
-        // 기본 줄 높이 = (프리팹 높이 + 추가 라인 스페이싱)
         float baseLineHeight = _revealingWordPrefab.GetComponent<RectTransform>().sizeDelta.y + _extraLineSpacing;
 
         for (int i = 0; i < elements.Count; i++)
         {
-            string element = elements[i];
-            if (string.IsNullOrEmpty(element)) 
+            string token = elements[i];
+            if (string.IsNullOrEmpty(token))
                 continue;
 
-            // 프리팹 인스턴스화
-            RevealingWord wordInstance = Instantiate(_revealingWordPrefab, _container);
-
-            // highlightWords에 포함되면 노란색 표시
-            bool shouldHighlight = highlightWords != null && highlightWords.Contains(element);
-            if (shouldHighlight)
-            {
-                wordInstance.Init($"<color=#FFFF00>{element}</color>");
-            }
-            else
-            {
-                wordInstance.Init(element);
-            }
-
-            bool isPunctuation = IsPunctuation(element);
-            _punctuationDict[wordInstance] = isPunctuation;
-
-            RectTransform wordTransform = wordInstance.RectTransform;
-
-            // 컨테이너 폭 초과 시 줄바꿈
-            if (currentXOffset + wordTransform.sizeDelta.x > containerWidth)
+            // 줄바꿈 토큰: 새 줄로 처리
+            if (token == "\n")
             {
                 currentXOffset = 0f;
                 currentYOffset -= baseLineHeight;
+                continue;
             }
 
-            // 위치 지정
-            wordTransform.anchoredPosition = new Vector2(currentXOffset, currentYOffset);
-            _activeWords.Add(wordInstance);
-
-            // 단어 + 문장부호가 붙어 있을 경우, 간격 0
-            float spacingToAdd = _wordSpacing;
-            if (!isPunctuation && i + 1 < elements.Count && IsPunctuation(elements[i + 1]))
+            // 만약 토큰이 미리 정의한 문장부호라면, 이전 조각에 붙임
+            if (_punctuationToPause.Contains(token))
             {
-                spacingToAdd = 0f;
+                if (_activeWords.Count > 0)
+                {
+                    RevealingWord prevChunk = _activeWords.Last();
+                    prevChunk.AppendText(token);
+                    _splitReasonDict[prevChunk] = SplitReason.EndsWithPunctuation;
+                }
+                else
+                {
+                    RevealingWord wordInstance = Instantiate(_revealingWordPrefab, _container);
+                    wordInstance.Init(token);
+                    _splitReasonDict[wordInstance] = SplitReason.Normal;
+                    RectTransform wordTransform = wordInstance.RectTransform;
+                    if (currentXOffset + wordTransform.sizeDelta.x > containerWidth)
+                    {
+                        currentXOffset = 0f;
+                        currentYOffset -= baseLineHeight;
+                    }
+                    wordTransform.anchoredPosition = new Vector2(currentXOffset, currentYOffset);
+                    _activeWords.Add(wordInstance);
+                    currentXOffset += wordTransform.sizeDelta.x + _wordSpacing;
+                }
+                continue;
             }
 
-            currentXOffset += wordTransform.sizeDelta.x + spacingToAdd;
+            // 일반 텍스트 토큰 처리 (필요 시 분할)
+            while (!string.IsNullOrEmpty(token))
+            {
+                RevealingWord tempWord = Instantiate(_revealingWordPrefab);
+                tempWord.Init(token);
+                float tokenWidth = tempWord.RectTransform.sizeDelta.x;
+                Destroy(tempWord.gameObject);
+
+                if (currentXOffset + tokenWidth <= containerWidth)
+                {
+                    RevealingWord wordInstance = Instantiate(_revealingWordPrefab, _container);
+                    wordInstance.Init(token);
+                    _splitReasonDict[wordInstance] = SplitReason.Normal;
+                    RectTransform wordTransform = wordInstance.RectTransform;
+                    if (currentXOffset + wordTransform.sizeDelta.x > containerWidth)
+                    {
+                        currentXOffset = 0f;
+                        currentYOffset -= baseLineHeight;
+                    }
+                    wordTransform.anchoredPosition = new Vector2(currentXOffset, currentYOffset);
+                    _activeWords.Add(wordInstance);
+                    currentXOffset += wordTransform.sizeDelta.x + _wordSpacing;
+                    token = "";
+                }
+                else
+                {
+                    string fitPart, remainder;
+                    SplitTokenToFit(token, containerWidth - currentXOffset, out fitPart, out remainder);
+                    if (!string.IsNullOrEmpty(fitPart))
+                    {
+                        RevealingWord wordInstance = Instantiate(_revealingWordPrefab, _container);
+                        wordInstance.Init(fitPart);
+                        _splitReasonDict[wordInstance] = SplitReason.EndsAtContainerMax;
+                        RectTransform wordTransform = wordInstance.RectTransform;
+                        wordTransform.anchoredPosition = new Vector2(currentXOffset, currentYOffset);
+                        _activeWords.Add(wordInstance);
+                        currentXOffset += wordTransform.sizeDelta.x + _wordSpacing;
+                    }
+                    currentXOffset = 0f;
+                    currentYOffset -= baseLineHeight;
+                    token = remainder;
+                }
+            }
+        }
+
+        // 3. 복원: 원본 중괄호 위치에 따라 {} 부활
+        RestoreBraces(bracePositions);
+        // 4. 후처리: EndsAtContainerMax 조각에 대해 색상 태그 경계 보정
+        PostProcessColorTags();
+        // 5. 최종: 모든 조각에서 {와 }를 색상 태그로 대체
+        ReplaceColorTagsInWords();
+    }
+
+    /// <summary>
+    /// 원본 문자열에서 {, }의 위치를 추출합니다.
+    /// </summary>
+    private Dictionary<int, string> ExtractBraces(string dialogue)
+    {
+        Dictionary<int, string> bracePositions = new Dictionary<int, string>();
+        int offset = 0;
+        for (int i = 0; i < dialogue.Length; i++)
+        {
+            if (dialogue[i] == '{' || dialogue[i] == '}')
+            {
+                bracePositions[i - offset] = dialogue[i].ToString();
+                offset++;
+            }
+        }
+        return bracePositions;
+    }
+
+    /// <summary>
+    /// 저장된 중괄호 정보를 사용하여, 분리된 조각들에 {}를 복원합니다.
+    /// </summary>
+    private void RestoreBraces(Dictionary<int, string> bracePositions)
+    {
+        int globalIndex = 0;
+        foreach (var word in _activeWords)
+        {
+            string currentText = word.TextMesh.text;
+            string restoredText = "";
+            for (int i = 0; i < currentText.Length; i++)
+            {
+                if (bracePositions.ContainsKey(globalIndex))
+                    restoredText += bracePositions[globalIndex];
+                restoredText += currentText[i];
+                globalIndex++;
+            }
+            word.TextMesh.text = restoredText;
         }
     }
 
+    /// <summary>
+    /// 주어진 너비에 맞게 토큰을 분할합니다.
+    /// </summary>
+    private void SplitTokenToFit(string token, float availableWidth, out string fitPart, out string remainder)
+    {
+        fitPart = "";
+        remainder = "";
+        RevealingWord tempWord = Instantiate(_revealingWordPrefab);
+        for (int i = 1; i <= token.Length; i++)
+        {
+            string substring = token.Substring(0, i);
+            tempWord.Init(substring);
+            float width = tempWord.RectTransform.sizeDelta.x;
+            if (width > availableWidth)
+            {
+                fitPart = token.Substring(0, i - 1);
+                remainder = token.Substring(i - 1);
+                Destroy(tempWord.gameObject);
+                return;
+            }
+        }
+        fitPart = token;
+        remainder = "";
+        Destroy(tempWord.gameObject);
+    }
+
+    /// <summary>
+    /// 모든 조각을 즉시 완성합니다.
+    /// </summary>
+    public void CompleteAllInstantly()
+    {
+        foreach (var word in _activeWords)
+            word.CompleteInstantly();
+    }
+
+    /// <summary>
+    /// 현재 문장(조각들)을 클리어합니다.
+    /// </summary>
+    public void ClearSentence()
+    {
+        foreach (var w in _activeWords)
+            Destroy(w.gameObject);
+        _activeWords.Clear();
+        _splitReasonDict.Clear();
+    }
+
+    /// <summary>
+    /// 문자열을 분리하는 함수: 미리 정의한 문장부호 및 줄바꿈에서만 분리 (띄어쓰기는 유지)
+    /// </summary>
+    private List<string> SplitDialogue(string dialogue)
+    {
+        List<string> elements = new List<string>();
+        dialogue = dialogue.Replace("\r\n", "\n").Replace("\r", "\n");
+        int i = 0;
+        string buffer = "";
+        while (i < dialogue.Length)
+        {
+            if (dialogue[i] == '\n')
+            {
+                if (!string.IsNullOrEmpty(buffer))
+                {
+                    elements.Add(buffer);
+                    buffer = "";
+                }
+                elements.Add("\n");
+                i++;
+                continue;
+            }
+            bool matched = false;
+            foreach (string token in _punctuationToPause.OrderByDescending(t => t.Length))
+            {
+                if (i + token.Length <= dialogue.Length && dialogue.Substring(i, token.Length) == token)
+                {
+                    if (!string.IsNullOrEmpty(buffer))
+                    {
+                        elements.Add(buffer);
+                        buffer = "";
+                    }
+                    elements.Add(token);
+                    i += token.Length;
+                    matched = true;
+                    break;
+                }
+            }
+            if (matched)
+                continue;
+            buffer += dialogue[i];
+            i++;
+        }
+        if (!string.IsNullOrEmpty(buffer))
+            elements.Add(buffer);
+        return elements;
+    }
+
+    /// <summary>
+    /// 미리 정의한 문장부호인지 확인 ("..." 포함)
+    /// </summary>
+    private bool IsPunctuation(string word)
+    {
+        return _punctuationToPause.Contains(word);
+    }
+
+    /// <summary>
+    /// 후처리: EndsAtContainerMax 분리 조각에 대해,
+    /// 만약 해당 조각의 텍스트에서 '{'의 개수가 '}'의 개수보다 많으면,
+    /// 바로 다음 조각에서 가장 가까운 '}'를 찾아 현재 조각의 끝에 '</color>'를 추가하고,
+    /// 다음 조각의 시작에 '<color=#FFFF00>'를 추가하여 보완합니다.
+    /// </summary>
+    private void PostProcessColorTags()
+    {
+        for (int i = 0; i < _activeWords.Count; i++)
+        {
+            RevealingWord currentChunk = _activeWords[i];
+            if (_splitReasonDict.TryGetValue(currentChunk, out SplitReason reason) &&
+                reason == SplitReason.EndsAtContainerMax)
+            {
+                string currentText = currentChunk.TextMesh.text;
+                int openCount = currentText.Count(c => c == '{');
+                int closeCount = currentText.Count(c => c == '}');
+                if (openCount > closeCount)
+                {
+                    // 현재 조각에 닫는 괄호가 없다면 보완
+                    if (!currentText.EndsWith("}"))
+                    {
+                        currentText += "}";
+                        currentChunk.TextMesh.text = currentText;
+                    }
+                    // 다음 조각에서 가장 가까운 '}'를 찾아, 만약 그 조각의 시작이 '{'가 아니라면,
+                    // 그 조각 앞에 '<color=#FFFF00>'를 추가하여 보완
+                    if (i + 1 < _activeWords.Count)
+                    {
+                        RevealingWord nextChunk = _activeWords[i + 1];
+                        string nextText = nextChunk.TextMesh.text;
+                        if (!nextText.StartsWith("{"))
+                        {
+                            nextText = "{" + nextText;
+                            nextChunk.TextMesh.text = nextText;
+                        }
+                        Debug.LogWarning($"후처리: 조각 {i}에서 열린 괄호 보완 - 현재: \"{currentText}\", 다음: \"{nextText}\"");
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 모든 활성 조각의 텍스트에서 '{'를 '<color=#FFFF00>'로, '}'를 '</color>'로 대체합니다.
+    /// </summary>
+    private void ReplaceColorTagsInWords()
+    {
+        foreach (var word in _activeWords)
+        {
+            string originalText = word.TextMesh.text;
+            string newText = originalText.Replace("{", "<color=#FFFF00>").Replace("}", "</color>");
+            word.TextMesh.text = newText;
+            if (_splitReasonDict.TryGetValue(word, out SplitReason reason))
+            {
+                word.gameObject.name = $"Chunk: \"{newText}\" [{reason}]";
+            }
+            else
+            {
+                word.gameObject.name = $"Chunk: \"{newText}\" [Unknown]";
+            }
+        }
+    }
+
+    /// <summary>
+    /// 문장을 재생하는 비동기 메서드 (외부 콜백은 그대로 유지)
+    /// </summary>
     public async UniTask PlaySentence(Func<UniTask> OnStart = null, Func<UniTask> OnPunctuationPause = null, Func<UniTask> OnPunctuationResume = null, Func<UniTask> OnComplete = null)
     {
-        // 시작 시 OnStart 실행 (필수 아님)
         if (OnStart != null) await OnStart();
 
-        // 인덱스를 사용하여 마지막 단어인지 확인
         for (int i = 0; i < _activeWords.Count; i++)
         {
             var word = _activeWords[i];
-
             await word.Play(_playSpeed);
-            
             _lastWord = word;
-                
-            // 마지막 단어가 아니라면 구두점 멈춤 로직 적용
+
             if (i < _activeWords.Count - 1)
             {
-                if (_usePunctuationStop && _punctuationDict.TryGetValue(word, out bool isPunc) && isPunc)
+                if (_usePunctuationStop && _splitReasonDict.TryGetValue(word, out SplitReason reason) && (reason == SplitReason.EndsWithPunctuation))
                 {
-                    // 외부에서 전달된 대기 로직 실행 (필수 아님)
                     if (OnPunctuationPause != null) await OnPunctuationPause();
                     if (OnPunctuationResume != null) await OnPunctuationResume();
                 }
             }
         }
 
-        // 모든 단어가 완료된 후 OnComplete 실행 (필수 아님)
         if (OnComplete != null) await OnComplete();
     }
-        
-
-
-
-
-    /// <summary>
-    /// 모든 단어를 즉시 완성 (전체 문장을 바로 표시)
-    /// </summary>
-    public void CompleteAllInstantly()
-    {
-        foreach (var word in _activeWords)
-        {
-            word.CompleteInstantly();
-        }
-    }
-
-    /// <summary>
-    /// 현재 문장(단어들) 클리어
-    /// </summary>
-    public void ClearSentence()
-    {
-        foreach (var w in _activeWords)
-        {
-            Destroy(w.gameObject);
-        }
-        _activeWords.Clear();
-        _punctuationDict.Clear();
-    }
-    /// <summary>
-    /// 문자열을 단어와 문장부호로 분리 (쉼표는 단어에 포함)
-    /// </summary>
-    private List<string> SplitDialogue(string dialogue)
-    {
-        List<string> elements = new List<string>();
-
-        // "단어+문장부호" 매치 (쉼표 포함, ...은 별도로 인식)
-        MatchCollection matches = Regex.Matches(dialogue, @"(\.{3}|[\w가-힣,]+[.!?]*)");
-        foreach (Match match in matches)
-        {
-            string value = match.Value;
-            if (string.IsNullOrEmpty(value)) 
-                continue;
-
-            // 끝에 문장부호가 붙어있으면 분리 (쉼표는 제외)
-            Match punctuationMatch = Regex.Match(value, @"(\.{3}|[.!?]+)$");
-            if (punctuationMatch.Success)
-            {
-                int punctIndex = punctuationMatch.Index;
-                string wordPart = value.Substring(0, punctIndex);
-                string punctuationPart = value.Substring(punctIndex);
-
-                if (!string.IsNullOrEmpty(wordPart))
-                    elements.Add(wordPart); // 쉼표 포함된 단어 유지
-
-                elements.Add(punctuationPart); // "..."도 문장부호로 추가
-            }
-            else
-            {
-                elements.Add(value); // 쉼표가 있어도 단어로 취급
-            }
-        }
-
-        return elements;
-    }
-
-    /// <summary>
-    /// 해당 단어가 문장부호인지 확인 ("..." 포함)
-    /// </summary>
-    private bool IsPunctuation(string word)
-    {
-        return Regex.IsMatch(word, @"^(\.{3}|[.!?]+)$");
-    }
-
 }

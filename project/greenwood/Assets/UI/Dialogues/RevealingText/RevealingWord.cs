@@ -8,9 +8,7 @@ public class RevealingWord : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _textMesh; // 미리 설정된 TextMeshProUGUI
     private RectMask2D _mask;
-
     private RectTransform _maskTransform;
-
     private float _remainingPadding;
     private bool _isPaused;
     private bool _isPlaying;
@@ -35,9 +33,7 @@ public class RevealingWord : MonoBehaviour
             return;
         }
 
-        // 텍스트 설정
         _textMesh.text = text;
-        // 텍스트 크기 기반으로 마스크 크기 조정
         AdjustMaskAndTextSize();
     }
 
@@ -50,9 +46,24 @@ public class RevealingWord : MonoBehaviour
         _maskTransform.sizeDelta = new Vector2(textWidth, _maskTransform.sizeDelta.y);
         _textMesh.rectTransform.sizeDelta = new Vector2(textWidth, _maskTransform.sizeDelta.y);
 
-        // 처음엔 오른쪽 패딩을 textWidth로 줘서 전부 가린 상태로 시작
+        // 초기에는 오른쪽 패딩을 textWidth로 줘서 텍스트를 모두 숨김
         _mask.padding = new Vector4(0, 0, textWidth, 0);
         _remainingPadding = textWidth;
+    }
+
+    /// <summary>
+    /// 기존 텍스트에 추가 텍스트를 붙이고, 마스크 크기를 갱신하는 함수
+    /// </summary>
+    public void AppendText(string extraText)
+    {
+        // 기존 텍스트에 extraText 이어붙임
+        _textMesh.text += extraText;
+        // 전체 너비 재계산 및 마스크, RectTransform 업데이트
+        float newWidth = _textMesh.preferredWidth;
+        _maskTransform.sizeDelta = new Vector2(newWidth, _maskTransform.sizeDelta.y);
+        _textMesh.rectTransform.sizeDelta = new Vector2(newWidth, _maskTransform.sizeDelta.y);
+        _mask.padding = new Vector4(0, 0, newWidth, 0);
+        _remainingPadding = newWidth;
     }
 
     /// <summary>
@@ -74,7 +85,6 @@ public class RevealingWord : MonoBehaviour
 
             _remainingPadding = Mathf.Max(0, _remainingPadding - (speed * Time.deltaTime));
             _mask.padding = new Vector4(0, 0, _remainingPadding, 0);
-
             await UniTask.Yield();
         }
 
@@ -85,18 +95,12 @@ public class RevealingWord : MonoBehaviour
     /// <summary>
     /// 애니메이션 일시 정지
     /// </summary>
-    public void Pause()
-    {
-        _isPaused = true;
-    }
+    public void Pause() => _isPaused = true;
 
     /// <summary>
     /// 애니메이션 다시 시작
     /// </summary>
-    public void Resume()
-    {
-        _isPaused = false;
-    }
+    public void Resume() => _isPaused = false;
 
     /// <summary>
     /// 즉시 모든 텍스트 표시

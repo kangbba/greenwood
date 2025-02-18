@@ -23,7 +23,7 @@ public class TestStory : Story
         new Dialogue(ECharacterName.Kate, 
             new List<string>
             {
-                "...아니, 뭐. 네가 여기 오는 게 나쁘다는 건 아니야. 다만 신부님이 알까봐...",
+                "...아니, 뭐. 네가 여기 오는 게 나쁘다는 건 아니야. 다만 {신부님이 알까봐}...",
             }
         ),
 
