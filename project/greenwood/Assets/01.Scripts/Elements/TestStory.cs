@@ -10,8 +10,11 @@ public class TestStory : Story
         new Dialogue(ECharacterName.Kate, 
             new List<string>
             {
-                "또 왔어? 바쁜 예비 신랑님이 왜 이 시간에 여기 앉아 있는 거야?",
-                "설마, 결혼 준비가 귀찮다고 여기로 온 건 아니지?",
+                "또 왔어? 바쁜 {예비 신랑님}이 {왜 이 시간}에 여기 앉아 있는 {거야}!",
+                "설마, {결혼 준비} 귀찮다고 {여기로 온 건} 아니지?",
+                "{선물}이라구, {선물}...",
+                "{선물}이라구, {선물}!",
+                "{선물}이라구, {선물}...?"
             }
         ),
         
@@ -29,8 +32,8 @@ public class TestStory : Story
         new Dialogue(ECharacterName.Kate, 
             new List<string>
             {
-                "근데 말이야... 네가 나한테 오면 올수록, 나도 헷갈린단 말이지?",
-                "이게 그냥 오래된 습관인지, 아니면..."
+                "근데 말이야... 네가 나한테 오면 올수록, {나도 헷갈린단 말이지?}",
+                "이게 그냥 오래된 {습관}인지, 아니면..."
             }
         ),
 
@@ -39,7 +42,7 @@ public class TestStory : Story
         new Dialogue(ECharacterName.Kate, 
             new List<string>
             {
-                "뭐, 됐어! 고민은 네가 하고, 나는 주문이나 받을래.",
+                "뭐, {됐어}! 고민은 네가 하고, 나는 주문이나 받을래.",
                 "근데 말이야... 오늘은 커피 말고, 다른 걸로 해볼래? 같은 거만 반복하면 재미없잖아?"
             }
         ),

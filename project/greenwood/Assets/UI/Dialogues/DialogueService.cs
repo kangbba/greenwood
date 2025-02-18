@@ -22,7 +22,7 @@ public static class DialogueService
         Color ownerTextColor = characterSetting.CharacterColor;
         Color ownerBackgroundColor = Color.Lerp(Color.black, ownerTextColor, .1f);
 
-        _dialoguePlayer.Init(displayName, ownerTextColor, ownerBackgroundColor, dialogue.Sentences, dialogue.Speed);
+        _dialoguePlayer.Init(displayName, ownerTextColor, ownerBackgroundColor, dialogue.Sentences, dialogue.ImportantWords, dialogue.Speed);
         await _dialoguePlayer.PlayDialogue(
             OnStart : ()=> {
                 character.PlayMouthWithCurrentEmotion(true);

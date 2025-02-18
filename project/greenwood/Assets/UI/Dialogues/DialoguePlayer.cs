@@ -19,26 +19,34 @@ public class DialoguePlayer : MonoBehaviour
     private bool _isOn;
 
     private List<string> _sentences;
-    private float _speed;
+    private List<string> _importantWords;
+    private float _currentSpeed;
+    private float _initialSpeed;
+    private bool _isSkipping;
 
     /// <summary>
     /// 다이얼로그 초기화
     /// </summary>
-    public void Init(string ownerName, Color ownerTextColor, Color ownerBackgroundColor, List<string> sentences, float speed)
+    public void Init(string ownerName, Color ownerTextColor, Color ownerBackgroundColor, List<string> sentences, List<string> importantWords, float speed)
     {   
         _sentences = sentences;
-        _speed = speed;
+        _importantWords = importantWords;
+        _initialSpeed = speed;
 
         _ownerText.SetText(ownerName);
         _ownerText.color = ownerTextColor;
         _ownerBackground.color = ownerBackgroundColor;
-
+        
+        ChangeSpeed(_initialSpeed);
         SetAnim(false, 0f);  // 초기 상태 숨김
+    }
+
+    private void ChangeSpeed(float speed){
+        _currentSpeed = speed;
     }
 
     public async UniTask PlayDialogue(Action OnStart, Action OnPunctuationPause, Action OnPunctuationResume, Action OnComplete)
     {
-        
         SetAnim(true, .3f);
         await UniTask.WaitForSeconds(.3f);
 
@@ -46,9 +54,9 @@ public class DialoguePlayer : MonoBehaviour
         {
             string sentence = _sentences[i];
             _revealingSentence.ClearSentence();
-            _revealingSentence.SetPlaySpeed(_speed);
+            _revealingSentence.SetPlaySpeed(_currentSpeed);
             _revealingSentence.SetPunctuationStop(true);
-            _revealingSentence.SetText(sentence);
+            _revealingSentence.SetText(sentence, _importantWords);
 
             // PlaySentence() 실행 시 개별 상황에 대한 async 메서드 전달
             await _revealingSentence.PlaySentence(
@@ -63,8 +71,10 @@ public class DialoguePlayer : MonoBehaviour
                     Debug.Log("[OnPunctuationPause]");
                     OnPunctuationPause?.Invoke();
 
-                    SpawnArrow(90);
-                    await UniTask.WaitUntil(() => Input.GetMouseButtonDown(0));
+                    if(!_isSkipping){
+                        SpawnArrow(90);
+                        await UniTask.WaitUntil(() => Input.GetMouseButtonDown(0));
+                    }
                 },
                 OnPunctuationResume: async () =>
                 {
@@ -86,6 +96,18 @@ public class DialoguePlayer : MonoBehaviour
         SetAnim(false, .3f);
         await UniTask.WaitForSeconds(.3f);
         _revealingSentence.ClearSentence();
+    }
+
+    private void Update()
+    {
+        if(Input.GetKey(KeyCode.LeftControl | KeyCode.RightControl | KeyCode.LeftCommand | KeyCode.RightCommand)){
+            _isSkipping = true;
+            ChangeSpeed(_initialSpeed * 5);
+        }
+        else{
+            _isSkipping = false;
+            ChangeSpeed(_initialSpeed);
+        }
     }
 
     private void SetAnim(bool b, float duration)
