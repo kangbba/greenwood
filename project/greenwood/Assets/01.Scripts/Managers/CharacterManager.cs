@@ -10,7 +10,8 @@ using System.Collections.Generic;
         Exited,
         Angry,
         YeahRight,
-        Concerned
+        Concerned,
+        Shy
     }
 
     /// <summary>
@@ -178,5 +179,19 @@ public class CharacterManager : MonoBehaviour
         _activeCharacters[characterName] = newCharacter;
         Debug.Log($"CharacterManager: `{characterName}` 캐릭터 활성화 완료.");
         return newCharacter;
+    }
+
+    /// <summary>
+    /// 특정 캐릭터를 페이드 아웃 후 제거
+    /// </summary>
+    public void FadeOutAndDestroyCharacter(ECharacterName characterName, float duration)
+    {
+        if (!_activeCharacters.TryGetValue(characterName, out Character character))
+        {
+            Debug.LogWarning($"CharacterManager: `{characterName}` 캐릭터가 활성화되지 않아 제거할 수 없습니다.");
+            return;
+        }
+        character.gameObject.SetAnimDestroy(duration); // 페이드 아웃 애니메이션 적용
+        _activeCharacters.Remove(characterName);
     }
 }

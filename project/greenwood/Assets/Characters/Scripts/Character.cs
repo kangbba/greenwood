@@ -28,7 +28,6 @@ public class Character : MonoBehaviour
         gameObject.SetAnim(false, 0f);
         SetEmotion(initialEmotionID, 0f);
         SetPose(initialPoseID, 0f);
-        PlayEyesWithCurrentEmotion(true);
         gameObject.SetAnim(true, duration);
     }
 
@@ -48,11 +47,6 @@ public class Character : MonoBehaviour
     public void PlayMouthWithCurrentEmotion(bool b)
     {
         _emotionHandler?.PlayMouthWithCurrentEmotion(b);
-    }
-    // 원하는 경우, Character가 직접 pass-through 메서드 제공
-    public void PlayEyesWithCurrentEmotion(bool b)
-    {
-        _emotionHandler?.PlayEyesWithCurrentEmotion(b);
     }
 
 }

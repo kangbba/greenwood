@@ -15,7 +15,7 @@ public class TestStory : Story
             }
         ),
         
-        new EmotionChange(ECharacterName.Kate, KateEmotionType.Happy, KatePoseType.ArmCrossed),
+        new EmotionChange(ECharacterName.Kate, KateEmotionType.Shy, KatePoseType.ArmCrossed),
 
         new Dialogue(ECharacterName.Kate, 
             new List<string>
@@ -43,5 +43,7 @@ public class TestStory : Story
                 "근데 말이야... 오늘은 커피 말고, 다른 걸로 해볼래? 같은 거만 반복하면 재미없잖아?"
             }
         ),
+
+         new CharacterExit(ECharacterName.Kate),
     };
 }

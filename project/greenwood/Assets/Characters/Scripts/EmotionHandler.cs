@@ -2,9 +2,12 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine.UI;
+using DG.Tweening;
 
 public class EmotionHandler : MonoBehaviour
 {
+
     [FoldoutGroup("🎭 Emotion List")]
     [SerializeField, ListDrawerSettings(ShowFoldout = true)]
     private List<Emotion> _emotions = new();
@@ -26,8 +29,30 @@ public class EmotionHandler : MonoBehaviour
     private void OnValueChangedCurrentEmotion()
     {
         FetchEmotions();
-        SetEmotion(_previewEmotionType.ToString(), 0f);
-        
+        string emotionID = _previewEmotionType.ToString();
+        if (string.IsNullOrEmpty(emotionID))
+        {
+            Debug.LogWarning("[EmotionHandler] 감정 ID가 null 또는 빈 값입니다.");
+            return;
+        }
+
+        Emotion newEmotion = GetEmotion(emotionID);
+        if (newEmotion == null)
+        {
+            Debug.LogWarning($"[EmotionHandler] 감정 `{emotionID}`이(가) 존재하지 않습니다.");
+            return;
+        }
+        if (_currentEmotionID == emotionID)
+        {
+            Debug.LogWarning("[EmotionHandler] 이미 동일한 감정이 적용 중입니다.");
+            return;
+        }
+
+        _currentEmotionID = emotionID;
+
+        foreach (var emo in _emotions)
+            emo.gameObject.SetAnimActive(emo == newEmotion, 0f);
+
 #if UNITY_EDITOR
         EditorApplication.delayCall += () =>
         {
@@ -44,8 +69,9 @@ public class EmotionHandler : MonoBehaviour
 
     public void SetEmotion(string emotionID, float duration)
     {
-        if(emotionID == null){
-            Debug.LogWarning("emotionID null");
+        if (string.IsNullOrEmpty(emotionID))
+        {
+            Debug.LogWarning("[EmotionHandler] 감정 ID가 null 또는 빈 값입니다.");
             return;
         }
 
@@ -55,8 +81,9 @@ public class EmotionHandler : MonoBehaviour
             Debug.LogWarning($"[EmotionHandler] 감정 `{emotionID}`이(가) 존재하지 않습니다.");
             return;
         }
-        if(_currentEmotionID == emotionID){
-            Debug.LogWarning("emotionID already same");
+        if (_currentEmotionID == emotionID)
+        {
+            Debug.LogWarning("[EmotionHandler] 이미 동일한 감정이 적용 중입니다.");
             return;
         }
 
@@ -65,6 +92,7 @@ public class EmotionHandler : MonoBehaviour
         foreach (var emo in _emotions)
             emo.gameObject.SetAnimActive(emo == newEmotion, duration);
 
+        newEmotion.Init();
         Debug.Log($"[EmotionHandler] 감정 변경: `{_currentEmotionID}`");
     }
 
@@ -78,12 +106,5 @@ public class EmotionHandler : MonoBehaviour
         Emotion currentEmotion = GetEmotion(_currentEmotionID);
         if (currentEmotion != null) 
             currentEmotion.PlayMouth(b);
-    }
-
-    public void PlayEyesWithCurrentEmotion(bool b)
-    {
-        Emotion currentEmotion = GetEmotion(_currentEmotionID);
-        if (currentEmotion != null) 
-            currentEmotion.PlayEyes(b);
     }
 }

@@ -8,11 +8,9 @@ public class Eyes : MonoBehaviour
 {
     [SerializeField] private bool _useAnimation = true; // 애니메이션 사용 여부
 
-    [ShowIf("_useAnimation")]
-    [SerializeField] private Vector2 closedDurationRange = new Vector2(0.5f, 1.0f);
+    private Vector2 closedDurationRange = new Vector2(0.1f, 0.2f);
 
-    [ShowIf("_useAnimation")]
-    [SerializeField] private Vector2 openedDurationRange = new Vector2(1.5f, 2.5f);
+    private Vector2 openedDurationRange = new Vector2(3f, 5f);
 
     [ShowIf("_useAnimation")]
     [SerializeField] private GameObject _closedObj;
@@ -23,16 +21,12 @@ public class Eyes : MonoBehaviour
     private CancellationTokenSource _cts;
     private bool _isEyesOpened = true; // 눈 뜬 상태에서 시작
 
-    private void Awake()
-    {
-        SetOpen(true); // 눈을 뜬 상태로 시작 보장
-    }
-
     /// <summary>
     /// 눈 감기/뜨기 상태 전환
     /// </summary>
     private void Toggle()
     {
+        if (!_useAnimation) return; // 애니메이션을 사용하지 않으면 실행 안 함
         SetOpen(!_isEyesOpened);
     }
 
@@ -41,22 +35,25 @@ public class Eyes : MonoBehaviour
     /// </summary>
     private void SetOpen(bool isOpen)
     {
+        if (!_useAnimation) return; // 애니메이션을 사용하지 않으면 실행 안 함
         _isEyesOpened = isOpen;
 
         if (!_useAnimation) return; // 애니메이션을 사용하지 않으면 바로 종료
 
-        _closedObj?.SetActive(!isOpen);
-        _openedObj?.SetActive(isOpen);
+        if(_closedObj != null)
+        {
+            _closedObj.SetActive(!isOpen);
+        }
+        if(_openedObj != null)
+        {
+            _openedObj.SetActive(isOpen);
+        }
     }
 
-    /// <summary>
-    /// 일정 주기로 눈 감았다 뜨는 동작을 반복 (Toggle 사용)
-    /// </summary>
-    public async UniTaskVoid Play()
+   public async UniTaskVoid Play()
     {
         if (!_useAnimation) return; // 애니메이션을 사용하지 않으면 실행 안 함
 
-        SetOpen(true); // 눈을 뜬 상태에서 시작 보장
 
         _cts = new CancellationTokenSource();
         var token = _cts.Token;
@@ -65,16 +62,21 @@ public class Eyes : MonoBehaviour
         {
             while (!token.IsCancellationRequested)
             {
-                Toggle();
-                float delay = _isEyesOpened
-                    ? UnityEngine.Random.Range(openedDurationRange.x, openedDurationRange.y)
-                    : UnityEngine.Random.Range(closedDurationRange.x, closedDurationRange.y);
-
-                await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: token);
+                if (_isEyesOpened)
+                {
+                    SetOpen(false); // 눈 감기
+                    await UniTask.Delay(TimeSpan.FromSeconds(UnityEngine.Random.Range(closedDurationRange.x, closedDurationRange.y)), cancellationToken: token);
+                }
+                else
+                {
+                    SetOpen(true); // 눈 뜨기
+                    await UniTask.Delay(TimeSpan.FromSeconds(UnityEngine.Random.Range(openedDurationRange.x, openedDurationRange.y)), cancellationToken: token);
+                }
             }
         }
         catch (OperationCanceledException)
         {
+            // 예외 처리 (필요 시 추가 가능)
         }
     }
 
@@ -83,6 +85,7 @@ public class Eyes : MonoBehaviour
     /// </summary>
     public void Stop()
     {
+        if (!_useAnimation) return; // 애니메이션을 사용하지 않으면 실행 안 함
         if (_cts != null)
         {
             _cts.Cancel();

@@ -1,9 +1,11 @@
 using System;
 using UnityEngine;
 using static Character;
+using Sirenix.OdinInspector;
 
 public class Emotion : MonoBehaviour
 {
+    [EnumPaging, OnValueChanged(nameof(OnValueChangedCurrentEmotion))]
     [SerializeField] private KateEmotionType _emotionType; // Inspector에서 직접 설정
     public KateEmotionType EmotionType => _emotionType;
 
@@ -11,22 +13,52 @@ public class Emotion : MonoBehaviour
     [SerializeField] private Mouth _mouth;
     [SerializeField] private Cheek _cheek;
 
-    public void PlayMouth(bool b){
-        if(b){
+    private void Awake()
+    {
+        OnValueChangedCurrentEmotion(); // 초기 실행 시 GameObject 이름 동기화
+    }
+
+    public void Init()
+    {
+        PlayMouth(false);
+        PlayEyes(true);
+
+        if (_cheek != null)
+        {
+            _cheek.SetFlush(false, 0f);
+            _cheek.SetFlush(true, 2f);
+        }
+    }
+
+    public void PlayMouth(bool isActive)
+    {
+        if (isActive)
+        {
             _mouth.Play().Forget();
         }
-        else{
+        else
+        {
             _mouth.Stop();
         }
     }
 
-    public void PlayEyes(bool b){
-        if(b){
+    private void PlayEyes(bool isActive)
+    {
+        if (isActive)
+        {
             _eyes.Play().Forget();
         }
-        else{
+        else
+        {
             _eyes.Stop();
         }
     }
 
+    /// <summary>
+    /// Inspector에서 EmotionType 변경 시 GameObject 이름 자동 변경
+    /// </summary>
+    private void OnValueChangedCurrentEmotion()
+    {
+        gameObject.name = $"{_emotionType}";
+    }
 }

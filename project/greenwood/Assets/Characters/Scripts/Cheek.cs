@@ -1,26 +1,47 @@
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using Sirenix.OdinInspector;
+using UnityEngine.UI;
+using DG.Tweening;
 
 public class Cheek : MonoBehaviour
 {
-    [SerializeField] private GameObject _cheekObj;
+    [SerializeField] private Image _cheekImg; // 볼터치 효과 이미지
+
+    private bool _isFlushActive = false; // 현재 Flush 상태
 
     /// <summary>
-    /// 뺨(볼터치 등)을 활성화
+    /// 뺨(볼터치 등) 활성화 (Alpha 조절)
     /// </summary>
-    public async UniTaskVoid Play()
+    public void SetFlush(bool isActive, float duration)
     {
-        _cheekObj.SetActive(true);
-        await UniTask.Delay(2000);
-        // 예시로 일정 시간 후 자동으로 꺼지고 싶다면 이렇게 (선택 사항)
-        // Stop();
+        if (_cheekImg == null)
+        {
+            Debug.LogWarning("[Cheek] _cheekImg가 할당되지 않았습니다.");
+            return;
+        }
+
+        float targetAlpha = isActive ? 0.6f : 0f; // 볼터치 활성화 시 0.6, 비활성화 시 0
+        if (duration <= 0f)
+        {
+            Color instantColor = _cheekImg.color;
+            instantColor.a = targetAlpha;
+            _cheekImg.color = instantColor; // 즉시 적용
+        }
+        else
+        {
+            _cheekImg.DOFade(targetAlpha, duration); // Tween으로 부드러운 변화
+        }
     }
 
     /// <summary>
-    /// 뺨(볼터치 등) 비활성화
+    /// Sirenix Odin Inspector 버튼을 활용한 Flush 효과 토글
     /// </summary>
-    public void Stop()
+    [Button("🔄 Toggle Flush")]
+    private void ToggleFlush()
     {
-        _cheekObj.SetActive(false);
+        _isFlushActive = !_isFlushActive;
+        SetFlush(_isFlushActive, 0f);
+        Debug.Log($"[Cheek] Flush 상태 변경: {_isFlushActive}");
     }
 }

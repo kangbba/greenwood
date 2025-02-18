@@ -8,11 +8,9 @@ public class Mouth : MonoBehaviour
 {
     [SerializeField] private bool _useAnimation = true; // 애니메이션 사용 여부
 
-    [ShowIf("_useAnimation")]
-    [SerializeField] private Vector2 closedDurationRange = new Vector2(0.5f, 1.0f);
+    private Vector2 closedDurationRange = new Vector2(0.2f, 0.4f);
 
-    [ShowIf("_useAnimation")]
-    [SerializeField] private Vector2 openedDurationRange = new Vector2(1.5f, 2.5f);
+    private Vector2 openedDurationRange = new Vector2(0.2f, 0.4f);
 
     [ShowIf("_useAnimation")]
     [SerializeField] private GameObject _closedObj;
@@ -23,16 +21,13 @@ public class Mouth : MonoBehaviour
     private CancellationTokenSource _cts;
     private bool _isMouthOpened = false; // 입 닫힌 상태에서 시작
 
-    private void Awake()
-    {
-        SetOpen(false); // 입을 닫은 상태로 시작 보장
-    }
 
     /// <summary>
     /// 입 열기/닫기 상태 전환
     /// </summary>
     private void Toggle()
     {
+        if (!_useAnimation) return; // 애니메이션을 사용하지 않으면 실행 안 함
         SetOpen(!_isMouthOpened);
     }
 
@@ -45,18 +40,22 @@ public class Mouth : MonoBehaviour
 
         if (!_useAnimation) return; // 애니메이션을 사용하지 않으면 바로 종료
 
-        _closedObj?.SetActive(!isOpen);
-        _openedObj?.SetActive(isOpen);
+        if(_closedObj != null){
+           _closedObj.SetActive(!isOpen);
+        }
+        if(_openedObj != null){
+           _openedObj.SetActive(isOpen);
+        }
     }
 
-    /// <summary>
-    /// 일정 주기로 입을 닫았다 열었다 반복 (Toggle 사용)
+   /// <summary>
+    /// 일정 주기로 입을 닫았다 열었다 반복
     /// </summary>
     public async UniTaskVoid Play()
     {
         if (!_useAnimation) return; // 애니메이션을 사용하지 않으면 실행 안 함
 
-        SetOpen(true); // 입을 연 상태에서 시작 보장
+        SetOpen(false);
 
         _cts = new CancellationTokenSource();
         var token = _cts.Token;
@@ -65,24 +64,32 @@ public class Mouth : MonoBehaviour
         {
             while (!token.IsCancellationRequested)
             {
-                Toggle();
-                float delay = _isMouthOpened
-                    ? UnityEngine.Random.Range(openedDurationRange.x, openedDurationRange.y)
-                    : UnityEngine.Random.Range(closedDurationRange.x, closedDurationRange.y);
-
-                await UniTask.Delay(TimeSpan.FromSeconds(delay), cancellationToken: token);
+                if (_isMouthOpened)
+                {
+                    SetOpen(false); // 입 닫기
+                    await UniTask.Delay(TimeSpan.FromSeconds(UnityEngine.Random.Range(closedDurationRange.x, closedDurationRange.y)), cancellationToken: token);
+                }
+                else
+                {
+                    SetOpen(true); // 입 열기
+                    await UniTask.Delay(TimeSpan.FromSeconds(UnityEngine.Random.Range(openedDurationRange.x, openedDurationRange.y)), cancellationToken: token);
+                }
             }
         }
         catch (OperationCanceledException)
         {
+            // 예외 처리 (필요 시 추가 가능)
         }
     }
+
 
     /// <summary>
     /// 입 동작 중단 후 기본 상태 유지 (입 닫힌 상태 보장)
     /// </summary>
     public void Stop()
     {
+        if (!_useAnimation) return; // 애니메이션을 사용하지 않으면 실행 안 함
+
         if (_cts != null)
         {
             _cts.Cancel();
