@@ -6,9 +6,9 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance;
 
     [Header("Canvas References")]
-    [SerializeField] private Canvas _gameCanvas;   
-    [SerializeField] private Canvas _uiCanvas;   
-    [SerializeField] private Canvas _popupCanvas;   
+    [SerializeField] private GameCanvas _gameCanvas;   
+    [SerializeField] private UICanvas _uiCanvas;   
+    [SerializeField] private PopupCanvas _popupCanvas;   
 
     [Header("UI Prefabs")]
     [SerializeField] private AskDialog _askDialogPrefab;
@@ -16,9 +16,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private ChoiceSetWindowMultiple _choiceWindowMultiplePrefab;
     [SerializeField] private DialoguePlayer _dialoguePlayerPrefab;
 
-    public Canvas GameCanvas => _gameCanvas;
-    public Canvas UICanvas => _uiCanvas;
-    public Canvas PopupCanvas => _popupCanvas;
+    public GameCanvas GameCanvas => _gameCanvas;
+    public UICanvas UICanvas => _uiCanvas;
+    public PopupCanvas PopupCanvas => _popupCanvas;
     public DialoguePlayer DialoguePlayerPrefab => _dialoguePlayerPrefab;
 
     public ChoiceSetWindowDouble ChoiceSetWindowDoublePrefab { get => _choiceSetDoublePrefab; }

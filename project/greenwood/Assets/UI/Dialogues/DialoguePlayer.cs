@@ -3,12 +3,14 @@ using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using System;
 using TMPro;
+using UnityEngine.UI;
 
 public class DialoguePlayer : MonoBehaviour
 {
     [Header("Arrow Prefab")]
     [SerializeField] private DialogueArrow _arrowPrefab;
-    [SerializeField] private TextMeshProUGUI _characterText;
+    [SerializeField] private TextMeshProUGUI _ownerText;
+    [SerializeField] private Image _ownerBackground;
     private DialogueArrow _activeArrow; // 현재 활성화된 화살표 인스턴스 저장
 
     [Header("Revealing Sentence")]
@@ -16,27 +18,27 @@ public class DialoguePlayer : MonoBehaviour
     [SerializeField] private Transform _parent;
     private bool _isOn;
 
-    private CharacterSetting _characterSetting;
     private List<string> _sentences;
     private float _speed;
 
     /// <summary>
     /// 다이얼로그 초기화
     /// </summary>
-    public void Init(CharacterName characterName, List<string> sentences, float speed)
-    {
-        _characterSetting = CharacterManager.Instance.GetCharacterSetting(characterName);
+    public void Init(string ownerName, Color ownerTextColor, Color ownerBackgroundColor, List<string> sentences, float speed)
+    {   
         _sentences = sentences;
         _speed = speed;
 
-        _characterText.SetText(_characterSetting.DisplayName);
-        _characterText.color = _characterSetting.CharacterColor;
+        _ownerText.SetText(ownerName);
+        _ownerText.color = ownerTextColor;
+        _ownerBackground.color = ownerBackgroundColor;
 
         SetAnim(false, 0f);  // 초기 상태 숨김
     }
 
-    public async UniTask PlayDialogue()
+    public async UniTask PlayDialogue(Action OnStart, Action OnPunctuationPause, Action OnPunctuationResume, Action OnComplete)
     {
+        
         SetAnim(true, .3f);
         await UniTask.WaitForSeconds(.3f);
 
@@ -53,18 +55,28 @@ public class DialoguePlayer : MonoBehaviour
                 OnStart: async () =>
                 {
                     Debug.Log("[대기] 시작에서 화살표 파괴");
+                    OnStart?.Invoke();
                     await UniTask.Yield();
                 },
-                OnPunctuationMet: async () =>
+                OnPunctuationPause: async () =>
                 {
-                    Debug.Log("[대기] 구두점에서 마우스 입력을 기다림...");
+                    Debug.Log("[OnPunctuationPause]");
+                    OnPunctuationPause?.Invoke();
+
                     SpawnArrow(90);
                     await UniTask.WaitUntil(() => Input.GetMouseButtonDown(0));
+                },
+                OnPunctuationResume: async () =>
+                {
+                    Debug.Log("[OnPunctuationResume]");
+                    OnPunctuationResume?.Invoke();
                     DestroyArrow();
+                    await UniTask.Yield();
                 },
                 OnComplete: async () =>
                 {
                     Debug.Log("[대기] 마지막 문장에서 마우스 입력을 기다림...");
+                    OnComplete?.Invoke();
                     SpawnArrow(0);
                     await UniTask.WaitUntil(() => Input.GetMouseButtonDown(0));
                     DestroyArrow();
@@ -91,7 +103,7 @@ public class DialoguePlayer : MonoBehaviour
     {
         DestroyArrow();
         _activeArrow = Instantiate(_arrowPrefab, transform);
-        _activeArrow.transform.position = _revealingSentence.LastWord.transform.position + Vector3.right * 105f - Vector3.one * 30f + Vector3.down * 7;
+        _activeArrow.transform.position = _revealingSentence.LastWord.transform.position + Vector3.right * (105f + _revealingSentence.LastWord.RectTransform.sizeDelta.x) - Vector3.one * 30f + Vector3.down * 7;
         _activeArrow.transform.localRotation = Quaternion.Euler(0, 0, degreeZ);
         _activeArrow.Initialize();
     }

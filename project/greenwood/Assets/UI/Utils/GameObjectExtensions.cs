@@ -6,6 +6,7 @@ public static class GameObjectExtensions
     /// <summary>
     /// GameObject의 활성화/비활성화 애니메이션 (Alpha Fade In/Out 후 SetActive 적용)
     /// </summary>
+    /// 
     public static void SetAnim(this GameObject obj, bool isActive, float duration)
     {
         if (obj == null) return;
@@ -76,6 +77,10 @@ public static class GameObjectExtensions
         }
     }
 
+    public static void SetAnimTrueFromFalse(this GameObject obj, float duration){
+        obj.SetAnim(false, 0f);
+        obj.SetAnim(true, duration);
+    }
     /// <summary>
     /// GameObject의 페이드 아웃 후 파괴 애니메이션
     /// </summary>

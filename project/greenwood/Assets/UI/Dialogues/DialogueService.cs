@@ -14,10 +14,29 @@ public static class DialogueService
         {
             _dialoguePlayer = Object.Instantiate(UIManager.Instance.DialoguePlayerPrefab, UIManager.Instance.PopupCanvas.transform);
         }
+        
+        Character character = CharacterManager.Instance.GetActiveCharacter(dialogue.CharacterName);
+        CharacterSetting characterSetting = CharacterManager.Instance.GetCharacterSetting(dialogue.CharacterName);
+       
+        string displayName = characterSetting.DisplayName;
+        Color ownerTextColor = characterSetting.CharacterColor;
+        Color ownerBackgroundColor = Color.Lerp(Color.black, ownerTextColor, .1f);
 
-        // 🔥 Init을 통해 초기화 후 실행
-        _dialoguePlayer.Init(dialogue.CharacterName, dialogue.Sentences, dialogue.Speed);
-        await _dialoguePlayer.PlayDialogue();
+        _dialoguePlayer.Init(displayName, ownerTextColor, ownerBackgroundColor, dialogue.Sentences, dialogue.Speed);
+        await _dialoguePlayer.PlayDialogue(
+            OnStart : ()=> {
+                character.PlayMouthWithCurrentEmotion(true);
+            }, 
+            OnPunctuationPause : ()=> {
+                character.PlayMouthWithCurrentEmotion(false);
+            }, 
+            OnPunctuationResume : ()=> {
+                character.PlayMouthWithCurrentEmotion(true);
+            }, 
+            OnComplete : ()=>{
+                character.PlayMouthWithCurrentEmotion(false);
+            }
+        );
     }
 
     /// <summary>

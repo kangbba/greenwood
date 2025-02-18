@@ -116,7 +116,7 @@ public class RevealingSentence : MonoBehaviour
         }
     }
 
-    public async UniTask PlaySentence(Func<UniTask> OnStart = null, Func<UniTask> OnComplete = null, Func<UniTask> OnPunctuationMet = null)
+    public async UniTask PlaySentence(Func<UniTask> OnStart = null, Func<UniTask> OnPunctuationPause = null, Func<UniTask> OnPunctuationResume = null, Func<UniTask> OnComplete = null)
     {
         // 시작 시 OnStart 실행 (필수 아님)
         if (OnStart != null) await OnStart();
@@ -136,7 +136,8 @@ public class RevealingSentence : MonoBehaviour
                 if (_usePunctuationStop && _punctuationDict.TryGetValue(word, out bool isPunc) && isPunc)
                 {
                     // 외부에서 전달된 대기 로직 실행 (필수 아님)
-                    if (OnPunctuationMet != null) await OnPunctuationMet();
+                    if (OnPunctuationPause != null) await OnPunctuationPause();
+                    if (OnPunctuationResume != null) await OnPunctuationResume();
                 }
             }
         }
@@ -172,25 +173,23 @@ public class RevealingSentence : MonoBehaviour
         _activeWords.Clear();
         _punctuationDict.Clear();
     }
-
     /// <summary>
-    /// 문자열을 단어와 문장부호로 분리
-    /// ex) "안녕하세요." -> "안녕하세요", "."
+    /// 문자열을 단어와 문장부호로 분리 (쉼표는 단어에 포함)
     /// </summary>
     private List<string> SplitDialogue(string dialogue)
     {
         List<string> elements = new List<string>();
 
-        // "단어+옵션으로 문장부호" 매치
-        MatchCollection matches = Regex.Matches(dialogue, @"[\w가-힣]+[.,!?]*");
+        // "단어+문장부호" 매치 (쉼표 포함, ...은 별도로 인식)
+        MatchCollection matches = Regex.Matches(dialogue, @"(\.{3}|[\w가-힣,]+[.!?]*)");
         foreach (Match match in matches)
         {
             string value = match.Value;
             if (string.IsNullOrEmpty(value)) 
                 continue;
 
-            // 끝에 문장부호가 붙어있으면 분리
-            Match punctuationMatch = Regex.Match(value, @"[.,!?]+$");
+            // 끝에 문장부호가 붙어있으면 분리 (쉼표는 제외)
+            Match punctuationMatch = Regex.Match(value, @"(\.{3}|[.!?]+)$");
             if (punctuationMatch.Success)
             {
                 int punctIndex = punctuationMatch.Index;
@@ -198,22 +197,25 @@ public class RevealingSentence : MonoBehaviour
                 string punctuationPart = value.Substring(punctIndex);
 
                 if (!string.IsNullOrEmpty(wordPart))
-                    elements.Add(wordPart);
+                    elements.Add(wordPart); // 쉼표 포함된 단어 유지
 
-                // "?!", "..." 등도 그대로 하나의 요소로 처리
-                elements.Add(punctuationPart);
+                elements.Add(punctuationPart); // "..."도 문장부호로 추가
             }
             else
             {
-                elements.Add(value);
+                elements.Add(value); // 쉼표가 있어도 단어로 취급
             }
         }
 
         return elements;
     }
 
+    /// <summary>
+    /// 해당 단어가 문장부호인지 확인 ("..." 포함)
+    /// </summary>
     private bool IsPunctuation(string word)
     {
-        return Regex.IsMatch(word, @"^[.,!?]+$");
+        return Regex.IsMatch(word, @"^(\.{3}|[.!?]+)$");
     }
+
 }
