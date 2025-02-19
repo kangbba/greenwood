@@ -429,6 +429,52 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!1 &344949051
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 344949053}
+  - component: {fileID: 344949052}
+  m_Layer: 0
+  m_Name: PlaceGroupManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &344949052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 344949051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb555f24a82394c20b2bcb2a279b2f86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _placeGroupPrefabs:
+  - {fileID: 78968724359221092, guid: cb79ffb67ae264292b54f118e830f589, type: 3}
+--- !u!4 &344949053
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 344949051}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 33.431267, y: 2.8755069, z: -1.740101}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -579,6 +625,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d7f86adc1475401794a9f5fd53067ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  placePrefabs:
+  - {fileID: 7932703611288423483, guid: 02ed09961d3e1412dbbff8f5a4042886, type: 3}
 --- !u!4 &507125572
 Transform:
   m_ObjectHideFlags: 0
@@ -762,8 +810,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3e3ec0fce6574993996c9a296f4e072, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _characterLayer: {fileID: 63035175}
+  _placeGroupLayer: {fileID: 0}
   _placeLayer: {fileID: 2118177940}
+  _characterLayer: {fileID: 63035175}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -1347,6 +1396,7 @@ SceneRoots:
   - {fileID: 14984542}
   - {fileID: 1559227}
   - {fileID: 507125572}
+  - {fileID: 344949053}
   - {fileID: 927204245}
   - {fileID: 786213421}
   - {fileID: 1305747832}

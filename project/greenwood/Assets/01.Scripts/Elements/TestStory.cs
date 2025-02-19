@@ -6,10 +6,6 @@ public class TestStory : Story
     public override List<Element> UpdateElements { get; } = new List<Element>
     {
 
-        new PlaceMove(
-            "Bakery",
-            1f
-        ),
         new CharacterEnter(ECharacterName.Kate, KateEmotionType.Concerned, KatePoseType.HandsBack, CharacterLocation.Center, 1f),
         new Dialogue(ECharacterName.Kate, 
             new List<string>
@@ -20,11 +16,6 @@ public class TestStory : Story
         ),
 
         new CharacterExit(ECharacterName.Kate),
-
-        new PlaceMove(
-            "Bakery2",
-            1f
-        ),
         
         new CharacterEnter(ECharacterName.Kate, KateEmotionType.Shy, KatePoseType.ArmCrossed, CharacterLocation.Center, 1f),
 
