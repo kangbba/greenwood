@@ -14,6 +14,7 @@ public enum KateEmotionType
     Shy
 }
 
+
 /// <summary>
 /// 포즈 상태 Enum
 /// </summary>

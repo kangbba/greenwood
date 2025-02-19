@@ -215,6 +215,7 @@ MonoBehaviour:
   _bigPlaceName: 0
   _smallPlaceSpawnParent: {fileID: 3725101324849184839}
   _exitButton: {fileID: 9089888630033962934}
+  _btnsParent: {fileID: 7706469002937810195}
   _smallPlaceButtons:
   - smallPlaceName: 0
     button: {fileID: 1513543246036836298}

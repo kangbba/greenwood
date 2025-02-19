@@ -25,16 +25,16 @@ public static class DialogueService
         _dialoguePlayer.Init(displayName, ownerTextColor, ownerBackgroundColor, dialogue.Sentences, dialogue.Speed);
         await _dialoguePlayer.PlayDialogue(
             OnStart : ()=> {
-                character.PlayMouthWithCurrentEmotion(true);
+                character?.PlayMouthWithCurrentEmotion(true);
             }, 
             OnPunctuationPause : ()=> {
-                character.PlayMouthWithCurrentEmotion(false);
+                character?.PlayMouthWithCurrentEmotion(false);
             }, 
             OnPunctuationResume : ()=> {
-                character.PlayMouthWithCurrentEmotion(true);
+                character?.PlayMouthWithCurrentEmotion(true);
             }, 
             OnComplete : ()=>{
-                character.PlayMouthWithCurrentEmotion(false);
+                character?.PlayMouthWithCurrentEmotion(false);
             }
         );
     }
