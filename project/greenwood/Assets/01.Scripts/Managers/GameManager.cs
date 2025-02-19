@@ -22,6 +22,6 @@ public class GameManager : MonoBehaviour
         Debug.Log("🏠 Initializing Game...");
         
         // 최초 PlaceGroup 설정 (Town)
-        PlaceGroupManager.Instance.CreatePlaceGroup(EPlaceGroupName.Town);
+        BigPlaceManager.Instance.CreateBigPlace(EBigPlaceName.Town);
     }
 }

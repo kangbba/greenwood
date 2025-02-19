@@ -5,11 +5,11 @@ public class GameCanvas : MonoBehaviour
     public static GameCanvas Instance { get; private set; }
 
     [Header("🔹 UI 레이어")]
-    [SerializeField] private Transform _placeGroupLayer; 
+    [SerializeField] private Transform _bigPlaceLayer; 
     [SerializeField] private Transform _characterLayer; 
 
 
-    public Transform PlaceGroupLayer { get => _placeGroupLayer; }
+    public Transform BigPlaceLayer { get => _bigPlaceLayer; }
     public Transform CharacterLayer => _characterLayer;
 
 
