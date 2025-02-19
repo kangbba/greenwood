@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 2056627784010274263}
   - component: {fileID: 7828044757181088314}
   - component: {fileID: 1513543246036836298}
+  - component: {fileID: 4918292152701994131}
+  - component: {fileID: 8762057169219089652}
   m_Layer: 5
   m_Name: Button (2)
   m_TagString: Untagged
@@ -120,6 +122,54 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4918292152701994131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 221885578483136716}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b865ca3c097f14fe9997b82dbc85cc07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animPlans:
+  - _sAnimObject: {fileID: 8762057169219089652}
+    _situationPlans:
+    - situationType: 0
+      _useAsAwakeStatus: 0
+      animation:
+        targetColor: {r: 1, g: 1, b: 1, a: 1}
+        targetLocalScale: {x: 1.15, y: 1.15, z: 1.15}
+        targetLocalPosition: {x: 0, y: 0, z: 0}
+        targetLocalRotation: {x: 0, y: 0, z: 0, w: 0}
+        targetFillAmount: 1
+        duration: 0.25
+        easeType: 6
+    - situationType: 1
+      _useAsAwakeStatus: 1
+      animation:
+        targetColor: {r: 1, g: 1, b: 1, a: 1}
+        targetLocalScale: {x: 1.15, y: 1.15, z: 1.15}
+        targetLocalPosition: {x: 0, y: 0, z: 0}
+        targetLocalRotation: {x: 0, y: 0, z: 0, w: 0}
+        targetFillAmount: 1
+        duration: 0.25
+        easeType: 6
+--- !u!114 &8762057169219089652
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 221885578483136716}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b91fc5b05cd034c8c9396a980458e0f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _objectType: 0
 --- !u!1 &363480168818567810
 GameObject:
   m_ObjectHideFlags: 0
@@ -627,6 +677,8 @@ GameObject:
   - component: {fileID: 7088217692994755028}
   - component: {fileID: 6946159362594557920}
   - component: {fileID: 9089888630033962934}
+  - component: {fileID: 1759674569123193330}
+  - component: {fileID: 2359738806621939504}
   m_Layer: 5
   m_Name: Exit
   m_TagString: Untagged
@@ -650,7 +702,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 787, y: 11}
+  m_AnchoredPosition: {x: 787, y: 21}
   m_SizeDelta: {x: 256, y: 256}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7088217692994755028
@@ -681,7 +733,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 03480d06552752648a2b5fb515d7c52e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 663a79f194b91454aa36d58ffb23feb0, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -735,6 +787,54 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1759674569123193330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6278233382896271287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b865ca3c097f14fe9997b82dbc85cc07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animPlans:
+  - _sAnimObject: {fileID: 2359738806621939504}
+    _situationPlans:
+    - situationType: 0
+      _useAsAwakeStatus: 0
+      animation:
+        targetColor: {r: 1, g: 1, b: 1, a: 1}
+        targetLocalScale: {x: 1.15, y: 1.15, z: 1.15}
+        targetLocalPosition: {x: 0, y: 0, z: 0}
+        targetLocalRotation: {x: 0, y: 0, z: 0, w: 0}
+        targetFillAmount: 1
+        duration: 0.25
+        easeType: 6
+    - situationType: 1
+      _useAsAwakeStatus: 1
+      animation:
+        targetColor: {r: 1, g: 1, b: 1, a: 1}
+        targetLocalScale: {x: 1.15, y: 1.15, z: 1.15}
+        targetLocalPosition: {x: 0, y: 0, z: 0}
+        targetLocalRotation: {x: 0, y: 0, z: 0, w: 0}
+        targetFillAmount: 1
+        duration: 0.25
+        easeType: 6
+--- !u!114 &2359738806621939504
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6278233382896271287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b91fc5b05cd034c8c9396a980458e0f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _objectType: 0
 --- !u!1 &7402560226674634670
 GameObject:
   m_ObjectHideFlags: 0
