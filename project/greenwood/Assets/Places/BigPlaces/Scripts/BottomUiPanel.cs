@@ -53,7 +53,6 @@ public class BottomUiPanel : MonoBehaviour
     /// </summary>
     private void AddButton(BottomUiButtonType buttonType, System.Action onClickAction)
     {
-        Debug.Log($"[BottomUiPanel] Adding Button: {buttonType}");
 
         if (_activeButtons.ContainsKey(buttonType)) return; // ✅ 중복 추가 방지
 
@@ -70,12 +69,19 @@ public class BottomUiPanel : MonoBehaviour
         UpdatePanelVisibility();
     }
 
+    public void Show(){
+        _bottomUiPanelBackground.gameObject.SetAnim(true, 1f);
+    }
+
+    public void Hide(){
+        _bottomUiPanelBackground.gameObject.SetAnim(false, 1f);
+    }
+
     /// <summary>
     /// ✅ 모든 버튼 제거
     /// </summary>
     public void ClearButtons()
     {
-        Debug.Log("[BottomUiPanel] Clearing all buttons...");
 
         foreach (var button in _activeButtons.Values)
         {

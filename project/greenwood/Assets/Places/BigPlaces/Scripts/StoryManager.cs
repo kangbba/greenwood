@@ -12,7 +12,9 @@ public class StoryManager : MonoBehaviour
     [Header("스토리 매핑")]
     [SerializeField] private List<StoryMapping> _storyMappings;
 
-    private bool _isStoryRunning = false; // ✅ 현재 이벤트 실행 중 여부
+    private ReactiveProperty<bool> _isStoryPlayingNotifier = new ReactiveProperty<bool>(false);
+    public IReadOnlyReactiveProperty<bool> IsStoryPlayingNotifier => _isStoryPlayingNotifier;
+
 
     private void Awake()
     {
@@ -36,7 +38,7 @@ public class StoryManager : MonoBehaviour
         )
         .Subscribe(tuple =>
         {
-            if (_isStoryRunning) 
+            if (_isStoryPlayingNotifier.Value) 
             {
                 Debug.LogWarning("[StoryManager] Story is already running. Skipping execution.");
                 return;
@@ -82,7 +84,7 @@ public class StoryManager : MonoBehaviour
     /// </summary>
     private async UniTask ExecuteStory(string storyName)
     {
-        _isStoryRunning = true; // ✅ 실행 시작
+        _isStoryPlayingNotifier.Value = true; // ✅ 실행 시작
         Debug.Log($"[StoryManager] Starting Story: {storyName}");
 
         Story storyInstance = CreateStoryInstance(storyName);
@@ -95,7 +97,7 @@ public class StoryManager : MonoBehaviour
             Debug.LogWarning($"[StoryManager] Story '{storyName}' could not be instantiated.");
         }
 
-        _isStoryRunning = false; // ✅ 실행 종료
+        _isStoryPlayingNotifier.Value = false; // ✅ 실행 종료
         Debug.Log($"[StoryManager] Story Finished: {storyName}");
     }
 

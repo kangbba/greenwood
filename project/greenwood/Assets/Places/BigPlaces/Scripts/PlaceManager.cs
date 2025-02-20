@@ -26,8 +26,6 @@ public class PlaceManager : MonoBehaviour
     [Header("BigPlace Prefabs")]
     [SerializeField] private List<BigPlace> _bigPlacePrefabs;
 
-    private Dictionary<EBigPlaceName, BigPlace> _bigPlaceInstances = new Dictionary<EBigPlaceName, BigPlace>();
-
     private ReactiveProperty<BigPlace> _currentBigPlace = new ReactiveProperty<BigPlace>(null); // ✅ UniRx 적용
     private ReactiveProperty<SmallPlace> _currentSmallPlace = new ReactiveProperty<SmallPlace>(null); // ✅ UniRx 적용
 
@@ -64,33 +62,35 @@ public class PlaceManager : MonoBehaviour
 
         // ✅ 새로운 BigPlace 생성
         BigPlace instBigPlace = CreateBigPlace(newPlace);
-        await instBigPlace.Show();
+        if(instBigPlace != null){
+
+            await instBigPlace.Show();
+        }
+        else{
+            Debug.LogWarning("inst big place is null");
+        }
     }
 
-    /// <summary>
-    /// 새로운 BigPlace 생성
-    /// </summary>
     private BigPlace CreateBigPlace(EBigPlaceName placeName)
     {
-        if (_bigPlaceInstances.ContainsKey(placeName))
-        {
-            Debug.LogWarning($"[PlaceManager] BigPlace '{placeName}' already exists.");
-            return null;
-        }
-
+        // ✅ 프리팹 리스트에서 해당 BigPlace 찾기
         BigPlace prefab = _bigPlacePrefabs.Find(bp => bp.BigPlaceName == placeName);
+
+        // ✅ 프리팹이 존재하지 않으면 오류 로그 출력 후 null 반환
         if (prefab == null)
         {
-            Debug.LogError($"[PlaceManager] ERROR - BigPlace '{placeName}' not found in prefabs!");
+            Debug.LogError($"[PlaceManager] ERROR - BigPlace '{placeName}' not found in prefabs! Check if it's assigned in the inspector.");
             return null;
         }
 
+        // ✅ BigPlace 생성 및 딕셔너리에 추가
         BigPlace instance = Instantiate(prefab, UIManager.Instance.GameCanvas.BigPlaceLayer);
-        _bigPlaceInstances[placeName] = instance;
         _currentBigPlace.Value = instance; // ✅ ReactiveProperty 업데이트 → UI 자동 변경
 
+        Debug.Log($"[PlaceManager] Successfully created BigPlace: {placeName}");
         return instance;
     }
+
 
     /// <summary>
     /// SmallPlace 입장

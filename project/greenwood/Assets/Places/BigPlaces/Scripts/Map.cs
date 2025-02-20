@@ -1,27 +1,37 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Cysharp.Threading.Tasks;
 using UniRx;
+using Cysharp.Threading.Tasks;
 
 public class Map : MonoBehaviour
 {
     [SerializeField] private List<MoveBigPlaceBtn> _movePlaceButtons; // ✅ 사전 바인딩된 버튼 목록
-    [SerializeField] private Button _confirmButton; // ✅ 결정 버튼
+    [SerializeField] private Button _confirmButton; // ✅ 확정 버튼
+    [SerializeField] private Button _cancelButton; // ✅ 취소 버튼 추가
 
-    private ReactiveProperty<EBigPlaceName> _selectedPlace = new ReactiveProperty<EBigPlaceName>(default);
+    private ReactiveProperty<EBigPlaceName?> _selectedPlace = new ReactiveProperty<EBigPlaceName?>(null);
+    private UniTaskCompletionSource<EBigPlaceName?> _mapCompletionSource; // ✅ 맵 결과를 반환할 Task
 
     private void Awake()
     {
-        // ✅ 각 버튼을 초기화하면서 선택 이벤트 설정
         foreach (var btn in _movePlaceButtons)
         {
             btn.Init(placeName => _selectedPlace.Value = placeName);
         }
+
+        _selectedPlace.Subscribe(place =>
+        {
+            _confirmButton.interactable = place.HasValue;
+        })
+        .AddTo(this);
+
+        _confirmButton.onClick.AddListener(() => ConfirmSelection());
+        _cancelButton.onClick.AddListener(() => CancelSelection());
     }
 
     /// <summary>
-    /// ✅ 선택 가능한 BigPlace 버튼 활성화
+    /// ✅ 맵 UI를 초기화하고 선택 가능한 버튼 활성화
     /// </summary>
     public void InitMap(List<EBigPlaceName> activePlaces)
     {
@@ -30,21 +40,40 @@ public class Map : MonoBehaviour
             bool isEnabled = activePlaces.Contains(btn.BigPlaceName);
             btn.SetEnable(isEnabled);
         }
+
+        _selectedPlace.Value = null;
+        _confirmButton.interactable = false;
     }
 
+
     /// <summary>
-    /// ✅ 플레이어가 선택할 때까지 대기
+    /// ✅ 맵을 띄우고 선택된 장소를 반환
     /// </summary>
-    public async UniTask<EBigPlaceName> WaitForPlaceSelection()
+    public async UniTask<EBigPlaceName?> ShowMap()
     {
-        _selectedPlace.Value = default;
+        _mapCompletionSource = new UniTaskCompletionSource<EBigPlaceName?>();
 
-        // ✅ 결정 버튼을 누를 때까지 대기
-        await _confirmButton.OnClickAsObservable()
-            .Where(_ => _selectedPlace.Value != default)
-            .First()
-            .ToUniTask();
+        gameObject.SetAnimActive(true, 0.3f);
+        return await _mapCompletionSource.Task;
+    }
 
-        return _selectedPlace.Value;
+    private void ConfirmSelection()
+    {
+        if (_selectedPlace.Value.HasValue)
+        {
+            _mapCompletionSource.TrySetResult(_selectedPlace.Value.Value);
+            CloseMap();
+        }
+    }
+
+    private void CancelSelection()
+    {
+        _mapCompletionSource.TrySetResult(null);
+        CloseMap();
+    }
+
+    private void CloseMap()
+    {
+        gameObject.SetAnimActive(false, 0.3f);
     }
 }

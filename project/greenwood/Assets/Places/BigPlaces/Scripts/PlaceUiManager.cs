@@ -10,10 +10,10 @@ public class PlaceUiManager : MonoBehaviour
 
     [SerializeField] private BottomUiPanel _placeBottomUI;
     [SerializeField] private Button _enterSmallPlaceBtnPrefab;
-    [SerializeField] private Map _mapPrefab; // ✅ 맵 UI 프리팹 추가
+    [SerializeField] private Map _mapPrefab;
 
     private List<Button> _enterPlaceBtns = new List<Button>();
-    private Map _currentMapInstance; // ✅ 현재 활성화된 맵 인스턴스
+    private Map _currentMapInstance;
 
     private void Awake()
     {
@@ -26,7 +26,23 @@ public class PlaceUiManager : MonoBehaviour
     }
 
     private void Start()
-    {
+    {   // ✅ StoryManager의 IsStoryPlaying 값을 구독하여 자동으로 UI 표시/숨김 처리
+        StoryManager.Instance.IsStoryPlayingNotifier
+            .Subscribe(isPlaying =>
+            {
+                if (isPlaying)
+                {
+                    Debug.Log("[PlaceUiManager] Story started → Hiding UI");
+                    _placeBottomUI.Hide();
+                }
+                else
+                {
+                    Debug.Log("[PlaceUiManager] Story ended → Showing UI");
+                    _placeBottomUI.Show();
+                }
+            })
+            .AddTo(this);
+
         Observable.CombineLatest(
             PlaceManager.Instance.CurrentBigPlace,
             PlaceManager.Instance.CurrentSmallPlace,
@@ -41,31 +57,33 @@ public class PlaceUiManager : MonoBehaviour
 
             if (bigPlace == null && smallPlace == null)
             {
-                Debug.Log("[PlaceManager] No active places, hiding all UI.");
+                Debug.Log("");
                 DestroyEnterPlaceBtns().Forget();
                 _placeBottomUI.ClearButtons();
             }
             else if (bigPlace != null && smallPlace == null)
             {
-                Debug.Log("[PlaceManager] Showing BigPlace UI.");
+                Debug.Log("빅 플레이스 입장");
                 CreateEnterPlaceBtns(bigPlace).Forget();
 
-                _placeBottomUI.SetButtons(new Dictionary<BottomUiButtonType, System.Action>
+                var btnDictionary = new Dictionary<BottomUiButtonType, System.Action>
                 {
-                    { BottomUiButtonType.GoingOut, async () => 
+                    { BottomUiButtonType.GoingOut, async () =>
                         {
-                            EBigPlaceName selectedPlace = await ShowMap();
-                            if (selectedPlace != bigPlace.BigPlaceName)
-                            {
-                                await PlaceManager.Instance.MoveBigPlace(selectedPlace);
-                            }
+                            _placeBottomUI.Hide();
+                            await CreateMapAndShow(bigPlace); // ✅ 맵 선택 결과 대기
+                            _placeBottomUI.Show();
                         }
                     },
                     { BottomUiButtonType.Rest, () => TimeManager.Instance.ToTheNextDay() },
-                });
+                };
+                
+               _placeBottomUI.SetButtons(btnDictionary);
+
             }
             else if (bigPlace != null && smallPlace != null)
             {
+                Debug.Log("스몰 플레이스 입장");
                 _placeBottomUI.SetButtons(new Dictionary<BottomUiButtonType, System.Action>
                 {
                     { BottomUiButtonType.ExitSmallPlace, () => PlaceManager.Instance.ExitSmallPlace() }
@@ -76,19 +94,11 @@ public class PlaceUiManager : MonoBehaviour
         })
         .AddTo(this);
     }
-
-    public async UniTask<EBigPlaceName> ShowMap()
+   
+   private async UniTask CreateMapAndShow(BigPlace currentBigPlace)
     {
-        if (_currentMapInstance != null)
-        {
-            Debug.LogWarning("[PlaceUiManager] Map is already active.");
-            return default;
-        }
-
         _currentMapInstance = Instantiate(_mapPrefab, UIManager.Instance.UICanvas.MapLayer);
-        Debug.Log("[PlaceUiManager] Map UI opened.");
 
-        // ✅ 맵 활성화 및 사용 가능한 장소 표시
         List<EBigPlaceName> availablePlaces = new List<EBigPlaceName>();
         foreach (var bigPlace in PlaceManager.Instance.BigPlacePrefabs)
         {
@@ -96,25 +106,22 @@ public class PlaceUiManager : MonoBehaviour
         }
         _currentMapInstance.InitMap(availablePlaces);
 
-        // ✅ 선택이 완료될 때까지 대기
-        EBigPlaceName selectedPlace = await _currentMapInstance.WaitForPlaceSelection();
+        // ✅ `ShowMap()`이 단순히 장소만 반환하도록 유지
+        EBigPlaceName? selectedPlace = await _currentMapInstance.ShowMap();
 
         // ✅ 맵 닫기
-        HideMap();
-        return selectedPlace;
-    }
+        Destroy(_currentMapInstance.gameObject);
+        _currentMapInstance = null;
 
 
-    /// <summary>
-    /// ✅ 맵을 숨기고 제거
-    /// </summary>
-    private void HideMap()
-    {
-        if (_currentMapInstance != null)
+        if (selectedPlace.HasValue && selectedPlace.Value != currentBigPlace.BigPlaceName)
         {
-            Destroy(_currentMapInstance.gameObject);
-            _currentMapInstance = null;
-            Debug.Log("[PlaceUiManager] Map UI closed.");
+            Debug.Log($"[PlaceUiManager] Moving to {selectedPlace.Value}");
+            await PlaceManager.Instance.MoveBigPlace(selectedPlace.Value);
+        }
+        else
+        {
+            Debug.Log("[PlaceUiManager] Map selection cancelled");
         }
     }
 
@@ -129,7 +136,6 @@ public class PlaceUiManager : MonoBehaviour
             newButton.gameObject.SetAnimToFrom(true, false, 1f);
             newButton.onClick.AddListener(() =>
             {
-                Debug.Log($"[PlaceUiManager] EnterSmallPlace Button Clicked: {location.SmallPlaceName}");
                 PlaceManager.Instance.EnterSmallPlace(location.SmallPlaceName);
             });
             _enterPlaceBtns.Add(newButton);
@@ -144,7 +150,6 @@ public class PlaceUiManager : MonoBehaviour
 
         foreach (var button in _enterPlaceBtns)
         {
-            Debug.Log($"[PlaceUiManager] Destroying Button: {button.name}");
             button.gameObject.SetAnimDestroy(1f);
         }
         _enterPlaceBtns.Clear();

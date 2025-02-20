@@ -67,7 +67,7 @@ public class SAnimObject : MonoBehaviour
             return;
         }
 
-        Debug.Log($"{gameObject.name}에서 애니메이션 실행: 색상 {animData.targetColor}, 크기 {animData.targetLocalScale}, 지속 시간 {animData.duration}");
+     //   Debug.Log($"{gameObject.name}에서 애니메이션 실행: 색상 {animData.targetColor}, 크기 {animData.targetLocalScale}, 지속 시간 {animData.duration}");
 
         switch (_objectType)
         {
