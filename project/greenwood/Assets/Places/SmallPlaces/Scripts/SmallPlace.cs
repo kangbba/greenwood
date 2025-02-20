@@ -6,10 +6,18 @@ public class SmallPlace : MonoBehaviour
     [Header("SmallPlace Settings")]
     [SerializeField] private ESmallPlaceName smallPlaceName;
 
+    private EBigPlaceName _parentBigPlaceName;
+
     private const float SHOW_DURATION = 0.5f;  // ✅ Show 애니메이션 시간 (상수)
     private const float HIDE_DURATION = 0.5f;  // ✅ Hide 애니메이션 시간 (상수)
 
     public ESmallPlaceName SmallPlaceName => smallPlaceName;
+
+    public EBigPlaceName ParentBigPlaceName { get => _parentBigPlaceName; }
+
+    public void Init(EBigPlaceName parentBigPlaceName){
+        _parentBigPlaceName = parentBigPlaceName;
+    }
 
     public async UniTask Show()
     {

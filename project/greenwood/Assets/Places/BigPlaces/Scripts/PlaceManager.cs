@@ -19,6 +19,9 @@ public enum ESmallPlaceName{
 public class PlaceManager : MonoBehaviour
 {
     public static PlaceManager Instance { get; private set; }
+    public ReactiveProperty<BigPlace> CurrentBigPlace { get => _currentBigPlace; }
+    public ReactiveProperty<SmallPlace> CurrentSmallPlace { get => _currentSmallPlace; }
+    public List<BigPlace> BigPlacePrefabs { get => _bigPlacePrefabs; }
 
     [Header("BigPlace Prefabs")]
     [SerializeField] private List<BigPlace> _bigPlacePrefabs;
@@ -36,46 +39,6 @@ public class PlaceManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
-        // ✅ BigPlace 변경 시 UI 자동 업데이트 (새로운 BigPlace UI 표시 or 숨김)
-        _currentBigPlace
-            .Subscribe(bigPlace =>
-            {
-                if (bigPlace != null)
-                {
-                    Debug.Log($"[PlaceManager] _currentBigPlace changed to: {bigPlace.BigPlaceName}");
-                    PlaceUiManager.Instance.ShowBigPlaceUI(bigPlace).Forget();
-                }
-                else
-                {
-                    Debug.Log("[PlaceManager] No active BigPlace, hiding UI.");
-                    PlaceUiManager.Instance.HideBigPlaceUI().Forget();
-                }
-            })
-            .AddTo(this);
-
-        // ✅ SmallPlace 상태에 따라 BigPlace & SmallPlace UI 자동 업데이트
-        _currentSmallPlace
-            .Subscribe(smallPlace =>
-            {
-                if (_currentBigPlace.Value == null) return;
-
-                if (smallPlace == null)
-                {
-                    // ✅ SmallPlace가 없는 경우 → BigPlace UI 표시 & SmallPlace UI 숨김
-                    Debug.Log("[PlaceManager] SmallPlace is null, showing BigPlace UI.");
-                    PlaceUiManager.Instance.ShowBigPlaceUI(_currentBigPlace.Value).Forget();
-                    PlaceUiManager.Instance.HideSmallPlaceUI().Forget();
-                }
-                else
-                {
-                    // ✅ SmallPlace가 있는 경우 → BigPlace UI 숨김 & SmallPlace UI 표시
-                    Debug.Log($"[PlaceManager] Entered SmallPlace: {smallPlace.SmallPlaceName}, hiding BigPlace UI.");
-                    PlaceUiManager.Instance.HideBigPlaceUI().Forget();
-                    PlaceUiManager.Instance.ShowSmallPlaceUI(smallPlace).Forget();
-                }
-            })
-            .AddTo(this);
     }
 
 
@@ -85,6 +48,14 @@ public class PlaceManager : MonoBehaviour
     public async UniTask MoveBigPlace(EBigPlaceName newPlace)
     {
         BigPlace currentBigPlace = _currentBigPlace.Value;
+
+        // ✅ 동일한 BigPlace로 이동하려고 하면 경고 로그 출력 후 중단
+        if (currentBigPlace != null && currentBigPlace.BigPlaceName == newPlace)
+        {
+            Debug.LogWarning($"[PlaceManager] MoveBigPlace aborted: Already in '{newPlace}'!");
+            return;
+        }
+
         if (currentBigPlace != null)
         {
             _currentBigPlace.Value = null;
@@ -131,16 +102,12 @@ public class PlaceManager : MonoBehaviour
             Debug.LogError("[PlaceManager] No active BigPlace to enter a SmallPlace from!");
             return;
         }
-
-        Debug.Log($"[PlaceManager] Entering SmallPlace: {smallPlaceName}");
-
         _currentSmallPlace.Value = _currentBigPlace.Value.CreateSmallPlace(smallPlaceName);
         if (_currentSmallPlace.Value == null)
         {
             Debug.LogError($"[PlaceManager] ERROR - SmallPlace '{smallPlaceName}' could not be instantiated in '{_currentBigPlace.Value.BigPlaceName}'!");
             return;
         }
-
         await _currentSmallPlace.Value.Show();
     }
 

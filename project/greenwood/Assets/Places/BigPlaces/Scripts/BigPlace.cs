@@ -30,6 +30,7 @@ public class BigPlace : MonoBehaviour
             if (!_smallPlacePrefabs.ContainsKey(smallPlaceLocation.SmallPlaceName))
             {
                 _smallPlacePrefabs[smallPlaceLocation.SmallPlaceName] = smallPlaceLocation.SmallPlacePrefab;
+                _smallPlacePrefabs[smallPlaceLocation.SmallPlaceName].Init(_bigPlaceName);
             }
         }
     }
