@@ -3,222 +3,230 @@ using UnityEditor;
 using TMPro;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 public class TMPFontManagerWindow : EditorWindow
 {
     private Vector2 _scrollPosition;
-    private List<TextMeshProUGUI> _allTextComponents = new List<TextMeshProUGUI>();
-    private Dictionary<TextMeshProUGUI, bool> _selectedTexts = new Dictionary<TextMeshProUGUI, bool>();
     private TMP_FontAsset _newFont;
-    private Dictionary<string, bool> _foldoutState = new Dictionary<string, bool>(); // ✅ 계층별 Foldout 상태 저장
 
-    private const float IndentOffset = 20f; // ✅ 계층당 X축 오프셋 (밀려나게 함)
+    private HierarchyNode _rootNode;
+    private Dictionary<string, bool> _foldoutStates = new Dictionary<string, bool>();
 
-    [MenuItem("Tools/TextMeshPro Font Manager")]
+    // 토글: 하이어라키와 에셋 내 프리팹 표시
+    private bool _showHierarchy = true;
+    private bool _showAssetPrefabs = false;
+    // 이전 토글 값 저장 (자동 갱신용)
+    private bool _prevShowHierarchy = true;
+    private bool _prevShowAssetPrefabs = false;
+
+    [MenuItem("도구/TextMeshPro 폰트 관리자")]
     public static void ShowWindow()
     {
-        TMPFontManagerWindow window = GetWindow<TMPFontManagerWindow>("TMP Font Manager");
+        TMPFontManagerWindow window = GetWindow<TMPFontManagerWindow>("TextMeshPro 폰트 관리자");
         window.minSize = new Vector2(800, 600);
-        window.ScanTextComponents();
+        window.ScanAndBuildTree();
     }
 
     private void OnGUI()
     {
-        GUILayout.Label("TextMeshPro Font Manager", EditorStyles.boldLabel);
-        GUILayout.Label($"Currently displaying {_allTextComponents.Count} TextMeshProUGUI components", EditorStyles.miniBoldLabel);
+        GUILayout.Label("TextMeshPro 폰트 관리자", EditorStyles.boldLabel);
         GUILayout.Space(5);
 
-        if (GUILayout.Button("🔍 Scan TMP Components"))
-        {
-            ScanTextComponents();
-        }
+        _newFont = (TMP_FontAsset)EditorGUILayout.ObjectField("새 폰트 선택", _newFont, typeof(TMP_FontAsset), false);
 
-        GUILayout.Space(10);
-        EditorGUILayout.LabelField("Select New TMP_FontAsset", EditorStyles.boldLabel);
-        _newFont = (TMP_FontAsset)EditorGUILayout.ObjectField("New Font", _newFont, typeof(TMP_FontAsset), false);
-
-        GUILayout.Space(10);
-        if (GUILayout.Button("✅ Apply Font to Selected"))
-        {
-            ApplyFontChange();
-        }
-
-        GUILayout.Space(10);
-        _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
-
-        DrawHierarchyUI();
-
-        EditorGUILayout.EndScrollView();
-    }
-
-    /// <summary>
-    /// ✅ 씬 내 모든 TextMeshProUGUI 검색
-    /// </summary>
-    private void ScanTextComponents()
-    {
-        _allTextComponents = FindObjectsByType<TextMeshProUGUI>(FindObjectsSortMode.None).ToList();
-        _selectedTexts.Clear();
-        _foldoutState.Clear();
-
-        foreach (var tmp in _allTextComponents)
-        {
-            _selectedTexts[tmp] = false;
-            string rootPath = GetHierarchyPath(tmp.gameObject);
-            if (!_foldoutState.ContainsKey(rootPath)) _foldoutState[rootPath] = true;
-        }
-
-        Debug.Log($"[TMPFontManager] Found {_allTextComponents.Count} TextMeshProUGUI components.");
-    }
-
-    /// <summary>
-    /// ✅ 선택된 TMP 컴포넌트에 폰트 적용
-    /// </summary>
-    private void ApplyFontChange()
-    {
-        if (_newFont == null)
-        {
-            Debug.LogWarning("[TMPFontManager] No font selected!");
-            return;
-        }
-
-        int changedCount = 0;
-        foreach (var tmp in _allTextComponents)
-        {
-            if (_selectedTexts.ContainsKey(tmp) && _selectedTexts[tmp])
-            {
-                Undo.RecordObject(tmp, "Change TMP Font");
-                tmp.font = _newFont;
-                EditorUtility.SetDirty(tmp);
-                changedCount++;
-            }
-        }
-
-        Debug.Log($"[TMPFontManager] Applied new font to {changedCount} objects.");
-        AssetDatabase.SaveAssets();
-    }
-
-    /// <summary>
-    /// ✅ TMP 리스트 아이템 표시 (계층 구조 지원)
-    /// </summary>
-    private void DrawHierarchyUI()
-    {
-        Dictionary<string, List<TextMeshProUGUI>> groupedByParent = new Dictionary<string, List<TextMeshProUGUI>>();
-
-        foreach (var tmp in _allTextComponents)
-        {
-            string parentPath = GetClosestParentPath(tmp.gameObject);
-            if (!groupedByParent.ContainsKey(parentPath))
-                groupedByParent[parentPath] = new List<TextMeshProUGUI>();
-
-            groupedByParent[parentPath].Add(tmp);
-        }
-
-        foreach (var kvp in groupedByParent)
-        {
-            DrawHierarchyFoldout(kvp.Key, kvp.Value);
-        }
-    }
-
-    /// <summary>
-    /// ✅ 부모별 `Foldout`을 지원하는 계층 구조 UI (X축 정렬 추가)
-    /// </summary>
-    private void DrawHierarchyFoldout(string parentPath, List<TextMeshProUGUI> components)
-    {
-        if (!_foldoutState.ContainsKey(parentPath))
-            _foldoutState[parentPath] = true;
-
-        EditorGUI.indentLevel = parentPath.Split('/').Length - 1;
-        _foldoutState[parentPath] = EditorGUILayout.Foldout(_foldoutState[parentPath], parentPath, true);
-
-        if (_foldoutState[parentPath])
-        {
-            foreach (var tmpComponent in components)
-            {
-                DrawListItem(tmpComponent);
-            }
-        }
-    }
-
-    /// <summary>
-    /// ✅ 개별적인 TMP 리스트 아이템 표시 (그룹 내부)
-    /// </summary>
-    private void DrawListItem(TextMeshProUGUI tmpComponent)
-    {
-        EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
-
-        _selectedTexts[tmpComponent] = EditorGUILayout.Toggle(_selectedTexts[tmpComponent], GUILayout.Width(20));
-
-        Texture icon = tmpComponent.gameObject.scene.rootCount == 0 ? EditorGUIUtility.IconContent("Prefab Icon").image : EditorGUIUtility.IconContent("GameObject Icon").image;
-        GUILayout.Label(icon, GUILayout.Width(20), GUILayout.Height(20));
-
-        GUILayout.Label(tmpComponent.gameObject.name, EditorStyles.boldLabel, GUILayout.Width(150));
-        GUILayout.Label("(TextMeshProUGUI)", EditorStyles.miniLabel, GUILayout.Width(120));
-
-        EditorGUILayout.LabelField(tmpComponent.text, GUILayout.Width(200));
-
-        tmpComponent.font = (TMP_FontAsset)EditorGUILayout.ObjectField(tmpComponent.font, typeof(TMP_FontAsset), false, GUILayout.Width(150));
-
-        if (GUILayout.Button("🔄 Apply", GUILayout.Width(70)))
-        {
-            ApplySingleFontChange(tmpComponent);
-        }
-
-        if (GUILayout.Button("📍 Ping", GUILayout.Width(60)))
-        {
-            EditorGUIUtility.PingObject(tmpComponent.gameObject);
-        }
-
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("✅ 전체 적용")) { ApplyFontToAll(); }
+        if (GUILayout.Button("🔍 다시 스캔")) { ScanAndBuildTree(); }
         EditorGUILayout.EndHorizontal();
-    }
 
-    /// <summary>
-    /// ✅ 개별적으로 TMP 폰트 변경 (경고 메시지 포함)
-    /// </summary>
-    private void ApplySingleFontChange(TextMeshProUGUI tmpComponent)
-    {
-        if (_newFont == null)
+        GUILayout.Space(10);
+
+        // 토글: 하이어라키 표시, 에셋 폴더 표시
+        EditorGUILayout.BeginHorizontal();
+        _showHierarchy = EditorGUILayout.Toggle("하이어라키 표시", _showHierarchy);
+        _showAssetPrefabs = EditorGUILayout.Toggle("에셋 내 프리팹 표시", _showAssetPrefabs);
+        EditorGUILayout.EndHorizontal();
+
+        // 토글 값이 변경되면 한 프레임 딜레이 후 갱신
+        if (_prevShowHierarchy != _showHierarchy || _prevShowAssetPrefabs != _showAssetPrefabs)
         {
-            Debug.LogWarning("[TMPFontManager] No font selected!");
-            return;
+            _prevShowHierarchy = _showHierarchy;
+            _prevShowAssetPrefabs = _showAssetPrefabs;
+            EditorApplication.delayCall += () =>
+            {
+                ScanAndBuildTree();
+                Repaint();
+            };
         }
 
-        bool confirm = EditorUtility.DisplayDialog(
-            "Change Font",
-            $"Are you sure you want to change the font for {tmpComponent.gameObject.name}?",
-            "Yes", "No");
+        GUILayout.Space(10);
+        // 스크롤뷰: 창 너비에 맞춰 확장, 가로 스크롤 없음
+        _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, false, true, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+        if (_rootNode != null)
+        {
+            DrawNode(_rootNode, 0);
+        }
+        EditorGUILayout.EndScrollView();
 
+        GUILayout.Label($"현재 스크롤 위치: {_scrollPosition}");
+    }
+
+    private void ApplyFontToAll()
+    {
+        bool confirm = EditorUtility.DisplayDialog("⚠️ 전체 폰트 변경", 
+            "모든 TextMeshProUGUI의 폰트를 새 폰트로 변경하시겠습니까?", 
+            "예", "아니요");
+        if (!confirm) return;
+
+        Undo.RecordObject(this, "Change All TMP Fonts");
+        ApplyFontRecursive(_rootNode);
+        EditorUtility.SetDirty(this);
+        AssetDatabase.SaveAssets();
+        Debug.Log("[TMPFontManager] 모든 TMP 폰트 변경 완료");
+    }
+
+    private void ApplyFontRecursive(HierarchyNode node)
+    {
+        foreach (TextMeshProUGUI tmp in node.TMPItems)
+        {
+            Undo.RecordObject(tmp, "Change TMP Font");
+            tmp.font = _newFont;
+            EditorUtility.SetDirty(tmp);
+        }
+        foreach (var child in node.Children)
+        {
+            ApplyFontRecursive(child);
+        }
+    }
+
+    private void ScanAndBuildTree()
+    {
+        _rootNode = new HierarchyNode("루트", "");
+        _foldoutStates.Clear();
+
+        if (_showHierarchy)
+        {
+            List<TextMeshProUGUI> allTMPs = FindObjectsByType<TextMeshProUGUI>(FindObjectsSortMode.None).ToList();
+            foreach (var tmp in allTMPs)
+            {
+                string fullPath = GetHierarchyPath(tmp.transform);
+                // 그룹화: 마지막 세그먼트를 제거하여 공통 경로로 묶음
+                string groupPath = GetGroupPath(fullPath);
+                InsertIntoTree(_rootNode, groupPath, tmp);
+            }
+        }
+        if (_showAssetPrefabs)
+        {
+            HierarchyNode assetNode = new HierarchyNode("에셋 폴더", "Assets");
+            string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { "Assets" });
+            foreach (string guid in guids)
+            {
+                string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+                GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+                if (prefab != null)
+                {
+                    foreach (TextMeshProUGUI tmp in prefab.GetComponentsInChildren<TextMeshProUGUI>(true))
+                    {
+                        InsertIntoTree(assetNode, assetPath, tmp);
+                    }
+                }
+            }
+            _rootNode.Children.Add(assetNode);
+        }
+
+        Debug.Log($"[TMPFontManager] 트리 생성 완료. 모드: {(_showHierarchy ? "하이어라키" : "")}{(_showAssetPrefabs ? " + 에셋" : "")}");
+    }
+
+    private void InsertIntoTree(HierarchyNode node, string fullPath, TextMeshProUGUI tmp)
+    {
+        string[] segments = fullPath.Split('/');
+        InsertSegments(node, segments, 0, tmp);
+    }
+
+    private void InsertSegments(HierarchyNode currentNode, string[] segments, int index, TextMeshProUGUI tmp)
+    {
+        if (index >= segments.Length)
+        {
+            currentNode.TMPItems.Add(tmp);
+            return;
+        }
+        string segment = segments[index];
+        HierarchyNode childNode = currentNode.Children.FirstOrDefault(n => n.Name == segment);
+        if (childNode == null)
+        {
+            string newPath = string.IsNullOrEmpty(currentNode.FullPath) ? segment : currentNode.FullPath + "/" + segment;
+            childNode = new HierarchyNode(segment, newPath);
+            currentNode.Children.Add(childNode);
+        }
+        InsertSegments(childNode, segments, index + 1, tmp);
+    }
+
+    private void DrawNode(HierarchyNode node, int indent)
+    {
+        EditorGUI.indentLevel = indent;
+        bool fold = true;
+        if (!string.IsNullOrEmpty(node.FullPath))
+        {
+            if (!_foldoutStates.ContainsKey(node.FullPath))
+                _foldoutStates[node.FullPath] = true;
+            GUIStyle foldoutStyle = new GUIStyle(EditorStyles.foldout);
+            foldoutStyle.normal.textColor = Color.blue;
+            fold = EditorGUILayout.Foldout(_foldoutStates[node.FullPath], node.Name, true, foldoutStyle);
+            _foldoutStates[node.FullPath] = fold;
+        }
+        else
+        {
+            GUILayout.Label("루트", EditorStyles.boldLabel);
+        }
+        if (fold)
+        {
+            // 먼저 부모 노드에 속한 TMP 항목들을 표시 (예: 텍스트 A)
+            foreach (TextMeshProUGUI item in node.TMPItems)
+            {
+                TMPListItemEditor.DrawListItem(item, ApplySingleFontChange, PingObject, _newFont);
+            }
+            // 그 다음 자식 노드들을 재귀적으로 표시 (예: 폴더 2 등)
+            foreach (var child in node.Children)
+            {
+                DrawNode(child, indent + 1);
+            }
+        }
+
+    }
+
+    private string GetHierarchyPath(Transform transform)
+    {
+        List<string> segments = new List<string>();
+        while (transform != null)
+        {
+            segments.Insert(0, transform.name);
+            transform = transform.parent;
+        }
+        return string.Join("/", segments);
+    }
+
+    private string GetGroupPath(string fullPath)
+    {
+        string[] segments = fullPath.Split('/');
+        if (segments.Length <= 1) return fullPath;
+        return string.Join("/", segments.Take(segments.Length - 1));
+    }
+
+    private void ApplySingleFontChange(TextMeshProUGUI tmp)
+    {
+        if (_newFont == null) return;
+        bool confirm = EditorUtility.DisplayDialog("폰트 변경", $"'{tmp.gameObject.name}'의 폰트를 변경하시겠습니까?", "예", "아니요");
         if (confirm)
         {
-            Undo.RecordObject(tmpComponent, "Change TMP Font");
-            tmpComponent.font = _newFont;
-            EditorUtility.SetDirty(tmpComponent);
-            Debug.Log($"[TMPFontManager] Changed font for {tmpComponent.gameObject.name}.");
+            Undo.RecordObject(tmp, "Change TMP Font");
+            tmp.font = _newFont;
+            EditorUtility.SetDirty(tmp);
         }
     }
 
-    /// <summary>
-    /// ✅ 가장 가까운 부모 오브젝트의 경로 반환
-    /// </summary>
-    private string GetClosestParentPath(GameObject obj)
+    private void PingObject(TextMeshProUGUI tmp)
     {
-        Transform parent = obj.transform.parent;
-        return parent != null ? GetHierarchyPath(parent.gameObject) : obj.name;
-    }
-
-    /// <summary>
-    /// ✅ 오브젝트의 전체 `Hierarchy Path`를 반환
-    /// </summary>
-    private string GetHierarchyPath(GameObject obj)
-    {
-        List<string> path = new List<string>();
-        Transform current = obj.transform;
-
-        while (current != null)
-        {
-            path.Insert(0, current.name);
-            current = current.parent;
-        }
-
-        return string.Join("/", path);
+        EditorGUIUtility.PingObject(tmp.gameObject);
     }
 }
