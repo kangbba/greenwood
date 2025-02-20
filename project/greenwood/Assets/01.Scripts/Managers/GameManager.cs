@@ -1,3 +1,5 @@
+using Cysharp.Threading.Tasks;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -22,6 +24,6 @@ public class GameManager : MonoBehaviour
         Debug.Log("🏠 Initializing Game...");
         
         // 최초 PlaceGroup 설정 (Town)
-        BigPlaceManager.Instance.CreateBigPlace(EBigPlaceName.Town);
+        PlaceManager.Instance.MoveBigPlace(EBigPlaceName.Town).Forget();
     }
 }

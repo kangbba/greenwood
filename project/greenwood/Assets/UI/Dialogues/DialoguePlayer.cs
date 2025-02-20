@@ -61,13 +61,11 @@ public class DialoguePlayer : MonoBehaviour
             await _revealingSentence.PlaySentence(
                 OnStart: async () =>
                 {
-                    Debug.Log("[대기] 시작에서 화살표 파괴");
                     OnStart?.Invoke();
                     await UniTask.Yield();
                 },
                 OnPunctuationPause: async () =>
                 {
-                    Debug.Log("[OnPunctuationPause]");
                     OnPunctuationPause?.Invoke();
 
                     if(!_isSkipping){
@@ -77,14 +75,12 @@ public class DialoguePlayer : MonoBehaviour
                 },
                 OnPunctuationResume: async () =>
                 {
-                    Debug.Log("[OnPunctuationResume]");
                     OnPunctuationResume?.Invoke();
                     DestroyArrow();
                     await UniTask.Yield();
                 },
                 OnComplete: async () =>
                 {
-                    Debug.Log("[대기] 마지막 문장에서 마우스 입력을 기다림...");
                     OnComplete?.Invoke();
                     SpawnArrow(0);
                     await UniTask.WaitUntil(() => Input.GetMouseButtonDown(0));
