@@ -22,7 +22,7 @@ public class ChoiceSet : Element
         Debug.Log($"[ChoiceSet] 질문 표시: {_question}");
 
         // UIManager를 통해 선택지 UI 실행
-        int selectedChoiceIndex = await ChoiceService.WaitForChoicecSetWindowResult(this);
+        int selectedChoiceIndex = await ChoiceService.WaitForChoiceSetWindowResult(this);
 
         if (selectedChoiceIndex >= 0 && selectedChoiceIndex < _choiceContents.Count)
         {

@@ -3,7 +3,7 @@ using UnityEngine;
 using static Character;
 using Sirenix.OdinInspector;
 
-public class Emotion : MonoBehaviour
+public class Emotion : AnimationImage
 {
     [EnumPaging, OnValueChanged(nameof(OnValueChangedCurrentEmotion))]
     [SerializeField] private KateEmotionType _emotionType; // Inspector에서 직접 설정

@@ -119,7 +119,7 @@ public class CharacterManager : MonoBehaviour
             return;
         }
 
-        character.gameObject.SetAnimDestroy(duration); // 페이드 아웃 애니메이션 적용
+        character.FadeAndDestroy(duration); // 페이드 아웃 애니메이션 적용
         _activeCharacters.Remove(character);
     }
 }

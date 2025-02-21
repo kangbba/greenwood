@@ -1,7 +1,7 @@
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 
-public class SmallPlace : ShowAndHidable
+public class SmallPlace : AnimationImage
 {
     [Header("SmallPlace Settings")]
     [SerializeField] private ESmallPlaceName smallPlaceName;

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using UniRx;
 using Cysharp.Threading.Tasks;
 
-public class Map : MonoBehaviour
+public class Map : AnimationImage
 {
     [SerializeField] private List<MoveBigPlaceBtn> _movePlaceButtons; // ✅ 사전 바인딩된 버튼 목록
     [SerializeField] private Button _confirmButton; // ✅ 확정 버튼
@@ -54,7 +54,7 @@ public class Map : MonoBehaviour
     {
         _mapCompletionSource = new UniTaskCompletionSource<EBigPlaceName?>();
 
-        gameObject.SetAnimActive(true, 0.3f);
+        FadeIn(0.3f);
         return await _mapCompletionSource.Task;
     }
 
@@ -75,6 +75,6 @@ public class Map : MonoBehaviour
 
     private void CloseMap()
     {
-        gameObject.SetAnimActive(false, 0.3f);
+        FadeAndDestroy(0.3f);
     }
 }

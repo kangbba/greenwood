@@ -1,22 +1,31 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using TMPro;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
-public class ChoiceSetWindowMultiple : ChoiceSetWindow
+public class ChoiceSetWindowMultiple : AnimationImage
 {
+    [SerializeField] private TextMeshProUGUI _questionText;
     [SerializeField] private Transform _choiceContainer;
     [SerializeField] private ChoiceButton _choiceButtonPrefab;
-    
-    private List<ChoiceButton> _choiceButtons = new List<ChoiceButton>();
 
-    public override void Init(string question)
+    private List<ChoiceButton> _choiceButtons = new List<ChoiceButton>();
+    private UniTaskCompletionSource<int> _choiceCompletionSource;
+
+    /// <summary>
+    /// ✅ UI 초기화 (질문 설정)
+    /// </summary>
+    public void Init(string question)
     {
-        gameObject.SetAnim(false, 0f);
-        gameObject.SetAnim(true, .3f);
+        FadeIn(0.3f); // ✅ Fade In 애니메이션 적용
         _questionText.text = question;
     }
 
-    public override async UniTask<int> ShowChoices(List<ChoiceContent> choices)
+    /// <summary>
+    /// ✅ 선택지를 설정하고 사용자의 선택을 기다림
+    /// </summary>
+    public async UniTask<int> ShowChoices(List<ChoiceContent> choices)
     {
         if (choices.Count < 3)
         {
@@ -26,8 +35,14 @@ public class ChoiceSetWindowMultiple : ChoiceSetWindow
 
         _choiceCompletionSource = new UniTaskCompletionSource<int>();
 
-        // 🔥 버튼 생성 및 배치
+        // 🔥 기존 버튼 제거
+        foreach (var button in _choiceButtons)
+        {
+            Destroy(button.gameObject);
+        }
         _choiceButtons.Clear();
+
+        // 🔥 버튼 생성 및 배치
         float totalHeight = _choiceContainer.GetComponent<RectTransform>().rect.height;
         float buttonHeight = _choiceButtonPrefab.GetComponent<RectTransform>().sizeDelta.y;
         float spacing = (totalHeight - (buttonHeight * choices.Count)) / (choices.Count - 1);
@@ -49,11 +64,14 @@ public class ChoiceSetWindowMultiple : ChoiceSetWindow
         // 선택 대기
         int selectedIndex = await _choiceCompletionSource.Task;
 
-        return selectedIndex; // 🚀 선택된 인덱스를 반환 (창 닫기는 외부에서 수행)
+        // ✅ UI 닫기
+        FadeOut(0.3f);
+
+        return selectedIndex; // 🚀 선택된 인덱스를 반환
     }
 
     /// <summary>
-    /// 선택된 결과를 저장하고 대기 중인 `UniTask`를 완료 (내부적으로 UI 변경 없음)
+    /// ✅ 선택된 결과를 저장하고 대기 중인 `UniTask`를 완료
     /// </summary>
     private void SelectChoice(int index)
     {

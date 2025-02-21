@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class AskDialog : MonoBehaviour
+public class AskDialog : AnimationImage
 {
     public TextMeshProUGUI messageText;  // 메시지 텍스트
     public Button yesButton;  // '예' 버튼 (또는 '확인')
@@ -56,7 +56,7 @@ public class AskDialog : MonoBehaviour
         // 버튼 클릭 결과 반환하며 대기
         bool? result = await tcs.Task;
 
-        gameObject.SetAnimDestroy(.5f); // 다이얼로그 종료 후 제거
+        FadeAndDestroy(.5f);
         return result;
     }
 }

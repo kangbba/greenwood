@@ -63,7 +63,16 @@ public class PoseHandler : MonoBehaviour
         _currentPoseID = poseID;
 
         foreach (var p in _poses)
-            p.gameObject.SetAnimActive(p == newPose, duration);
+        {
+            bool isTarget = p == newPose;
+            p.gameObject.SetActive(isTarget);
+            if(isTarget){
+                p.FadeIn(duration);
+            }
+            else{
+                p.FadeOut(duration);
+            }
+        }
 
         Debug.Log($"[PoseHandler] 포즈 변경: `{_currentPoseID}`");
     }

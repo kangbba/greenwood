@@ -35,8 +35,7 @@ public class UIManager : MonoBehaviour
     public async UniTask<bool?> ShowAskDialog(string message, string yesText, string noText)
     {
         AskDialog askDialog = Instantiate(_askDialogPrefab, _popupCanvas.transform);
-        askDialog.gameObject.SetAnimActive(false, 0f);
-        askDialog.gameObject.SetAnimActive(true, 0.2f);
+        askDialog.FadeFrom(target : 1f, from : 0f, .2f);
 
         return await askDialog.Initialize(message, yesText, noText);
     }

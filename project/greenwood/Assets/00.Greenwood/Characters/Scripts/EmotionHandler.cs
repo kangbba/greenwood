@@ -51,7 +51,9 @@ public class EmotionHandler : MonoBehaviour
         _currentEmotionID = emotionID;
 
         foreach (var emo in _emotions)
-            emo.gameObject.SetAnimActive(emo == newEmotion, 0f);
+        {
+            emo.gameObject.SetActive(emo == newEmotion);
+        }
 
 #if UNITY_EDITOR
         EditorApplication.delayCall += () =>
@@ -90,7 +92,16 @@ public class EmotionHandler : MonoBehaviour
         _currentEmotionID = emotionID;
 
         foreach (var emo in _emotions)
-            emo.gameObject.SetAnimActive(emo == newEmotion, duration);
+        {
+            bool isTarget = emo == newEmotion;
+            emo.gameObject.SetActive(isTarget);
+            if(isTarget){
+                emo.FadeIn(duration);
+            }
+            else{
+                emo.FadeOut(duration);
+            }
+        }
 
         newEmotion.Init();
         Debug.Log($"[EmotionHandler] 감정 변경: `{_currentEmotionID}`");

@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using static Character;
 
-public class Pose : MonoBehaviour
+public class Pose : AnimationImage
 {
     [SerializeField] private KatePoseType _poseType; // Inspector에서 직접 설정
     public KatePoseType PoseType => _poseType;

@@ -5,7 +5,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BigPlace : ShowAndHidable
+public class BigPlace : AnimationImage
 {
     [Header("BigPlace Settings")]
     [SerializeField] private Image _background;
@@ -15,9 +15,8 @@ public class BigPlace : ShowAndHidable
     public EBigPlaceName BigPlaceName => _bigPlaceName;
     public List<SmallPlaceDoor> SmallPlaceDoors => _smallPlaceDoors;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
         _smallPlaceDoors = GetComponentsInChildren<SmallPlaceDoor>().ToList();
     }
 

@@ -5,7 +5,7 @@ using System;
 using TMPro;
 using UnityEngine.UI;
 
-public class DialoguePlayer : MonoBehaviour
+public class DialoguePlayer : AnimationImage
 {
     [Header("Arrow Prefab")]
     [SerializeField] private DialogueArrow _arrowPrefab;
@@ -37,7 +37,7 @@ public class DialoguePlayer : MonoBehaviour
         _ownerBackground.color = ownerBackgroundColor;
         
         ChangeSpeed(_initialSpeed);
-        SetAnim(false, 0f);  // 초기 상태 숨김
+        FadeOut(0f);
     }
 
     private void ChangeSpeed(float speed){
@@ -46,7 +46,7 @@ public class DialoguePlayer : MonoBehaviour
 
     public async UniTask PlayDialogue(Action OnStart, Action OnPunctuationPause, Action OnPunctuationResume, Action OnComplete)
     {
-        SetAnim(true, .3f);
+        FadeIn(.2f);
         await UniTask.WaitForSeconds(.3f);
 
         for (int i = 0; i < _sentences.Count; i++)
@@ -88,7 +88,7 @@ public class DialoguePlayer : MonoBehaviour
                 }
             );
         }
-        SetAnim(false, .3f);
+        FadeOut(.2f);
         await UniTask.WaitForSeconds(.3f);
         _revealingSentence.ClearSentence();
     }
@@ -103,12 +103,6 @@ public class DialoguePlayer : MonoBehaviour
             _isSkipping = false;
             ChangeSpeed(_initialSpeed);
         }
-    }
-
-    private void SetAnim(bool b, float duration)
-    {
-        _isOn = b;
-        _parent.gameObject.SetAnim(b, duration);
     }
 
     public void SkipCurrentDialogue()

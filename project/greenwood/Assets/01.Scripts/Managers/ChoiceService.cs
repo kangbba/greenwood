@@ -3,47 +3,54 @@ using UnityEngine;
 
 public static class ChoiceService
 {
-    private static ChoiceSetWindow _currentChoiceWindow;
+    private static ChoiceSetWindowDouble _currentChoiceWindowDouble;
+    private static ChoiceSetWindowMultiple _currentChoiceWindowMultiple;
 
     /// <summary>
     /// 선택지 창을 생성하고, 사용자의 선택을 기다림
     /// </summary>
-    public static async UniTask<int> WaitForChoicecSetWindowResult(ChoiceSet choiceSet)
+    public static async UniTask<int> WaitForChoiceSetWindowResult(ChoiceSet choiceSet)
     {
-        // 이미 열린 선택지가 있으면 제거
-        if (_currentChoiceWindow != null)
-        {
-            Object.Destroy(_currentChoiceWindow.gameObject);
-        }
+        // 기존 선택지 창이 있으면 제거
+        CloseCurrentChoiceSet(0f);
 
-        if (choiceSet.Choices.Count == 2)
+        int choiceCount = choiceSet.Choices.Count;
+        
+        if (choiceCount == 2)
         {
-            _currentChoiceWindow = Object.Instantiate(
+            _currentChoiceWindowDouble = Object.Instantiate(
                 UIManager.Instance.ChoiceSetWindowDoublePrefab, 
                 UIManager.Instance.PopupCanvas.transform
             );
+            _currentChoiceWindowDouble.Init(choiceSet.Question);
+            return await _currentChoiceWindowDouble.ShowChoices(choiceSet.Choices);
         }
         else
         {
-            _currentChoiceWindow = Object.Instantiate(
+            _currentChoiceWindowMultiple = Object.Instantiate(
                 UIManager.Instance.ChoiceSetWindowMultiplePrefab, 
                 UIManager.Instance.PopupCanvas.transform
             );
+            _currentChoiceWindowMultiple.Init(choiceSet.Question);
+            return await _currentChoiceWindowMultiple.ShowChoices(choiceSet.Choices);
         }
-
-        _currentChoiceWindow.Init(choiceSet.Question);
-        return await _currentChoiceWindow.ShowChoices(choiceSet.Choices);
     }
 
     /// <summary>
-    /// 현재 선택지를 즉시 종료
+    /// 현재 열린 선택지 창을 즉시 종료
     /// </summary>
     public static void CloseCurrentChoiceSet(float duration)
     {
-        if (_currentChoiceWindow != null)
+        if (_currentChoiceWindowDouble != null)
         {
-            _currentChoiceWindow.gameObject.SetAnimDestroy(duration);
-            _currentChoiceWindow = null;
+            _currentChoiceWindowDouble.FadeAndDestroy(duration);
+            _currentChoiceWindowDouble = null;
+        }
+
+        if (_currentChoiceWindowMultiple != null)
+        {
+            _currentChoiceWindowMultiple.FadeAndDestroy(duration);
+            _currentChoiceWindowMultiple = null;
         }
     }
 }

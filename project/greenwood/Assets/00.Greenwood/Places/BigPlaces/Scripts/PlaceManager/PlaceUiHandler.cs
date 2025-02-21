@@ -26,10 +26,10 @@ public class PlaceUiHandler : MonoBehaviour
     }
 
     public void SlideInBottomPanel(float duration){
-        _placeBottomUI.SlideIn(duration);
+        _placeBottomUI.Move(target : Vector2.zero, duration : duration);
     }
     public void SlideOutBottomPanel(float duration){
-        _placeBottomUI.SlideOut(Vector2.down * 200f, duration);
+        _placeBottomUI.Move(target : Vector2.down * 200f, duration : duration);
     }
 
 
@@ -51,7 +51,7 @@ public class PlaceUiHandler : MonoBehaviour
 
             Button newButton = Instantiate(_enterSmallPlaceBtnPrefab, door.transform);
             newButton.transform.localPosition = Vector2.zero;
-            newButton.gameObject.SetAnimToFrom(true, false, 1f);
+            newButton.gameObject.GetAnim().FadeFrom(target : 1f, from : 0f,  1f);
             newButton.onClick.AddListener(() =>
             {
                 PlaceManager.Instance.EnterSmallPlace(door.SmallPlaceName).Forget();
@@ -68,7 +68,7 @@ public class PlaceUiHandler : MonoBehaviour
 
         foreach (var button in _enterPlaceBtns)
         {
-            button.gameObject.SetAnimDestroy(duration);
+            button.gameObject.GetAnim().FadeAndDestroy(duration);
         }
         _enterPlaceBtns.Clear();
     }

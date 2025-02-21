@@ -9,7 +9,7 @@ using Microsoft.Unity.VisualStudio.Editor;
 /// 캐릭터의 전체적인 상태(Idle, Talking 등)
 /// </summary>
 
-public class Character : MonoBehaviour
+public class Character : AnimationImage
 {
     [SerializeField] private ECharacterName _characterName;
     public ECharacterName CharacterName => _characterName;
@@ -30,10 +30,10 @@ public class Character : MonoBehaviour
         _poseHandler?.FetchPoses();
     }
     public void Init(string initialEmotionID, string initialPoseID, float duration){
-        gameObject.SetAnim(false, 0f);
+        FadeOut(0f);
+        FadeIn(duration);
         SetEmotion(initialEmotionID, 0f);
         SetPose(initialPoseID, 0f);
-        gameObject.SetAnim(true, duration);
     }
 
 

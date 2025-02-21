@@ -18,7 +18,7 @@ public class BottomUiButtonMapping
     public Button buttonPrefab;
 }
 
-public class BottomUiPanel : ShowAndHidable
+public class BottomUiPanel : AnimationImage
 {
     [SerializeField] private Image _img;
     [SerializeField] private List<BottomUiButtonMapping> _buttonMappings; // ✅ 버튼 타입과 프리팹을 직접 매핑
@@ -26,9 +26,8 @@ public class BottomUiPanel : ShowAndHidable
     private Dictionary<BottomUiButtonType, Button> _activeButtons = new Dictionary<BottomUiButtonType, Button>();
     private Dictionary<BottomUiButtonType, Button> _buttonPrefabDict = new Dictionary<BottomUiButtonType, Button>(); // ✅ 버튼 타입 → 프리팹 딕셔너리
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
         _buttonPrefabDict = _buttonMappings.ToDictionary(mapping => mapping.buttonType, mapping => mapping.buttonPrefab);
 
         // ✅ UI가 처음에는 꺼진 상태로 시작
