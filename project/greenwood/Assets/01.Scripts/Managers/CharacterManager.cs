@@ -1,40 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-
-/// <summary>
-/// 감정 상태 Enum
-/// </summary>
-public enum KateEmotionType
-{
-    Happy,
-    Exited,
-    Angry,
-    YeahRight,
-    Concerned,
-    Shy
-}
-
-
-/// <summary>
-/// 포즈 상태 Enum
-/// </summary>
-public enum KatePoseType
-{
-    HandsFront,
-    HandsBack,
-    ArmCrossed,
-}
-
-public enum ECharacterName
-{
-    Mono,
-    Ryan,
-    Kate,
-    Joseph,
-    Lisa,
-    Eldra,
-    Amalian
-}
+using System.Linq; // ✅ LINQ 사용 추가
 
 public class CharacterManager : MonoBehaviour
 {
@@ -45,9 +11,10 @@ public class CharacterManager : MonoBehaviour
 
     private Dictionary<ECharacterName, CharacterSetting> _characterSettingsDict;
     private Dictionary<ECharacterName, Character> _characterPrefabsDict;
-    
-    // "Spawned" → "Active"로 변수명 변경
-    private Dictionary<ECharacterName, Character> _activeCharacters = new(); // 활성화된 캐릭터 관리
+
+    private List<Character> _activeCharacters = new(); // ✅ 활성화된 캐릭터 리스트로 변경
+
+    public List<Character> ActiveCharacters => _activeCharacters; // ✅ 활성 캐릭터 리스트 반환
 
     private void Awake()
     {
@@ -69,19 +36,7 @@ public class CharacterManager : MonoBehaviour
     /// </summary>
     private void InitializeCharacterSettings()
     {
-        _characterSettingsDict = new Dictionary<ECharacterName, CharacterSetting>();
-
-        foreach (var setting in _characterSettings)
-        {
-            if (!_characterSettingsDict.ContainsKey(setting.CharacterName))
-            {
-                _characterSettingsDict.Add(setting.CharacterName, setting);
-            }
-            else
-            {
-                Debug.LogWarning($"CharacterManager: 중복된 캐릭터 설정 발견 - {setting.CharacterName}");
-            }
-        }
+        _characterSettingsDict = _characterSettings.ToDictionary(setting => setting.CharacterName);
     }
 
     /// <summary>
@@ -89,19 +44,7 @@ public class CharacterManager : MonoBehaviour
     /// </summary>
     private void InitializeCharacterPrefabs()
     {
-        _characterPrefabsDict = new Dictionary<ECharacterName, Character>();
-
-        foreach (Character prefab in _characterPrefabs)
-        {
-            if (!_characterPrefabsDict.ContainsKey(prefab.CharacterName))
-            {
-                _characterPrefabsDict.Add(prefab.CharacterName, prefab);
-            }
-            else
-            {
-                Debug.LogWarning($"CharacterManager: 중복된 캐릭터 프리팹 발견 - {prefab.CharacterName}");
-            }
-        }
+        _characterPrefabsDict = _characterPrefabs.ToDictionary(prefab => prefab.CharacterName);
     }
 
     /// <summary>
@@ -109,13 +52,7 @@ public class CharacterManager : MonoBehaviour
     /// </summary>
     public CharacterSetting GetCharacterSetting(ECharacterName characterName)
     {
-        if (_characterSettingsDict.TryGetValue(characterName, out CharacterSetting setting))
-        {
-            return setting;
-        }
-
-        Debug.LogWarning($"CharacterManager: 해당 캐릭터({characterName}) 설정이 없습니다.");
-        return null;
+        return _characterSettingsDict.TryGetValue(characterName, out var setting) ? setting : null;
     }
 
     /// <summary>
@@ -123,13 +60,7 @@ public class CharacterManager : MonoBehaviour
     /// </summary>
     public Character GetCharacterPrefab(ECharacterName characterName)
     {
-        if (_characterPrefabsDict.TryGetValue(characterName, out Character character))
-        {
-            return character;
-        }
-
-        Debug.LogWarning($"CharacterManager: 해당 캐릭터({characterName}) 프리팹이 없습니다.");
-        return null;
+        return _characterPrefabsDict.TryGetValue(characterName, out var prefab) ? prefab : null;
     }
 
     /// <summary>
@@ -137,13 +68,7 @@ public class CharacterManager : MonoBehaviour
     /// </summary>
     public Character GetActiveCharacter(ECharacterName characterName)
     {
-        if (_activeCharacters.TryGetValue(characterName, out Character activeCharacter))
-        {
-            return activeCharacter;
-        }
-
-        Debug.LogWarning($"CharacterManager: `{characterName}` 캐릭터가 아직 활성화되지 않았습니다.");
-        return null;
+        return _activeCharacters.FirstOrDefault(character => character.CharacterName == characterName);
     }
 
     /// <summary>
@@ -177,7 +102,7 @@ public class CharacterManager : MonoBehaviour
 
         // 캐릭터 인스턴스 생성 및 부모 설정
         Character newCharacter = Instantiate(prefab, parent);
-        _activeCharacters[characterName] = newCharacter;
+        _activeCharacters.Add(newCharacter);
         Debug.Log($"CharacterManager: `{characterName}` 캐릭터 활성화 완료.");
         return newCharacter;
     }
@@ -187,12 +112,14 @@ public class CharacterManager : MonoBehaviour
     /// </summary>
     public void FadeOutAndDestroyCharacter(ECharacterName characterName, float duration)
     {
-        if (!_activeCharacters.TryGetValue(characterName, out Character character))
+        Character character = GetActiveCharacter(characterName);
+        if (character == null)
         {
             Debug.LogWarning($"CharacterManager: `{characterName}` 캐릭터가 활성화되지 않아 제거할 수 없습니다.");
             return;
         }
+
         character.gameObject.SetAnimDestroy(duration); // 페이드 아웃 애니메이션 적용
-        _activeCharacters.Remove(characterName);
+        _activeCharacters.Remove(character);
     }
 }

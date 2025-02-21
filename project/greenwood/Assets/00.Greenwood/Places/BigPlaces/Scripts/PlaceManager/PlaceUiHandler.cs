@@ -43,14 +43,11 @@ public class PlaceUiHandler : MonoBehaviour
     /// <summary>
     /// BigPlace에 머무를 때 SmallPlace 입장 버튼 생성
     /// </summary>
-    public void CreateEnterPlaceBtns()
+    public void CreateEnterPlaceBtns(BigPlace bigPlace)
     {
-        BigPlace currentBigPlace = PlaceManager.Instance.CurrentBigPlace; // ✅ 일반 변수로 변경됨
-        if (currentBigPlace == null) return;
 
-        foreach (var door in currentBigPlace.SmallPlaceDoors)
+        foreach (var door in bigPlace.SmallPlaceDoors)
         {
-            Debug.Log($"[PlaceUiManager] Creating Button for SmallPlace: {door.SmallPlaceName}");
 
             Button newButton = Instantiate(_enterSmallPlaceBtnPrefab, door.transform);
             newButton.transform.localPosition = Vector2.zero;
@@ -68,7 +65,6 @@ public class PlaceUiHandler : MonoBehaviour
     /// </summary>
     public void DestroyEnterPlaceBtns(float duration)
     {
-        Debug.Log("[PlaceUiManager] Destroying all EnterPlace Buttons...");
 
         foreach (var button in _enterPlaceBtns)
         {
@@ -98,14 +94,14 @@ public class PlaceUiHandler : MonoBehaviour
         //     { BottomUiButtonType.GoingOut, () =>  GoingOut().Forget()},
         //     { BottomUiButtonType.Rest, () => TimeManager.Instance.ToTheNextDay() },
         // };
-    public async UniTask BigPlaceUI(bool b, float duration){
+    public async UniTask BigPlaceUI(BigPlace bigPlace, bool b, float duration){
         if(b){
             var btnDictionary = new Dictionary<BottomUiButtonType, Action>
             {
                 { BottomUiButtonType.GoingOut, () =>  PlaceManager.Instance.GoingOut().Forget()},
                 { BottomUiButtonType.Rest, () => TimeManager.Instance.ToTheNextDay() },
             };
-            CreateEnterPlaceBtns();
+            CreateEnterPlaceBtns(bigPlace);
             SetBottomPanelButtons(btnDictionary);
             FadeInBottomPanel(duration);
      //       SlideInBottomPanel(duration);
@@ -119,7 +115,7 @@ public class PlaceUiHandler : MonoBehaviour
             ClearBottomPanelButtons();
         }
     }
-    public async UniTask SmallPlaceUI(bool b, float duration){
+    public async UniTask SmallPlaceUI(SmallPlace smallPlace, bool b, float duration){
         //MIDDLE
         if(b){
             var btnDictionary = new Dictionary<BottomUiButtonType, Action>

@@ -21,7 +21,7 @@ public abstract class ShowAndHidable : MonoBehaviour
         initialAnchoredPosition = _rectTransform.anchoredPosition; // ✅ 초기 위치 캐싱
         _isInitialized = true; // ✅ 초기화 완료 플래그 설정
 
-        Debug.Log($"[ShowAndHidable] {gameObject.name} - Initial Anchored Position Cached: {initialAnchoredPosition}");
+     //   Debug.Log($"[ShowAndHidable] {gameObject.name} - Initial Anchored Position Cached: {initialAnchoredPosition}");
     }
 
     public virtual void FadeAndDestroy(float duration)
@@ -38,9 +38,7 @@ public abstract class ShowAndHidable : MonoBehaviour
         }
 
         _rectTransform.DOAnchorPos(initialAnchoredPosition, duration)
-            .SetEase(Ease.OutQuad)
-            .OnStart(() => Debug.Log($"[ShowAndHidable] {gameObject.name} - Sliding in to {initialAnchoredPosition}..."))
-            .OnComplete(() => Debug.Log($"[ShowAndHidable] {gameObject.name} - Slide in complete."));
+            .SetEase(Ease.OutQuad);
     }
 
     public void SlideOut(Vector2 offset, float duration)
@@ -52,9 +50,7 @@ public abstract class ShowAndHidable : MonoBehaviour
         }
 
         _rectTransform.DOAnchorPos(initialAnchoredPosition + offset, duration)
-            .SetEase(Ease.InQuad)
-            .OnStart(() => Debug.Log($"[ShowAndHidable] {gameObject.name} - Sliding out to {initialAnchoredPosition + offset}..."))
-            .OnComplete(() => Debug.Log($"[ShowAndHidable] {gameObject.name} - Slide out complete."));
+            .SetEase(Ease.InQuad);
     }
 
     public void FadeIn(float duration)

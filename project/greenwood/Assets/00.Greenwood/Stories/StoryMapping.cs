@@ -6,40 +6,78 @@ using UnityEngine;
 public class StoryMapping
 {
     [Title("스토리 설정")]
-    public string storyName; // ✅ 스토리 이름
+    [SerializeField] private string _storyName; // ✅ 캡슐화 적용
 
     [Title("조건 활성화 여부")]
-    [ToggleLeft] public bool usePlaceState = true;  // ✅ 장소 상태 조건 사용 여부
-    [ToggleLeft] public bool useTargetDay = true;   // ✅ 특정 날짜 조건 사용 여부
-    [ToggleLeft] public bool useTargetTimePhase = false; // ✅ 특정 시간대 조건 사용 여부
+    [SerializeField, ToggleLeft] private bool _useBigPlace = true;
+    [SerializeField, ToggleLeft] private bool _useSmallPlace = false;
+    [SerializeField, ToggleLeft] private bool _useTargetDay = true;
+    [SerializeField, ToggleLeft] private bool _useTargetTimePhase = false;
 
     [Title("조건 값")]
-    [ShowIf("usePlaceState")] public EPlaceState targetPlaceState = EPlaceState.InSmallPlace; // ✅ 특정 장소 상태
-    [ShowIf("@targetPlaceState == EPlaceState.InBigPlace")] public EBigPlaceName bigPlaceName;
-    [ShowIf("@targetPlaceState == EPlaceState.InSmallPlace")] public ESmallPlaceName smallPlaceName;
-    [ShowIf("useTargetDay"), MinValue(1)] public int targetDay; // ✅ 1일 이상
-    [ShowIf("useTargetTimePhase")] public TimePhase targetTimePhase;
+    [SerializeField, ShowIf("_useBigPlace")] private EBigPlaceName _bigPlaceName;
+    [SerializeField, ShowIf("_useSmallPlace")] private ESmallPlaceName _smallPlaceName;
+    [SerializeField, ShowIf("_useTargetDay"), MinValue(1)] private int _targetDay;
+    [SerializeField, ShowIf("_useTargetTimePhase")] private TimePhase _targetTimePhase;
+
+    // ✅ 프로퍼티 추가 (읽기 전용)
+    public string StoryName => _storyName;
+    public bool UseBigPlace => _useBigPlace;
+    public bool UseSmallPlace => _useSmallPlace;
+    public bool UseTargetDay => _useTargetDay;
+    public bool UseTargetTimePhase => _useTargetTimePhase;
+    public EBigPlaceName BigPlaceName => _bigPlaceName;
+    public ESmallPlaceName SmallPlaceName => _smallPlaceName;
+    public int TargetDay => _targetDay;
+    public TimePhase TargetTimePhase => _targetTimePhase;
 
     /// <summary>
-    /// 현재 장소 상태와 시간에 대해 이 스토리가 실행 가능한지 확인
+    /// 현재 BigPlace, SmallPlace, 날짜, 시간에 대해 이 스토리가 실행 가능한지 확인
     /// </summary>
-    public bool IsMatching(EPlaceState placeState, BigPlace bigPlace, SmallPlace smallPlace, int currentDay, TimePhase currentTimePhase)
+    public bool IsMatching(BigPlace bigPlace, SmallPlace smallPlace, int currentDay, TimePhase currentTimePhase)
     {
-        bool placeStateMatch = !usePlaceState || targetPlaceState == placeState;
-        bool placeMatch = true;
-
-        if (placeState == EPlaceState.InBigPlace && targetPlaceState == EPlaceState.InBigPlace)
+        Debug.Log($"[StoryMapping] Checking Story: {StoryName}");
+        if (_useBigPlace)
         {
-            placeMatch = bigPlace?.BigPlaceName == bigPlaceName;
+            Debug.Log($"- Target BigPlace: {_bigPlaceName} (Current: {(bigPlace != null ? bigPlace.BigPlaceName.ToString() : "None")})");
+            if (bigPlace == null || bigPlace.BigPlaceName != _bigPlaceName)
+            {
+                Debug.Log("[StoryMapping] ❌ BigPlace mismatch!");
+                return false;
+            }
         }
-        else if (placeState == EPlaceState.InSmallPlace && targetPlaceState == EPlaceState.InSmallPlace)
+
+        if (_useSmallPlace)
         {
-            placeMatch = smallPlace?.SmallPlaceName == smallPlaceName;
+            Debug.Log($"- Target SmallPlace: {_smallPlaceName} (Current: {(smallPlace != null ? smallPlace.SmallPlaceName.ToString() : "None")})");
+            if (smallPlace == null || smallPlace.SmallPlaceName != _smallPlaceName)
+            {
+                Debug.Log("[StoryMapping] ❌ SmallPlace mismatch!");
+                return false;
+            }
         }
 
-        bool dayMatch = !useTargetDay || targetDay == currentDay;
-        bool timeMatch = !useTargetTimePhase || targetTimePhase == currentTimePhase;
+        if (_useTargetDay)
+        {
+            Debug.Log($"- Target Day: {_targetDay} (Current: {currentDay})");
+            if (_targetDay != currentDay)
+            {
+                Debug.Log("[StoryMapping] ❌ Day mismatch!");
+                return false;
+            }
+        }
 
-        return placeStateMatch && placeMatch && dayMatch && timeMatch;
+        if (_useTargetTimePhase)
+        {
+            Debug.Log($"- Target TimePhase: {_targetTimePhase} (Current: {currentTimePhase})");
+            if (_targetTimePhase != currentTimePhase)
+            {
+                Debug.Log("[StoryMapping] ❌ TimePhase mismatch!");
+                return false;
+            }
+        }
+
+        Debug.Log($"✅ Story '{StoryName}' matches all conditions!");
+        return true;
     }
 }

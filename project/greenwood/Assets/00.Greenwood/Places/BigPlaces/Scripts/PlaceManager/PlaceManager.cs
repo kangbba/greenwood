@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
+using UnityEngine.UIElements.Experimental;
 
 public enum EBigPlaceName
 {
@@ -38,9 +39,10 @@ public class PlaceManager : MonoBehaviour
 
     private ReactiveProperty<EPlaceState> _placeStateNotifier = new ReactiveProperty<EPlaceState>(EPlaceState.None);
 
-    //빅플레이스, 스몰플레이 현황
-    public BigPlace CurrentBigPlace => _bigPlaceHandler.CurrentBigPlace;
-    public SmallPlace CurrentSmallPlace => _smallPlaceHandler.CurrentSmallPlace;
+    // ✅ BigPlace 및 SmallPlace 상태를 직접 핸들러에서 가져오도록 변경
+    public IReadOnlyReactiveProperty<BigPlace> CurrentBigPlaceNotifier => _bigPlaceHandler.CurrentBigPlaceNotifier;
+    public IReadOnlyReactiveProperty<SmallPlace> CurrentSmallPlaceNotifier => _smallPlaceHandler.CurrentSmallPlaceNotifier;
+
 
     public ReactiveProperty<EPlaceState> PlaceStateNotifier { get => _placeStateNotifier; }
 
@@ -64,6 +66,7 @@ public class PlaceManager : MonoBehaviour
         _placeStateNotifier
             .Subscribe(state =>
             {
+                Debug.Log($"_placeStateNotifier {state}");
                 OnChangedPlaceState(state);
             })
             .AddTo(this);
@@ -71,7 +74,6 @@ public class PlaceManager : MonoBehaviour
 
     private void OnChangedPlaceState(EPlaceState state)
     {
-        Debug.Log($"[PlaceUiManager] UI Update - Current PlaceState: {state}");
             
         switch (state)
         {
@@ -89,12 +91,12 @@ public class PlaceManager : MonoBehaviour
 
     public async UniTask GoingOut(){
         
-        await _placeUiHandler.BigPlaceUI(false, .5f);
+        await _placeUiHandler.BigPlaceUI(CurrentBigPlaceNotifier.Value, false, .5f);
         EBigPlaceName? selectedBigPlace = await _placeUiHandler.CreateMapAndShow(false);
 
         if(!selectedBigPlace.HasValue){
             Debug.Log("선택된 big place 없음");
-            await _placeUiHandler.BigPlaceUI(true, .5f);
+            await _placeUiHandler.BigPlaceUI(CurrentBigPlaceNotifier.Value, true, .5f);
             return;
         }
         else{
@@ -104,7 +106,7 @@ public class PlaceManager : MonoBehaviour
 
     public async UniTask MoveBigPlace(EBigPlaceName newPlaceName)
     {   
-        if(CurrentBigPlace?.BigPlaceName == newPlaceName){
+        if(CurrentBigPlaceNotifier.Value?.BigPlaceName == newPlaceName){
             Debug.LogWarning("같은 빅 플레이스로의 이동 시도");
             return;
         }
@@ -113,35 +115,38 @@ public class PlaceManager : MonoBehaviour
         BigPlace bigPlace = _bigPlaceHandler.CreateBigPlace(newPlaceName);
         bigPlace.FadeIn(.5f);
         await UniTask.WaitForSeconds(.5f);
-        await _placeUiHandler.BigPlaceUI(true, .5f);
+        await StoryManager.Instance.TriggerStoryIfExist();
+        await _placeUiHandler.BigPlaceUI(CurrentBigPlaceNotifier.Value, true, .5f);
     }
     public async UniTask ExitBigPlace()
     {   
-        _placeUiHandler.BigPlaceUI(false, .5f).Forget();
+        _placeUiHandler.BigPlaceUI(CurrentBigPlaceNotifier.Value, false, .5f).Forget();
         _bigPlaceHandler.ExitCurrentBigPlace(.5f);
         await UniTask.WaitForSeconds(.5f);
     }
 
     public async UniTask EnterSmallPlace(ESmallPlaceName smallPlaceName)
     {
-        if(CurrentSmallPlace?.SmallPlaceName == smallPlaceName){
+        if(CurrentSmallPlaceNotifier.Value?.SmallPlaceName == smallPlaceName){
             Debug.LogWarning("같은 스몰 플레이스로의 이동 시도");
             return;
         }
         _placeStateNotifier.Value = EPlaceState.InSmallPlace;
-        await _placeUiHandler.BigPlaceUI(false, .5f);
+        await _placeUiHandler.BigPlaceUI(CurrentBigPlaceNotifier.Value, false, .5f);
         SmallPlace smallPlace = _smallPlaceHandler.CreateSmallPlace(smallPlaceName);
         smallPlace.FadeIn(.5f);
         await UniTask.WaitForSeconds(.5f);
-        await _placeUiHandler.SmallPlaceUI(true, .5f);
+
+        await StoryManager.Instance.TriggerStoryIfExist();
+        await _placeUiHandler.SmallPlaceUI(CurrentSmallPlaceNotifier.Value, true, .5f);
     }
 
     public async UniTask ExitSmallPlace()
     {
         _placeStateNotifier.Value = EPlaceState.InBigPlace;
-        _placeUiHandler.SmallPlaceUI(false, .5f).Forget();
+        _placeUiHandler.SmallPlaceUI(CurrentSmallPlaceNotifier.Value, false, .5f).Forget();
         _smallPlaceHandler.ExitSmallPlace(.5f);
         await UniTask.WaitForSeconds(.5f);
-        await _placeUiHandler.BigPlaceUI(true, .5f);
+        await _placeUiHandler.BigPlaceUI(CurrentBigPlaceNotifier.Value, true, .5f);
     }
 }

@@ -50,37 +50,10 @@ public class CharacterEnter : Element
             Debug.LogError($"[CharacterEnter] 캐릭터 `{_characterName}` 생성 실패");
             return;
         }
-        SetCharacterPosition(character, _location);
+        character.MoveToLocationX(_location ,0f);
         character.Init(_initialEmotionID, _initialPoseID, _duration);
         // 페이드 인 애니메이션 (캐릭터가 처음 등장할 때)
         await UniTask.WaitForSeconds(_duration);
     }
 
-    /// <summary>
-    /// 캐릭터 위치 설정
-    /// </summary>
-    private void SetCharacterPosition(Character character, CharacterLocation location)
-    {
-        float screenWidth = UIManager.Instance.GameCanvas.GetComponent<RectTransform>().rect.width;
-        float targetX = GetPositionX(location, screenWidth);
-
-        RectTransform characterTransform = character.GetComponent<RectTransform>();
-        characterTransform.anchoredPosition = new Vector2(targetX, characterTransform.anchoredPosition.y);
-    }
-
-    /// <summary>
-    /// `CharacterLocation` Enum에 따라 X 좌표 계산
-    /// </summary>
-    private float GetPositionX(CharacterLocation location, float screenWidth)
-    {
-        return location switch
-        {
-            CharacterLocation.Left2 => screenWidth * -0.4f,
-            CharacterLocation.Left1 => screenWidth * -0.2f,
-            CharacterLocation.Center => 0f,
-            CharacterLocation.Right1 => screenWidth * 0.2f,
-            CharacterLocation.Right2 => screenWidth * 0.4f,
-            _ => 0f
-        };
-    }
 }

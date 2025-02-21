@@ -24,65 +24,65 @@ public class StoryManager : MonoBehaviour
         }
     }
 
-    private void Start()
+   /// <summary>
+    /// 외부에서 호출하여 스토리 체크를 실행하는 메서드
+    /// </summary>
+    public async UniTask TriggerStoryIfExist()
     {
-        // ✅ 장소 상태(PlaceState) + 날짜(Day) + 시간대(TimePhase)를 CombineLatest
-        Observable.CombineLatest(
-            PlaceManager.Instance.PlaceStateNotifier,  // ✅ 장소 상태 변경 감지
-            TimeManager.Instance.CurrentDay,
-            TimeManager.Instance.CurrentTimePhase,
-            (placeState, currentDay, currentTimePhase) => (placeState, currentDay, currentTimePhase)
-        )
-        .Subscribe(tuple =>
+        if (_isStoryPlayingNotifier.Value) 
         {
-            if (_isStoryPlayingNotifier.Value) 
-            {
-                Debug.LogWarning("[StoryManager] Story is already running. Skipping execution.");
-                return;
-            }
+            Debug.LogWarning("[StoryManager] Story is already running. Skipping execution.");
+            return; // ✅ 실행 중이면 즉시 종료
+        }
 
-            EPlaceState placeState = tuple.placeState;
-            int currentDay = tuple.currentDay;
-            TimePhase currentTimePhase = tuple.currentTimePhase;
+        BigPlace bigPlace = PlaceManager.Instance.CurrentBigPlaceNotifier.Value;
+        SmallPlace smallPlace = PlaceManager.Instance.CurrentSmallPlaceNotifier.Value;
+        int currentDay = TimeManager.Instance.CurrentDay.Value;
+        TimePhase currentTimePhase = TimeManager.Instance.CurrentTimePhase.Value;
 
-            string storyName = GetMatchingStoryName(placeState, currentDay, currentTimePhase);
-            if (!string.IsNullOrEmpty(storyName))
-            {
-                Debug.Log($"[StoryManager] Executing Story: {storyName}");
-                ExecuteStory(storyName).Forget();
-            }
-        })
-        .AddTo(this);
+        Debug.Log($"[StoryManager] Triggering Story Check...");
+        Debug.Log($"- BigPlace: {(bigPlace != null ? bigPlace.BigPlaceName.ToString() : "None")}");
+        Debug.Log($"- SmallPlace: {(smallPlace != null ? smallPlace.SmallPlaceName.ToString() : "None")}");
+        Debug.Log($"- Current Day: {currentDay}");
+        Debug.Log($"- TimePhase: {currentTimePhase}");
+
+        string storyName = GetMatchingStoryName(bigPlace, smallPlace, currentDay, currentTimePhase);
+        if (!string.IsNullOrEmpty(storyName))
+        {
+            Debug.Log($"[StoryManager] Executing Story: {storyName}");
+            await ExecuteStory(storyName); // ✅ 스토리 실행을 기다림
+        }
+
+        await UniTask.WaitUntil(() => !_isStoryPlayingNotifier.Value); // ✅ 스토리 종료 대기
+
     }
 
-    /// <summary>
-    /// 현재 장소 상태와 시간 정보를 기반으로 스토리를 찾음
-    /// </summary>
-    private string GetMatchingStoryName(EPlaceState placeState, int currentDay, TimePhase currentTimePhase)
-    {
-        BigPlace bigPlace = PlaceManager.Instance.CurrentBigPlace; // 현재 BigPlace 가져오기
-        SmallPlace smallPlace = (placeState == EPlaceState.InSmallPlace) ? PlaceManager.Instance.CurrentSmallPlace : null; // SmallPlace는 상태가 InSmallPlace일 때만 가져옴
 
+    /// <summary>
+    /// 현재 BigPlace, SmallPlace, 날짜, 시간 정보를 기반으로 스토리를 찾음
+    /// </summary>
+    private string GetMatchingStoryName(BigPlace bigPlace, SmallPlace smallPlace, int currentDay, TimePhase currentTimePhase)
+    {
         foreach (var mapping in _storyMappings)
         {
-            if (mapping.IsMatching(placeState, bigPlace, smallPlace, currentDay, currentTimePhase))
+            bool isMatching = mapping.IsMatching(bigPlace, smallPlace, currentDay, currentTimePhase);
+            if (isMatching)
             {
-                Debug.Log($"[StoryManager] Matched Story: {mapping.storyName}");
-                return mapping.storyName;
+                Debug.Log($"[StoryManager] ✅ Matched Story: {mapping.StoryName}");
+                return mapping.StoryName;
             }
         }
 
-        Debug.Log("[StoryManager] No matching story found.");
+        Debug.Log("[StoryManager] ❌ No matching story found.");
         return null;
     }
-
 
     /// <summary>
     /// 스토리 실행 (비동기)
     /// </summary>
     private async UniTask ExecuteStory(string storyName)
     {
-        _isStoryPlayingNotifier.Value = true; // ✅ 실행 시작
+        _isStoryPlayingNotifier.Value = true;
         Debug.Log($"[StoryManager] Starting Story: {storyName}");
 
         Story storyInstance = CreateStoryInstance(storyName);
@@ -95,7 +95,7 @@ public class StoryManager : MonoBehaviour
             Debug.LogWarning($"[StoryManager] Story '{storyName}' could not be instantiated.");
         }
 
-        _isStoryPlayingNotifier.Value = false; // ✅ 실행 종료
+        _isStoryPlayingNotifier.Value = false;
         Debug.Log($"[StoryManager] Story Finished: {storyName}");
     }
 

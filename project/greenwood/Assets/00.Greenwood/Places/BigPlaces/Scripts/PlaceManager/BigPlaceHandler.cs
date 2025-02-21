@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Cysharp.Threading.Tasks;
+using UniRx;
 using UnityEngine;
 
 public class BigPlaceHandler : MonoBehaviour
@@ -8,9 +8,9 @@ public class BigPlaceHandler : MonoBehaviour
     [Header("BigPlace Prefabs")]
     [SerializeField] private List<BigPlace> _bigPlacePrefabs = new List<BigPlace>(); // ✅ BigPlace 프리팹 리스트
 
-    private BigPlace _currentBigPlace = null;
+    private ReactiveProperty<BigPlace> _currentBigPlaceNotifier = new ReactiveProperty<BigPlace>(null); // ✅ ReactiveProperty 적용
 
-    public BigPlace CurrentBigPlace => _currentBigPlace; // ✅ 프로퍼티 Get만 허용
+    public IReadOnlyReactiveProperty<BigPlace> CurrentBigPlaceNotifier => _currentBigPlaceNotifier; // ✅ ReadOnly로 외부 노출
 
     public void Init()
     {
@@ -38,11 +38,12 @@ public class BigPlaceHandler : MonoBehaviour
         BigPlace prefab = GetBigPlace(placeName);
         if (prefab == null) return null;
 
-        _currentBigPlace = Instantiate(prefab, UIManager.Instance.GameCanvas.BigPlaceLayer);
-        _currentBigPlace.Init();
-        Debug.Log($"[BigPlaceHandler] Entering BigPlace: {placeName}");
+        BigPlace newBigPlace = Instantiate(prefab, UIManager.Instance.GameCanvas.BigPlaceLayer);
+        newBigPlace.Init();
 
-        return _currentBigPlace;
+        _currentBigPlaceNotifier.Value = newBigPlace; // ✅ ReactiveProperty 값 업데이트
+
+        return newBigPlace;
     }
 
     /// <summary>
@@ -50,15 +51,13 @@ public class BigPlaceHandler : MonoBehaviour
     /// </summary>
     public void ExitCurrentBigPlace(float duration)
     {
-        if (_currentBigPlace == null)
+        if (_currentBigPlaceNotifier.Value == null)
         {
             Debug.LogWarning("[BigPlaceHandler] No BigPlace to exit from.");
             return;
         }
 
-        BigPlace exitingBigPlace = _currentBigPlace;
-        _currentBigPlace = null;
-
-        exitingBigPlace.FadeAndDestroy(duration);
+        _currentBigPlaceNotifier.Value.FadeAndDestroy(duration);
+        _currentBigPlaceNotifier.Value = null; // ✅ ReactiveProperty 값 초기화 (구독자 감지 가능)
     }
 }
