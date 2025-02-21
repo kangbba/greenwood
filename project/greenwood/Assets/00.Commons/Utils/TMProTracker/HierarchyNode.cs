@@ -1,16 +1,24 @@
-using System.Collections.Generic;
-using TMPro;
+#if UNITY_EDITOR
 
-public class HierarchyNode
+namespace Jin.TMProTracker
 {
-    public string Name;
-    public string FullPath;
-    public List<HierarchyNode> Children = new List<HierarchyNode>();
-    public List<TextMeshProUGUI> TMPItems = new List<TextMeshProUGUI>();
+    using System.Collections.Generic;
+    using TMPro;
 
-    public HierarchyNode(string name, string fullPath)
+    public class HierarchyNode
     {
-        Name = name;
-        FullPath = fullPath;
+        public string Name;
+        public string FullPath;
+        public List<HierarchyNode> Children = new List<HierarchyNode>();
+        public List<TextMeshProUGUI> TMPItems = new List<TextMeshProUGUI>();
+
+        public HierarchyNode(string name, string fullPath)
+        {
+            Name = name;
+            FullPath = fullPath;
+        }
     }
 }
+#endif
+
+

@@ -1,12 +1,14 @@
+
+
+#if UNITY_EDITOR
+
 using UnityEngine;
 using UnityEditor;
 using TMPro;
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
 using System;
-
-namespace TMProTracker
+namespace Jin.TMProTracker
 {
     public class TMProTracker : EditorWindow
     {
@@ -412,3 +414,4 @@ namespace TMProTracker
         }
     }
 }
+#endif
