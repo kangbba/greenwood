@@ -146,4 +146,23 @@ public class AnimationImage : MonoBehaviour
             .OnStart(() => Debug.Log($"[AnimationImage] {gameObject.name} - Shaking started"))
             .OnComplete(() => Debug.Log($"[AnimationImage] {gameObject.name} - Shaking complete"));
     }
+    
+    public void SetColor(Color targetColor, float duration, Ease easeType = Ease.OutQuad)
+    {
+        if (ImageComponent == null)
+        {
+            Debug.LogError($"[AnimationImage] {gameObject.name} - SetColor failed: Image component not found!");
+            return;
+        }
+
+        if (duration <= 0)
+        {
+            ImageComponent.color = targetColor; // ✅ 즉시 적용
+        }
+        else
+        {
+            ImageComponent.DOColor(targetColor, duration).SetEase(easeType);
+        }
+    }
+
 }

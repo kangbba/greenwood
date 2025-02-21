@@ -23,6 +23,27 @@ public class TestStoryMorning : Story
                 "그렇다고 안 친하게 지낼 이유도 없잖아?",
             }
         ),
+        new ImaginationEnter(false, "Ruin", 1f),
+
+        new Dialogue(ECharacterName.Kate, 
+            new List<string>
+            {
+                "어떤 폐가의 모습을 상상해봐! ",
+            }
+        ),
+        new ImaginationExit(false, 1f),
+
+        new ImaginationEnter(true, "Cafe", 1f),
+         
+        new Dialogue(ECharacterName.Kate, 
+            new List<string>
+            {
+                "이번엔 카페의 모습을 상상해봐! ",
+            }
+        ),
+        new ImaginationExit(true, 1f),
+
+
 
         new EmotionChange(ECharacterName.Kate, KateEmotionType.Angry, KatePoseType.ArmCrossed),
 

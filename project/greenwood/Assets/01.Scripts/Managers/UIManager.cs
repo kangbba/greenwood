@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameCanvas _gameCanvas;   
     [SerializeField] private UICanvas _uiCanvas;   
     [SerializeField] private PopupCanvas _popupCanvas;   
+    [SerializeField] private HighestCanvas _highestCanvas;   
 
     [Header("UI Prefabs")]
     [SerializeField] private AskDialog _askDialogPrefab;
@@ -19,6 +20,7 @@ public class UIManager : MonoBehaviour
     public GameCanvas GameCanvas => _gameCanvas;
     public UICanvas UICanvas => _uiCanvas;
     public PopupCanvas PopupCanvas => _popupCanvas;
+    public HighestCanvas HighestCanvas => _highestCanvas;
     public DialoguePlayer DialoguePlayerPrefab => _dialoguePlayerPrefab;
 
     public ChoiceSetWindowDouble ChoiceSetWindowDoublePrefab { get => _choiceSetDoublePrefab; }
