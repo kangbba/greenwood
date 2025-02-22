@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using UnityEngine.UI;
 using DG.Tweening;
+using UnityEditor;
 
 public class Cheek : MonoBehaviour
 {
@@ -33,6 +34,20 @@ public class Cheek : MonoBehaviour
             _cheekImg.DOFade(targetAlpha, duration); // Tween으로 부드러운 변화
         }
     }
+    #if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (!Application.isPlaying)
+        {
+            transform.localPosition = Vector3.zero; // ✅ 항상 (0,0,0) 유지
+            transform.localRotation = Quaternion.identity; // ✅ 항상 회전 없음
+            transform.localScale = Vector3.one;
+            
+            EditorUtility.SetDirty(this);
+            SceneView.RepaintAll();
+        }
+    }
+    #endif
 
     /// <summary>
     /// Sirenix Odin Inspector 버튼을 활용한 Flush 효과 토글

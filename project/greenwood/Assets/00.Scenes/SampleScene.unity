@@ -158,7 +158,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ef98b38734ee04278ace8ae74d2a6807, type: 2}
   _characterPrefabs:
   - {fileID: 7860047342127577918, guid: 01090ede9ee13485a8ca5dc0df639eea, type: 3}
-  - {fileID: 7860047342127577918, guid: 1304a5b5f24f94fe5abbe65dbf44dc13, type: 3}
+  - {fileID: 7860047342127577918, guid: e2be9afd8ad9d4e56b3da58ac0892ca6, type: 3}
 --- !u!4 &1559227
 Transform:
   m_ObjectHideFlags: 0

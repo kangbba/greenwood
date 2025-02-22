@@ -99,11 +99,11 @@ public class Character : AnimationImage
     {
         return location switch
         {
-            CharacterLocation.Left2 => screenWidth * -0.33f,
-            CharacterLocation.Left1 => screenWidth * -0.15f,
+            CharacterLocation.Left2 => -400,
+            CharacterLocation.Left1 => -200,
             CharacterLocation.Center => 0f,
-            CharacterLocation.Right1 => screenWidth * 0.15f,
-            CharacterLocation.Right2 => screenWidth * 0.33f,
+            CharacterLocation.Right1 => 200,
+            CharacterLocation.Right2 => 400,
             _ => 0f
         };
     }

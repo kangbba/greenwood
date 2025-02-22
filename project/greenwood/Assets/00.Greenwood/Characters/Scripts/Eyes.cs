@@ -3,19 +3,17 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
 using Sirenix.OdinInspector;
+using UnityEditor;
 
 public class Eyes : MonoBehaviour
 {
-    [SerializeField] private bool _useAnimation = true; // 애니메이션 사용 여부
+    private bool UseAnimation => _closedObj != null && _openedObj != null;
 
     private Vector2 closedDurationRange = new Vector2(0.1f, 0.2f);
 
     private Vector2 openedDurationRange = new Vector2(3f, 5f);
 
-    [ShowIf("_useAnimation")]
     [SerializeField] private GameObject _closedObj;
-
-    [ShowIf("_useAnimation")]
     [SerializeField] private GameObject _openedObj;
 
     private CancellationTokenSource _cts;
@@ -26,7 +24,7 @@ public class Eyes : MonoBehaviour
     /// </summary>
     private void Toggle()
     {
-        if (!_useAnimation) return; // 애니메이션을 사용하지 않으면 실행 안 함
+        if (!UseAnimation) return; // 애니메이션을 사용하지 않으면 실행 안 함
         SetOpen(!_isEyesOpened);
     }
 
@@ -35,10 +33,10 @@ public class Eyes : MonoBehaviour
     /// </summary>
     private void SetOpen(bool isOpen)
     {
-        if (!_useAnimation) return; // 애니메이션을 사용하지 않으면 실행 안 함
+        if (!UseAnimation) return; // 애니메이션을 사용하지 않으면 실행 안 함
         _isEyesOpened = isOpen;
 
-        if (!_useAnimation) return; // 애니메이션을 사용하지 않으면 바로 종료
+        if (!UseAnimation) return; // 애니메이션을 사용하지 않으면 바로 종료
 
         if(_closedObj != null)
         {
@@ -50,9 +48,29 @@ public class Eyes : MonoBehaviour
         }
     }
 
+       /// <summary>
+    /// ✅ **에디터에서 Transform (Local Position, Local Rotation) 고정**
+    /// </summary>
+    /// 
+    #if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (!Application.isPlaying)
+        {
+            transform.localPosition = Vector3.zero; // ✅ 항상 (0,0,0) 유지
+            transform.localRotation = Quaternion.identity; // ✅ 항상 회전 없음
+            transform.localScale = Vector3.one;
+            
+            EditorUtility.SetDirty(this);
+            SceneView.RepaintAll();
+        }
+    }
+    #endif
+
+
    public async UniTaskVoid Play()
     {
-        if (!_useAnimation) return; // 애니메이션을 사용하지 않으면 실행 안 함
+        if (!UseAnimation) return; // 애니메이션을 사용하지 않으면 실행 안 함
 
 
         _cts = new CancellationTokenSource();
@@ -85,7 +103,7 @@ public class Eyes : MonoBehaviour
     /// </summary>
     public void Stop()
     {
-        if (!_useAnimation) return; // 애니메이션을 사용하지 않으면 실행 안 함
+        if (!UseAnimation) return; // 애니메이션을 사용하지 않으면 실행 안 함
         if (_cts != null)
         {
             _cts.Cancel();
@@ -100,7 +118,7 @@ public class Eyes : MonoBehaviour
     /// 눈 감기/뜨기 미리보기 버튼 (Sirenix Odin)
     /// </summary>
     [Button("👀 눈 깜빡이기 미리보기", ButtonSizes.Large)]
-    private void PreviewBlink()
+    public void PreviewBlink()
     {
         Toggle();
     }

@@ -2,16 +2,6 @@
 /// <summary>
 /// 감정 상태 Enum
 /// </summary>
-public enum KateEmotionType
-{
-    Happy,
-    Exited,
-    Angry,
-    YeahRight,
-    Concerned,
-    Shy
-}
-
 
 /// <summary>
 /// 포즈 상태 Enum
@@ -22,6 +12,31 @@ public enum KatePoseType
     HandsBack,
     ArmCrossed,
 }
+public enum LisaEmotionType
+{
+    Happy,
+
+    Smile
+    
+}
+
+public enum LisaPoseType
+{
+    HandsFront,
+    HandsBack,
+    ArmCrossed,
+}
+
+public enum CommonEmotionType
+{
+    Normal
+}
+
+public enum CommonPoseType
+{
+    Normal
+}
+
 
 public enum ECharacterName
 {

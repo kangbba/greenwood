@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
 using Sirenix.OdinInspector;
+using UnityEditor;
 
 public class Mouth : MonoBehaviour
 {
@@ -22,6 +23,20 @@ public class Mouth : MonoBehaviour
     private bool _isMouthOpened = false; // 입 닫힌 상태에서 시작
 
 
+    #if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (!Application.isPlaying)
+        {
+            transform.localPosition = Vector3.zero; // ✅ 항상 (0,0,0) 유지
+            transform.localRotation = Quaternion.identity; // ✅ 항상 회전 없음
+            transform.localScale = Vector3.one;
+            
+            EditorUtility.SetDirty(this);
+            SceneView.RepaintAll();
+        }
+    }
+    #endif
     /// <summary>
     /// 입 열기/닫기 상태 전환
     /// </summary>
@@ -104,7 +119,7 @@ public class Mouth : MonoBehaviour
     /// 입 열기/닫기 미리보기 버튼 (Sirenix Odin)
     /// </summary>
     [Button("👄 입 움직이기 미리보기", ButtonSizes.Large)]
-    private void PreviewMouth()
+    public void PreviewMouth()
     {
         Toggle();
     }

@@ -1,7 +1,5 @@
 using UnityEngine;
 using Cysharp.Threading.Tasks;
-using System;
-using System.Collections.Generic;
 
 public enum CharacterLocation
 {
@@ -33,7 +31,25 @@ public class CharacterEnter : Element
         _location = location;
         _duration = duration;
     }
+// ✅ Lisa 전용 생성자 추가
+    public CharacterEnter(ECharacterName characterName, LisaEmotionType lisaEmotionType, LisaPoseType lisaPoseType, CharacterLocation location, float duration = 1f)
+    {
+        _characterName = characterName;
+        _initialEmotionID = lisaEmotionType.ToString();
+        _initialPoseID = lisaPoseType.ToString();
+        _location = location;
+        _duration = duration;
+    }
 
+    // ✅ 공용(Common) 캐릭터 전용 생성자 추가
+    public CharacterEnter(ECharacterName characterName, CommonEmotionType commonEmotionType, CommonPoseType commonPoseType, CharacterLocation location, float duration = 1f)
+    {
+        _characterName = characterName;
+        _initialEmotionID = commonEmotionType.ToString();
+        _initialPoseID = commonPoseType.ToString();
+        _location = location;
+        _duration = duration;
+    }
 
     public override void ExecuteInstantly()
     {

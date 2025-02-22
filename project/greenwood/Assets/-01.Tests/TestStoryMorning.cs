@@ -5,114 +5,137 @@ public class TestStoryMorning : Story
 {
     public override List<Element> UpdateElements { get; } = new List<Element>
     {
-        new CharacterEnter(ECharacterName.Kate, KateEmotionType.Happy, KatePoseType.HandsFront, CharacterLocation.Left1, 1f),
-        new CharacterEnter(ECharacterName.Lisa, KateEmotionType.Happy, KatePoseType.HandsFront, CharacterLocation.Right1, 1f),
+        // ✅ 케이트의 밝은 인사
+        new CharacterEnter(ECharacterName.Kate, KateEmotionType.Happy, KatePoseType.HandsFront, CharacterLocation.Center, 1f),
+        new Dialogue(ECharacterName.Kate, new List<string>
+        {
+            "좋아, 오늘도 완벽한 아침이야!",
+            "라이언, 너도 그렇게 생각하지 않아?",
+        }),
 
-        new Dialogue(ECharacterName.Kate, 
-            new List<string>
-            {
-                "요즘 라이언이랑 자주 다니더라?",
-                "그렇게 친했었나? 난 몰랐네?",
-            }
-        ),
+        new Dialogue(ECharacterName.Ryan, new List<string>
+        {
+            "음… 아직 완벽하진 않은데.",
+        }),
 
-        new Dialogue(ECharacterName.Lisa,
-            new List<string>
-            {
-                "어머, 그냥 우연히 자주 마주친 것뿐인데?",
-                "그렇다고 안 친하게 지낼 이유도 없잖아?",
-            }
-        ),
-        new ImaginationEnter(false, "Ruin", 1f),
+        new EmotionChange(ECharacterName.Kate, KateEmotionType.Surprised, KatePoseType.HandsBack),
+        new Dialogue(ECharacterName.Kate, new List<string>
+        {
+            "에?! 뭐가 부족한데?",
+        }),
 
-        new Dialogue(ECharacterName.Kate, 
-            new List<string>
-            {
-                "어떤 폐가의 모습을 상상해봐! ",
-            }
-        ),
-        new ImaginationExit(false, 1f),
-
-        new ImaginationEnter(true, "Cafe", 1f),
-         
-        new Dialogue(ECharacterName.Kate, 
-            new List<string>
-            {
-                "이번엔 카페의 모습을 상상해봐! ",
-            }
-        ),
-        new ImaginationExit(true, 1f),
-
-
+        new Dialogue(ECharacterName.Ryan, new List<string>
+        {
+            "크루아상. 아직 못 먹어봤잖아.",
+        }),
 
         new EmotionChange(ECharacterName.Kate, KateEmotionType.Angry, KatePoseType.ArmCrossed),
+        new Dialogue(ECharacterName.Kate, new List<string>
+        {
+            "흥! 그렇게 중요한 거였어? 빵 없으면 하루가 망하는 거야?",
+        }),
 
-        new Dialogue(ECharacterName.Kate, 
-            new List<string>
-            {
-                "헤에~ 그렇구나? 근데 진짜 신기하네.",
-                "라이언이랑 말도 잘 통하는 것 같던데?",
-            }
-        ),
+        new MonoDialogue(new List<string>
+        {
+            "케이트는 뺨을 부풀리며 귀엽게 투덜거렸다.",
+        }),
 
-        new Dialogue(ECharacterName.Lisa,
-            new List<string>
-            {
-                "그럼~! 라이언이랑 얘기하면 시간 가는 줄도 모르겠더라.",
-                "서로 관심사도 비슷하고 말이야.",
-            }
-        ),
+        new EmotionChange(ECharacterName.Kate, KateEmotionType.YeahRight, KatePoseType.HandsFront),
+        new Dialogue(ECharacterName.Kate, new List<string>
+        {
+            "알겠어, 알겠어. 특별히 갓 구운 크루아상을 준비했지!",
+        }),
+
+        // ✅ 상상 연출: 갓 구운 크루아상의 향
+        new ImaginationOverlayEnter("FreshBread", 1.5f),
+        new MonoDialogue(new List<string>
+        {
+            "따뜻한 버터 향이 퍼지며 공기를 가득 채웠다.",
+        }),
+
+        new Dialogue(ECharacterName.Ryan, new List<string>
+        {
+            "이 향기… 이건 반칙이잖아.",
+        }),
+
+        new ImaginationOverlayClear(1f),
+
+        new Dialogue(ECharacterName.Kate, new List<string>
+        {
+            "그치? 그러니까 한 입만 먹어봐!",
+        }),
+
+        new EmotionChange(ECharacterName.Kate, KateEmotionType.Happy, KatePoseType.HandsFront),
+        new Dialogue(ECharacterName.Ryan, new List<string>
+        {
+            "좋아, 이번엔 기대해볼까?",
+        }),
+
+        new MonoDialogue(new List<string>
+        {
+            "라이언은 케이트가 내민 크루아상을 받아 들었다.",
+            "겉은 바삭하고 속은 부드러운 완벽한 식감이었다.",
+        }),
+
+        new Dialogue(ECharacterName.Ryan, new List<string>
+        {
+            "…이제 완벽한 아침이야.",
+        }),
+
+        new EmotionChange(ECharacterName.Kate, KateEmotionType.Shy, KatePoseType.HandsBack),
+        new Dialogue(ECharacterName.Kate, new List<string>
+        {
+            "으, 으응? 그, 그래?",
+            "그렇게까지 맛있진 않을 텐데…?",
+        }),
+
+        new MonoDialogue(new List<string>
+        {
+            "케이트는 괜히 머리를 긁적이며 시선을 피했다.",
+        }),
+
+        new Dialogue(ECharacterName.Ryan, new List<string>
+        {
+            "뭐야, 방금 반응. 설마 부끄러운 거야?",
+        }),
 
         new EmotionChange(ECharacterName.Kate, KateEmotionType.Angry, KatePoseType.ArmCrossed),
+        new Dialogue(ECharacterName.Kate, new List<string>
+        {
+            "누, 누가 부끄럽다는 거야! 그런 거 아니거든?!",
+        }),
 
-        new Dialogue(ECharacterName.Kate, 
-            new List<string>
-            {
-                "하~ 그래? 관심사까지 비슷하고?",
-                "그럼 뭐, 앞으로는 매일 같이 붙어 다니겠네?",
-            }
-        ),
+        new MonoDialogue(new List<string>
+        {
+            "케이트는 얼굴을 붉히며 허둥지둥 손을 흔들었다.",
+        }),
 
-        new Dialogue(ECharacterName.Lisa,
-            new List<string>
-            {
-                "아, 그럴까? 라이언도 괜찮다면야~",
-            }
-        ),
+        new Dialogue(ECharacterName.Ryan, new List<string>
+        {
+            "알았어, 알았어. 그러니까 크루아상 하나만 더 줘.",
+        }),
 
-        new Dialogue(ECharacterName.Ryan,
-            new List<string>
-            {
-                "응? 뭐가? 난 그냥—",
-            }
-        ),
+        new EmotionChange(ECharacterName.Kate, KateEmotionType.Serious, KatePoseType.HandsFront),
+        new Dialogue(ECharacterName.Kate, new List<string>
+        {
+            "…너 지금 내 빵을 노리는 거야?",
+        }),
 
-        new EmotionChange(ECharacterName.Kate, KateEmotionType.Angry, KatePoseType.ArmCrossed),
+        new Dialogue(ECharacterName.Ryan, new List<string>
+        {
+            "아니, 내 하루를 완벽하게 만들려고.",
+        }),
 
-        new Dialogue(ECharacterName.Kate, 
-            new List<string>
-            {
-                "됐어, 됐어! 나는 빵이나 굽고 있어야겠네.",
-                "너희 둘이서 재미있게 놀아~ 난 방해하면 안 되니까!",
-            }
-        ),
+        new EmotionChange(ECharacterName.Kate, KateEmotionType.Happy, KatePoseType.HandsBack),
+        new Dialogue(ECharacterName.Kate, new List<string>
+        {
+            "흥~ 어쩔 수 없네. 특별히 한 개 더!",
+        }),
 
-        new CharacterExit(ECharacterName.Kate),
-
-        new CharacterMove(ECharacterName.Lisa, CharacterLocation.Center),
-        
-        new Dialogue(ECharacterName.Mono,
-            new List<string>
-            {
-                "…케이트, 화난 것 같은데?",
-            }
-        ),
-
-        new Dialogue(ECharacterName.Lisa,
-            new List<string>
-            {
-                "어머, 그런가? 난 그냥 사실대로 말했을 뿐인데?",
-            }
-        ),
+        new MonoDialogue(new List<string>
+        {
+            "창밖으로 아침 햇살이 퍼지고 있었다.",
+            "케이트와 함께하는 이 순간이, 예상보다 훨씬 따뜻하게 느껴졌다.",
+        }),
     };
 }

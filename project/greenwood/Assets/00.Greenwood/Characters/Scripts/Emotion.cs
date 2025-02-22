@@ -1,22 +1,15 @@
-using System;
 using UnityEngine;
-using static Character;
 using Sirenix.OdinInspector;
 
 public class Emotion : AnimationImage
 {
-    [EnumPaging, OnValueChanged(nameof(OnValueChangedCurrentEmotion))]
-    [SerializeField] private KateEmotionType _emotionType; // Inspector에서 직접 설정
-    public KateEmotionType EmotionType => _emotionType;
+    [SerializeField] private string _emotionID; // ✅ Inspector에서 직접 설정 가능
 
     [SerializeField] private Eyes _eyes;
     [SerializeField] private Mouth _mouth;
     [SerializeField] private Cheek _cheek;
 
-    private void Awake()
-    {
-        OnValueChangedCurrentEmotion(); // 초기 실행 시 GameObject 이름 동기화
-    }
+    public string EmotionID { get => _emotionID; }
 
     public void Init()
     {
@@ -53,12 +46,17 @@ public class Emotion : AnimationImage
             _eyes.Stop();
         }
     }
+#if UNITY_EDITOR
 
-    /// <summary>
-    /// Inspector에서 EmotionType 변경 시 GameObject 이름 자동 변경
-    /// </summary>
-    private void OnValueChangedCurrentEmotion()
+    [Button("➡ Random Eyes And Mouth")]
+    public void RandomEyesAndMouth()
     {
-        gameObject.name = $"{_emotionType}";
+        if(Random.Range(0,1f) < .3f){
+        _eyes.PreviewBlink();
+        }
+        if(Random.Range(0,1f) < .7f){
+        _mouth.PreviewMouth();
+        }
     }
+#endif
 }

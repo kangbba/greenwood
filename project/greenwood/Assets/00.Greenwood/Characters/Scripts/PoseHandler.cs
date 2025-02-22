@@ -9,10 +9,7 @@ public class PoseHandler : MonoBehaviour
     [SerializeField, ListDrawerSettings(ShowFoldout = true)]
     private List<Pose> _poses = new();
 
-    [EnumPaging, OnValueChanged(nameof(OnValueChangedCurrentPose))]
-    [SerializeField]
-    private KatePoseType _previewPoseType; // 유지
-
+    private int _currentPoseIndex = 0;
     private string _currentPoseID; // 실제 포즈 ID는 string으로 저장
 
     private void Awake()
@@ -20,29 +17,52 @@ public class PoseHandler : MonoBehaviour
         FetchPoses();
     }
 
-    /// <summary>
-    /// 인스펙터에서 `_currentPoseType` 값이 바뀔 때마다 호출
-    /// </summary>
-    private void OnValueChangedCurrentPose()
+ #if UNITY_EDITOR
+    [Button("➡ Next Pose")]
+    private void CyclePose()
     {
         FetchPoses();
-        SetPose(_previewPoseType.ToString(), 0f);
-        
-#if UNITY_EDITOR
+
+        if (_poses.Count == 0)
+        {
+            Debug.LogWarning("[PoseHandler] No poses found.");
+            return;
+        }
+
+        // ✅ 순회 로직 (리스트 끝에 도달하면 처음으로 돌아감)
+        _currentPoseIndex = (_currentPoseIndex + 1) % _poses.Count;
+        SetPose(_poses[_currentPoseIndex].PoseID, 0f, false);
+
+        // ✅ SceneView & 인스펙터 갱신
         EditorApplication.delayCall += () =>
         {
             EditorUtility.SetDirty(this);
             SceneView.RepaintAll();
         };
-#endif
     }
+    /// <summary>
+    /// ✅ **에디터에서 Transform (Local Position, Local Rotation) 고정**
+    /// </summary>
+    private void OnValidate()
+    {
+        if (!Application.isPlaying)
+        {
+            transform.localPosition = Vector3.zero; // ✅ 항상 (0,0,0) 유지
+            transform.localRotation = Quaternion.identity; // ✅ 항상 회전 없음
+            transform.localScale = Vector3.one;
+
+            EditorUtility.SetDirty(this);
+            SceneView.RepaintAll();
+        }
+    }
+    #endif
 
     public void FetchPoses()
     {
         _poses = new List<Pose>(GetComponentsInChildren<Pose>(true));
     }
 
-    public void SetPose(string poseID, float duration)
+    public void SetPose(string poseID, float duration, bool isRuntime = true)
     {
         if(poseID == null){
             Debug.LogWarning("poseID null");
@@ -65,13 +85,18 @@ public class PoseHandler : MonoBehaviour
         foreach (var p in _poses)
         {
             bool isTarget = p == newPose;
-            p.gameObject.SetActive(isTarget);
             if(isTarget){
-                p.FadeIn(duration);
+                p.gameObject.SetActive(true);
+                p.FadeFrom(target : 1f, 0f, duration);
             }
             else{
                 p.FadeOut(duration);
+                p.gameObject.SetActive(false, duration);
             }
+        }
+
+        if(isRuntime){
+            newPose.Init();
         }
 
         Debug.Log($"[PoseHandler] 포즈 변경: `{_currentPoseID}`");
@@ -79,6 +104,6 @@ public class PoseHandler : MonoBehaviour
 
     public Pose GetPose(string poseID)
     {
-        return _poses.Find(p => p.PoseType.ToString() == poseID);
+        return _poses.Find(p => p.PoseID == poseID);
     }
 }

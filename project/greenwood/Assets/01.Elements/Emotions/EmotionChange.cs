@@ -1,6 +1,4 @@
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
-using System;
 using UnityEngine;
 
 public class EmotionChange : Element
@@ -11,7 +9,7 @@ public class EmotionChange : Element
     private float _duration;
 
    // 생성자: 문자열 기반 (직접 지정)
-    public EmotionChange(ECharacterName characterName, string emotionID, string poseID, float duration = 0.5f)
+    public EmotionChange(ECharacterName characterName, string emotionID, string poseID, float duration = 1f)
     {
         _characterName = characterName;
         _emotionID = emotionID;
@@ -21,7 +19,7 @@ public class EmotionChange : Element
     }
 
     // 생성자: KateEmotionType & KatePoseType 사용
-    public EmotionChange(ECharacterName characterName, KateEmotionType emotionType, KatePoseType poseType, float duration = 0.5f)
+    public EmotionChange(ECharacterName characterName, KateEmotionType emotionType, KatePoseType poseType, float duration = 1f)
     {
         _characterName = characterName;
         _emotionID = emotionType.ToString();
@@ -30,6 +28,15 @@ public class EmotionChange : Element
         Debug.Log($"[EmotionChange] Initialized - Character: {_characterName}, Emotion: {_emotionID}, Pose: {_poseID}");
     }
 
+    // 생성자: KateEmotionType & KatePoseType 사용
+    public EmotionChange(ECharacterName characterName, LisaEmotionType emotionType, LisaPoseType poseType, float duration = 1f)
+    {
+        _characterName = characterName;
+        _emotionID = emotionType.ToString();
+        _poseID = poseType.ToString();
+        _duration = duration;
+        Debug.Log($"[EmotionChange] Initialized - Character: {_characterName}, Emotion: {_emotionID}, Pose: {_poseID}");
+    }
 
     public override void ExecuteInstantly()
     {
