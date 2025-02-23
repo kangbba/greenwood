@@ -1,10 +1,10 @@
 public enum KateEmotionType
-    {
-        Angry,
+{
     Concerned,
     Happy,
+    Rage,
     Serious,
     Shy,
     Surprised,
     YeahRight,
-    }
+}

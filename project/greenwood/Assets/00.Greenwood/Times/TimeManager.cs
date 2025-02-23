@@ -5,8 +5,8 @@ public class TimeManager : MonoBehaviour
 {
     public static TimeManager Instance { get; private set; }
 
-    public ReactiveProperty<int> CurrentDay { get; private set; } = new ReactiveProperty<int>(1); // 1일부터 시작
-    public ReactiveProperty<TimePhase> CurrentTimePhase { get; private set; } = new ReactiveProperty<TimePhase>(TimePhase.Morning);
+    public ReactiveProperty<int> CurrentDayNotifier { get; private set; } = new ReactiveProperty<int>(1); // 1일부터 시작
+    public ReactiveProperty<TimePhase> CurrentTimePhaseNotifier { get; private set; } = new ReactiveProperty<TimePhase>(TimePhase.Morning);
 
     private void Awake()
     {
@@ -31,8 +31,8 @@ public class TimeManager : MonoBehaviour
 
         Debug.Log($"[TimeManager] 시간 변경: Day {day}, Phase {phase}");
 
-        CurrentDay.Value = day;
-        CurrentTimePhase.Value = phase;
+        CurrentDayNotifier.Value = day;
+        CurrentTimePhaseNotifier.Value = phase;
     }
 
     /// <summary>
@@ -40,7 +40,7 @@ public class TimeManager : MonoBehaviour
     /// </summary>
     public void ToTheNextDay()
     {
-        int nextDay = CurrentDay.Value + 1;
+        int nextDay = CurrentDayNotifier.Value + 1;
         SetTime(nextDay, TimePhase.Morning);
         Debug.Log($"[TimeManager] 다음 날로 이동: Day {nextDay}, Phase Morning");
     }

@@ -195,7 +195,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &6207995640881808826
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1234,7 +1234,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6063275831375111653
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1811,7 +1811,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7939149410618828213
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5079,7 +5079,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7750747650299427140
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5151,7 +5151,7 @@ GameObject:
   - component: {fileID: 577848164699259432}
   - component: {fileID: 5436664662706861222}
   m_Layer: 5
-  m_Name: Angry
+  m_Name: Rage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5229,7 +5229,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7768b6960044e457097f27d2de71f1b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _emotionID: Angry
+  _emotionID: Rage
   _eyes: {fileID: 292630285938158839}
   _mouth: {fileID: 1767101493181834631}
   _cheek: {fileID: 0}

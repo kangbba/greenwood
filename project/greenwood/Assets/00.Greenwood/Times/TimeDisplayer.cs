@@ -10,8 +10,8 @@ public class TimeDisplayer : MonoBehaviour
     {
         // ✅ 현재 날짜와 시간대 정보를 구독하여 UI에 업데이트
         Observable.CombineLatest(
-            TimeManager.Instance.CurrentDay,
-            TimeManager.Instance.CurrentTimePhase,
+            TimeManager.Instance.CurrentDayNotifier,
+            TimeManager.Instance.CurrentTimePhaseNotifier,
             (day, timePhase) => $"Day {day}, {timePhase}"
         )
         .Subscribe(timeText =>

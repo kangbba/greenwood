@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TestStoryMorning : Story
+public class TestStoryMorning : Scenario
 {
     public override List<Element> UpdateElements { get; } = new List<Element>
     {
@@ -29,7 +29,7 @@ public class TestStoryMorning : Story
             "크루아상. 아직 못 먹어봤잖아.",
         }),
 
-        new EmotionChange(ECharacterName.Kate, KateEmotionType.Angry, KatePoseType.ArmCrossed),
+        new EmotionChange(ECharacterName.Kate, KateEmotionType.Rage, KatePoseType.ArmCrossed),
         new Dialogue(ECharacterName.Kate, new List<string>
         {
             "흥! 그렇게 중요한 거였어? 빵 없으면 하루가 망하는 거야?",
@@ -99,7 +99,7 @@ public class TestStoryMorning : Story
             "뭐야, 방금 반응. 설마 부끄러운 거야?",
         }),
 
-        new EmotionChange(ECharacterName.Kate, KateEmotionType.Angry, KatePoseType.ArmCrossed),
+        new EmotionChange(ECharacterName.Kate, KateEmotionType.Rage, KatePoseType.ArmCrossed),
         new Dialogue(ECharacterName.Kate, new List<string>
         {
             "누, 누가 부끄럽다는 거야! 그런 거 아니거든?!",
