@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8527589695735050477}
   - component: {fileID: 3652836485596719002}
   m_Layer: 5
-  m_Name: SleepBtnPrefab
+  m_Name: ActionBtnPrefab (Bottom)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -66,7 +66,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uD734\uC2DD"
+  m_text: "~\uD558\uAE30"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 808aaf2d62ca949868d48053b54485a2, type: 2}
   m_sharedMaterial: {fileID: -497829494483873679, guid: 808aaf2d62ca949868d48053b54485a2, type: 2}

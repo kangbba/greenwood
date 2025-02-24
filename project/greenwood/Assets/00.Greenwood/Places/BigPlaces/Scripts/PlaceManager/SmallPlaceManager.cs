@@ -2,13 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UniRx;
 using UnityEngine;
-
-public enum ESmallPlaceName
-{
-    Bakery,
-    Herbshop,
-    CafeSeabreeze
-}
+using static SmallPlaceNames;
 
 public class SmallPlaceManager : MonoBehaviour
 {
@@ -54,7 +48,7 @@ public class SmallPlaceManager : MonoBehaviour
     /// <summary>
     /// SmallPlace를 생성하고 현재 장소로 설정
     /// </summary>
-    public SmallPlace CreateSmallPlace(ESmallPlaceName smallPlaceName)
+    private SmallPlace InstantiateSmallPlace(ESmallPlaceName smallPlaceName)
     {
         SmallPlace prefab = GetSmallPlace(smallPlaceName);
         if (prefab == null) return null;
@@ -63,9 +57,23 @@ public class SmallPlaceManager : MonoBehaviour
         Debug.Log($"[SmallPlaceManager] Entering SmallPlace: {smallPlaceName}");
         newSmallPlace.Init();
 
-        _currentSmallPlaceNotifier.Value = newSmallPlace; // ✅ ReactiveProperty 값 업데이트
-
         return newSmallPlace;
+    }
+
+    public void EnterSmallPlace(ESmallPlaceName smallPlaceName, float duration)
+    {
+        if(_currentSmallPlaceNotifier.Value != null){
+            ExitSmallPlace(duration);
+        }
+
+        SmallPlace smallPlace = InstantiateSmallPlace(smallPlaceName);
+        smallPlace.FadeIn(duration);
+
+        // ✅ 스토리를 미리 준비 (첫 장면만 적용)
+        smallPlace.ReadyForScenarioStart();
+
+        _currentSmallPlaceNotifier.Value = smallPlace; // ✅ ReactiveProperty 값 업데이트
+    
     }
 
     /// <summary>

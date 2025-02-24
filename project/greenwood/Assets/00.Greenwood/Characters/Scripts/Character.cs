@@ -4,6 +4,7 @@ using Sirenix.OdinInspector;
 using System;
 using DG.Tweening;
 using Microsoft.Unity.VisualStudio.Editor;
+using static CharacterEnums;
 
 /// <summary>
 /// 캐릭터의 전체적인 상태(Idle, Talking 등)

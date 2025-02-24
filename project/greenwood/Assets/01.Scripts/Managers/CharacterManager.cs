@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq; // ✅ LINQ 사용 추가
+using static CharacterEnums;
 
 public class CharacterManager : MonoBehaviour
 {

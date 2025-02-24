@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using System.Collections.Generic;
+using static CharacterEnums;
 
 public class Dialogue : Element
 {

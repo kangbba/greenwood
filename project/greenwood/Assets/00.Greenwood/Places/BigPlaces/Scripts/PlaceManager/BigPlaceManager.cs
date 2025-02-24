@@ -3,12 +3,7 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using UniRx;
 using UnityEngine;
-
-public enum EBigPlaceName
-{
-    Town,
-    CafeSeabreezeFront
-}
+using static BigPlaceNames;
 
 public class BigPlaceManager : MonoBehaviour
 {
@@ -54,7 +49,7 @@ public class BigPlaceManager : MonoBehaviour
     /// <summary>
     /// BigPlace를 생성하고 현재 장소로 설정
     /// </summary>
-    public BigPlace CreateBigPlace(EBigPlaceName placeName)
+    public BigPlace InstantiateBigPlace(EBigPlaceName placeName)
     {
         BigPlace prefab = GetBigPlace(placeName);
         if (prefab == null) return null;
@@ -62,25 +57,20 @@ public class BigPlaceManager : MonoBehaviour
         BigPlace newBigPlace = Instantiate(prefab, UIManager.Instance.GameCanvas.BigPlaceLayer);
         newBigPlace.Init();
 
-        _currentBigPlaceNotifier.Value = newBigPlace; // ✅ ReactiveProperty 값 업데이트
-
         return newBigPlace;
     }
 
-    public async UniTask MoveBigPlace(EBigPlaceName placeName)
+    public void MoveBigPlace(EBigPlaceName placeName, float duration)
     {   
         if(_currentBigPlaceNotifier.Value != null)
         {
-            ExitCurrentBigPlace(.3f);
-            await UniTask.WaitForSeconds(.3f);
+            ExitCurrentBigPlace(duration);
         }
-        BigPlace bigPlace = CreateBigPlace(placeName);
-        bigPlace.FadeIn(.5f);
-        
-        await UniTask.WaitForSeconds(.5f);
+        BigPlace bigPlace = InstantiateBigPlace(placeName);
+        bigPlace.FadeIn(duration);
+
+        _currentBigPlaceNotifier.Value = bigPlace; // ✅ ReactiveProperty 값 업데이트
     }
-
-
     /// <summary>
     /// 현재 BigPlace에서 퇴장
     /// </summary>

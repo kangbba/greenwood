@@ -1,50 +1,45 @@
-
-/// <summary>
-/// 감정 상태 Enum
-/// </summary>
-
-/// <summary>
-/// 포즈 상태 Enum
-/// </summary>
-public enum KatePoseType
+public class CharacterEnums
 {
-    HandsFront,
-    HandsBack,
-    ArmCrossed,
-}
-public enum LisaEmotionType
-{
-    Happy,
+    public enum KatePoseType
+    {
+        HandsFront,
+        HandsBack,
+        ArmCrossed,
+    }
+    public enum LisaEmotionType
+    {
+        Happy,
 
-    Smile
-    
-}
+        Smile
+        
+    }
 
-public enum LisaPoseType
-{
-    HandsFront,
-    HandsBack,
-    ArmCrossed,
-}
+    public enum LisaPoseType
+    {
+        HandsFront,
+        HandsBack,
+        ArmCrossed,
+    }
 
-public enum CommonEmotionType
-{
-    Normal
-}
+    public enum CommonEmotionType
+    {
+        Normal
+    }
 
-public enum CommonPoseType
-{
-    Normal
-}
+    public enum CommonPoseType
+    {
+        Normal
+    }
 
 
-public enum ECharacterName
-{
-    Mono,
-    Ryan,
-    Kate,
-    Joseph,
-    Lisa,
-    Eldra,
-    Amalian
+    public enum ECharacterName
+    {
+        Mono,
+        Ryan,
+        Kate,
+        Joseph,
+        Lisa,
+        Eldra,
+        Amalian
+    }
 }

@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using DG.Tweening;
+using static CharacterEnums;
 
 public class CharacterJump : Element
 {

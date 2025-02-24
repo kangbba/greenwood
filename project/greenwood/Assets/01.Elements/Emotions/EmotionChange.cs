@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using static CharacterEnums;
 
 public class EmotionChange : Element
 {

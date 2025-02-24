@@ -1,6 +1,8 @@
 using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using static SmallPlaceNames;
+using static BigPlaceNames;
 
 [Serializable]
 public class ScenarioMapping

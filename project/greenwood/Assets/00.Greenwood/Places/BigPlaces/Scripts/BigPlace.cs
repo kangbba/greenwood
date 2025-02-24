@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.UI;
+using static BigPlaceNames;
 
 public class BigPlace : AnimationImage
 {

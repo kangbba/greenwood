@@ -24,10 +24,10 @@ public class ScenarioManager : MonoBehaviour
         }
     }
 
-   /// <summary>
-    /// 외부에서 호출하여 스토리 체크를 실행하는 메서드
+    /// <summary>
+    /// ✅ 외부에서 호출하여 스토리 체크를 실행하는 메서드 (시작 전/후 콜백 추가)
     /// </summary>
-    public async UniTask TriggerScenarioIfExist()
+    public async UniTask TriggerScenarioIfExist(Action onBeforeStart = null, Action onAfterEnd = null)
     {
         if (_isScenarioPlayingNotifier.Value) 
         {
@@ -47,14 +47,19 @@ public class ScenarioManager : MonoBehaviour
         Debug.Log($"- TimePhase: {currentTimePhase}");
 
         string scenarioName = GetMatchingScenarioName(bigPlace, smallPlace, currentDay, currentTimePhase);
-        if (!string.IsNullOrEmpty(scenarioName))
+        if (string.IsNullOrEmpty(scenarioName))
         {
-            Debug.Log($"[ScenarioManager] Executing Scenario: {scenarioName}");
-            await ExecuteScenario(scenarioName); // ✅ 스토리 실행을 기다림
+            Debug.LogWarning("[ScenarioManager] scenarioName is null");
+            return; // ✅ 실행 중이면 즉시 종료
+
         }
-
-        await UniTask.WaitUntil(() => !_isScenarioPlayingNotifier.Value); // ✅ 스토리 종료 대기
-
+            
+        // ✅ 시작 전 콜백 실행
+        onBeforeStart?.Invoke();
+        Debug.Log($"[ScenarioManager] Executing Scenario: {scenarioName}");
+        await ExecuteScenario(scenarioName); // ✅ 스토리 실행을 기다림
+        // ✅ 스토리 종료 후 콜백 실행
+        onAfterEnd?.Invoke();
     }
 
 
@@ -88,7 +93,7 @@ public class ScenarioManager : MonoBehaviour
         Scenario scenarioInstance = CreateScenarioInstance(scenarioName);
         if (scenarioInstance != null)
         {
-            await ScenarioService.ExecuteScenarioSequence(scenarioInstance);
+            await scenarioInstance.ExecuteAsync();
         }
         else
         {
@@ -123,4 +128,5 @@ public class ScenarioManager : MonoBehaviour
             return null;
         }
     }
+
 }

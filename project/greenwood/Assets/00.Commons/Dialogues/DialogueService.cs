@@ -39,6 +39,11 @@ public static class DialogueService
         );
     }
 
+    public static void HideDialogue(float duration)
+    {
+        _dialoguePlayer.FadeOut(duration);
+    }
+
     /// <summary>
     /// 현재 다이얼로그를 즉시 완료
     /// </summary>

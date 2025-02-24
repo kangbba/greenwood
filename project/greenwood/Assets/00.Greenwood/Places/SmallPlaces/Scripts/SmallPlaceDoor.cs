@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using Sirenix.OdinInspector;
+using static SmallPlaceNames;
+
 
 public class SmallPlaceDoor : MonoBehaviour
 {

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using static CharacterEnums;
 
 public class TestStoryMorning : Scenario
 {

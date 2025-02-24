@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using UniRx;
 using Cysharp.Threading.Tasks;
+using static BigPlaceNames;
 
 public class MoveBigPlaceBtn : MonoBehaviour
 {

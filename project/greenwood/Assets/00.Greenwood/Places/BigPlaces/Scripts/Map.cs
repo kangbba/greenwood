@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UniRx;
 using Cysharp.Threading.Tasks;
+using static BigPlaceNames;
 
 public class Map : AnimationImage
 {

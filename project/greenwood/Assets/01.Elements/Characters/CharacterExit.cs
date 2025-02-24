@@ -1,5 +1,6 @@
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using static CharacterEnums;
 
 public class CharacterExit : Element
 {

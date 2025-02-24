@@ -1,4 +1,5 @@
 using UnityEngine;
+using static CharacterEnums;
 
 [CreateAssetMenu(fileName = "CharacterSetting", menuName = "Greenwood/CharacterSetting")]
 public class CharacterSetting : ScriptableObject

@@ -248,6 +248,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bottomButtonGroupPrefab: {fileID: 369383159306291410, guid: 8bfa96f5a92de4399af7c0390f8e6ba4, type: 3}
+  leftButtonGroupPrefab: {fileID: 369383159306291410, guid: 36e43cc701d534b508c9c7f5cb34c260, type: 3}
+  centerButtonGroupPrefab: {fileID: 369383159306291410, guid: 35569fb124e7a44caad237a20a15b927, type: 3}
+  _mapPrefab: {fileID: 6021799181241472935, guid: 5e3204d0b9873496c866dd5e092aee8b, type: 3}
 --- !u!4 &48179402
 Transform:
   m_ObjectHideFlags: 0
@@ -2036,7 +2039,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f333498537a04b1e99d5678513bcc47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _scenarioMappings: []
+  _scenarioMappings:
+  - _scenarioName: TestStoryMorning
+    _useBigPlace: 0
+    _useSmallPlace: 1
+    _useTargetDay: 1
+    _useTargetTimePhase: 0
+    _bigPlaceName: 0
+    _smallPlaceName: 0
+    _targetDay: 1
+    _targetTimePhase: 0
 --- !u!1 &1039587642
 GameObject:
   m_ObjectHideFlags: 0
@@ -2789,7 +2801,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df0a2975e3383429d9ec2ed0596f96fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isHorizontal: 1
+  _standardBtnPrefab: {fileID: 0}
+  _useAlign: 1
+  _isVertical: 0
   _spacing: 10
   _groupContainer: {fileID: 0}
   _buttonEntries: []
@@ -2977,11 +2991,11 @@ Transform:
   - {fileID: 840646989}
   - {fileID: 14984542}
   - {fileID: 1559227}
-  - {fileID: 344949053}
   - {fileID: 1713515521}
   - {fileID: 1004277731}
   - {fileID: 2082472776}
   - {fileID: 166404220}
+  - {fileID: 344949053}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2048616633

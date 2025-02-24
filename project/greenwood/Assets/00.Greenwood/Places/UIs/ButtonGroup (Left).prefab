@@ -58,7 +58,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.85882354}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.4392157}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -88,7 +88,7 @@ GameObject:
   - component: {fileID: 3959790509258974050}
   - component: {fileID: 369383159306291410}
   m_Layer: 5
-  m_Name: ButtonGroup (Bottom)
+  m_Name: ButtonGroup (Left)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -111,10 +111,10 @@ RectTransform:
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 127.3994}
-  m_Pivot: {x: 0.5, y: 0}
+  m_SizeDelta: {x: 300, y: 0}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &3748700507679821639
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -165,24 +165,48 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df0a2975e3383429d9ec2ed0596f96fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _standardBtnPrefab: {fileID: 3652836485596719002, guid: c2e12b4fe6d3f4b7d895e50213e9cc1f, type: 3}
+  _standardBtnPrefab: {fileID: 3652836485596719002, guid: e443e92cb108b4f60a6b1b9b9ff69fe1, type: 3}
   _useAlign: 1
-  _isVertical: 0
+  _isVertical: 1
   _spacing: 10
   _groupContainer: {fileID: 1718050739072379981}
   _buttonEntries:
+  - buttonId: Talk
+    useCustomPrefab: 0
+    buttonPrefab: {fileID: 0}
+    buttonText: "\uB300\uD654\uD558\uAE30"
+  - buttonId: Combine
+    useCustomPrefab: 0
+    buttonPrefab: {fileID: 0}
+    buttonText: "\uC870\uD569\uD558\uAE30"
+  - buttonId: Eat
+    useCustomPrefab: 0
+    buttonPrefab: {fileID: 0}
+    buttonText: "\uC2DD\uC0AC\uD558\uAE30"
+  - buttonId: Listening
+    useCustomPrefab: 0
+    buttonPrefab: {fileID: 0}
+    buttonText: "\uB4E3\uAE30"
+  - buttonId: Buy
+    useCustomPrefab: 0
+    buttonPrefab: {fileID: 0}
+    buttonText: "\uAD6C\uB9E4\uD558\uAE30"
+  - buttonId: Repair
+    useCustomPrefab: 0
+    buttonPrefab: {fileID: 0}
+    buttonText: "\uC218\uB9AC\uD558\uAE30"
+  - buttonId: Sell
+    useCustomPrefab: 0
+    buttonPrefab: {fileID: 0}
+    buttonText: "\uD310\uB9E4\uD558\uAE30"
+  - buttonId: Sleep
+    useCustomPrefab: 0
+    buttonPrefab: {fileID: 0}
+    buttonText: "\uC7A0\uC790\uAE30"
   - buttonId: Exit
     useCustomPrefab: 0
-    buttonPrefab: {fileID: 3652836485596719002, guid: c2e12b4fe6d3f4b7d895e50213e9cc1f, type: 3}
-    buttonText: "\uB098\uAC00\uAE30"
-  - buttonId: GoOut
-    useCustomPrefab: 0
-    buttonPrefab: {fileID: 3652836485596719002, guid: d183dcc62ca764639a70c2c072d79941, type: 3}
-    buttonText: "\uC678\uCD9C\uD558\uAE30"
-  - buttonId: GoHome
-    useCustomPrefab: 0
-    buttonPrefab: {fileID: 3652836485596719002, guid: e5be2654fc6ce4c9ca9a446ecaf27450, type: 3}
-    buttonText: "\uADC0\uAC00\uD558\uAE30"
+    buttonPrefab: {fileID: 0}
+    buttonText: "\uB098\uAC00"
 --- !u!1 &7131900856998271313
 GameObject:
   m_ObjectHideFlags: 0
