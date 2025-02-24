@@ -11,13 +11,6 @@ public abstract class Scenario : Element
     // 스토리 ID는 자동으로 클래스의 이름을 사용
     public virtual string ScenarioId => GetType().Name; // 클래스의 이름을 ID로 사용
 
-    protected Scenario _nextScenario;
-
-    public Scenario NextScenario
-    {
-        get => _nextScenario;
-        protected set => _nextScenario = value;
-    }
 
     public override async UniTask ExecuteAsync()
     {

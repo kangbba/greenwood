@@ -6,7 +6,6 @@ using TMPro;
 using DG.Tweening;
 using Sirenix.OdinInspector;
 
-
 [Serializable]
 public class ButtonEntry
 {
@@ -26,13 +25,10 @@ public class ButtonGroup : AnimationImage
 {
     [SerializeField] private Button _standardBtnPrefab; // ✅ 기본 버튼 프리팹
 
-    [SerializeField] private bool _useAlign = true; // ✅ Align 기능을 사용할지 여부
+    [SerializeField] private bool _useAlign; // ✅ Align 기능을 사용할지 여부
 
     [ShowIf(nameof(_useAlign))]
     [SerializeField] private bool _isVertical; // 정렬 방향 (가로/세로)
-
-    [ShowIf(nameof(_useAlign))]
-    [SerializeField] private float _spacing = 10f; // 버튼 간격
 
     [SerializeField] private Transform _groupContainer; // 버튼 그룹의 부모 오브젝트
     [SerializeField] private List<ButtonEntry> _buttonEntries = new List<ButtonEntry>(); // ✅ 버튼 바인딩 리스트
@@ -56,9 +52,9 @@ public class ButtonGroup : AnimationImage
     /// <summary>
     /// ✅ 개별 버튼 추가
     /// </summary>
-    public void AddButton(string buttonId, Action onClickAction)
+    public Button AddButton(string buttonId, Action onClickAction)
     {
-        if (_activeButtons.ContainsKey(buttonId)) return; // ✅ 중복 추가 방지
+        if (_activeButtons.ContainsKey(buttonId)) return null; // ✅ 중복 추가 방지
 
         // ✅ ButtonEntry에서 해당 버튼 ID를 찾아 프리팹 확인
         ButtonEntry entry = _buttonEntries.Find(e => e.buttonId == buttonId);
@@ -69,7 +65,7 @@ public class ButtonGroup : AnimationImage
         if (prefabToUse == null)
         {
             Debug.LogError($"[ButtonGroup] ERROR - No prefab found for button '{buttonId}'!");
-            return;
+            return null;
         }
 
         // ✅ 버튼 인스턴스 생성
@@ -89,6 +85,8 @@ public class ButtonGroup : AnimationImage
         _activeButtons[buttonId] = newButton;
 
         if (_useAlign) AlignButtons(); // ✅ _useAlign이 true일 때만 실행
+
+        return newButton;
     }
 
     /// <summary>
@@ -118,27 +116,40 @@ public class ButtonGroup : AnimationImage
     }
 
     /// <summary>
-    /// ✅ 버튼 자동 정렬 (_useAlign이 true일 때만 적용)
+    /// ✅ 버튼을 **완벽하게 중앙 정렬** (_useAlign이 true일 때만 적용)
     /// </summary>
     private void AlignButtons()
     {
         if (!_useAlign) return; // ✅ 정렬을 사용하지 않는 경우 실행 안 함
 
-        float positionOffset = 0f;
+        List<RectTransform> buttonTransforms = new List<RectTransform>();
+        float totalSize = 0f;
+        int buttonCount = _activeButtons.Count;
 
         foreach (var button in _activeButtons.Values)
         {
             RectTransform buttonTransform = button.GetComponent<RectTransform>();
+            buttonTransforms.Add(buttonTransform);
+            totalSize += _isVertical ? buttonTransform.sizeDelta.y : buttonTransform.sizeDelta.x;
+        }
+
+        float centerOffset = totalSize / 2f; // ✅ 전체 크기의 반을 구함 (중심점 계산)
+        float positionOffset = -centerOffset; // ✅ 시작점을 중심에서 조정
+
+        for (int i = 0; i < buttonCount; i++)
+        {
+            RectTransform buttonTransform = buttonTransforms[i];
+            float buttonSize = _isVertical ? buttonTransform.sizeDelta.y : buttonTransform.sizeDelta.x;
 
             if (_isVertical)
             {
-                buttonTransform.anchoredPosition = new Vector2(0, -positionOffset);
-                positionOffset += buttonTransform.sizeDelta.y + _spacing;
+                buttonTransform.anchoredPosition = new Vector2(0, -positionOffset + (buttonSize / 2));
+                positionOffset += buttonSize * 3f;
             }
             else
             {
-                buttonTransform.anchoredPosition = new Vector2(positionOffset, 0);
-                positionOffset += buttonTransform.sizeDelta.x + _spacing;
+                buttonTransform.anchoredPosition = new Vector2(positionOffset + (buttonSize / 2), 0);
+                positionOffset += buttonSize * 1.5f;
             }
         }
     }

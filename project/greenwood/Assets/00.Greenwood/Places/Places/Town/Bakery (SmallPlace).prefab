@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6734834896582843495}
   - component: {fileID: 7932703611288423483}
   m_Layer: 5
-  m_Name: Bakery
+  m_Name: Bakery (SmallPlace)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -35,8 +35,8 @@ public class ScenarioManager : MonoBehaviour
             return; // ✅ 실행 중이면 즉시 종료
         }
 
-        BigPlace bigPlace = BigPlaceManager.Instance.CurrentBigPlaceNotifier.Value;
-        SmallPlace smallPlace = SmallPlaceManager.Instance.CurrentSmallPlaceNotifier.Value;
+        BigPlace bigPlace = PlaceManager.Instance.CurrentBigPlaceNotifier.Value;
+        SmallPlace smallPlace = PlaceManager.Instance.CurrentSmallPlaceNotifier.Value;
         int currentDay = TimeManager.Instance.CurrentDayNotifier.Value;
         TimePhase currentTimePhase = TimeManager.Instance.CurrentTimePhaseNotifier.Value;
 

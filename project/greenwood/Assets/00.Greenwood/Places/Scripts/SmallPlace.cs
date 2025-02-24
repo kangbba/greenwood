@@ -8,10 +8,10 @@ public class SmallPlace : AnimationImage
     [SerializeField] private ESmallPlaceName smallPlaceName;
     private Scenario _scenarioToPlay;
     public ESmallPlaceName SmallPlaceName => smallPlaceName;
-
     public Scenario ScenarioToPlay { get => _scenarioToPlay; }
 
-    public void Init(){
+    public void Init()
+    {
         FadeOut(0f);
     }   
     
@@ -20,13 +20,26 @@ public class SmallPlace : AnimationImage
         _scenarioToPlay = scenarioToPlay;
     }
 
-    public void ReadyForScenarioStart(){
+    public void ReadyForScenarioStart()
+    {
+        if (_scenarioToPlay == null)
+        {
+            Debug.LogWarning($"[SmallPlace] WARNING - No Scenario assigned for {smallPlaceName}. ReadyForScenarioStart() skipped.");
+            return;
+        }
 
         _scenarioToPlay.ReadyForScenarioStart();
     }
 
+
     public async UniTask PlayScenario()
     {
+        if (_scenarioToPlay == null)
+        {
+            Debug.LogWarning($"[SmallPlace] WARNING - No Scenario assigned for {smallPlaceName}. PlayScenario() skipped.");
+            return;
+        }
+
         await _scenarioToPlay.ExecuteAsync();
     }
 
