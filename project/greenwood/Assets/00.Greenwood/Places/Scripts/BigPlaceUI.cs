@@ -35,7 +35,7 @@ public class BigPlaceUI : AnimationImage
                     {
                         { 
                             "GoOut", () => { 
-                                CreateAndShowMap();
+                             //  CreateAndShowMap();
                                 Debug.Log("GoOut button clicked"); 
                             } 
                         },
@@ -55,7 +55,7 @@ public class BigPlaceUI : AnimationImage
             .AddTo(this); // 자동 구독 해제   
     }
 
-    private async void CreateAndShowMap()
+    private async void CreateAndShowMap(Action action)
     {
         // ✅ 기존 맵이 존재하면 제거
         if (_currentMap != null)
@@ -74,7 +74,8 @@ public class BigPlaceUI : AnimationImage
         if (selectedPlace.HasValue)
         {
             Debug.Log($"[BigPlaceUI] Moving to {selectedPlace.Value}");
-            PlaceManager.Instance.MoveBigPlace(selectedPlace.Value, .5f);
+            action?.Invoke();
+       //     PlaceManager.Instance.MoveBigPlace(selectedPlace.Value, .5f);
         }
         else
         {

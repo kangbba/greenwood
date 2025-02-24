@@ -396,41 +396,32 @@ MonoBehaviour:
   _standardBtnPrefab: {fileID: 3652836485596719002, guid: e443e92cb108b4f60a6b1b9b9ff69fe1, type: 3}
   _useAlign: 1
   _isVertical: 1
-  _spacing: 100
   _groupContainer: {fileID: 1995637971852763843}
   _buttonEntries:
   - buttonId: Talk
     useCustomPrefab: 0
     buttonPrefab: {fileID: 0}
     buttonText: "\uB300\uD654\uD558\uAE30"
-  - buttonId: Combine
+  - buttonId: Order
     useCustomPrefab: 0
     buttonPrefab: {fileID: 0}
-    buttonText: "\uC870\uD569\uD558\uAE30"
-  - buttonId: Eat
-    useCustomPrefab: 0
-    buttonPrefab: {fileID: 0}
-    buttonText: "\uC2DD\uC0AC\uD558\uAE30"
-  - buttonId: Listening
-    useCustomPrefab: 0
-    buttonPrefab: {fileID: 0}
-    buttonText: "\uB4E3\uAE30"
+    buttonText: "\uC8FC\uBB38\uD558\uAE30"
   - buttonId: Buy
     useCustomPrefab: 0
     buttonPrefab: {fileID: 0}
     buttonText: "\uAD6C\uB9E4\uD558\uAE30"
-  - buttonId: Repair
-    useCustomPrefab: 0
-    buttonPrefab: {fileID: 0}
-    buttonText: "\uC218\uB9AC\uD558\uAE30"
   - buttonId: Sell
     useCustomPrefab: 0
     buttonPrefab: {fileID: 0}
     buttonText: "\uD310\uB9E4\uD558\uAE30"
-  - buttonId: Sleep
+  - buttonId: Repair
     useCustomPrefab: 0
     buttonPrefab: {fileID: 0}
-    buttonText: "\uC7A0\uC790\uAE30"
+    buttonText: "\uC218\uB9AC\uD558\uAE30"
+  - buttonId: Heal
+    useCustomPrefab: 0
+    buttonPrefab: {fileID: 0}
+    buttonText: "\uCE58\uB8CC\uD558\uAE30"
   - buttonId: Exit
     useCustomPrefab: 0
     buttonPrefab: {fileID: 0}

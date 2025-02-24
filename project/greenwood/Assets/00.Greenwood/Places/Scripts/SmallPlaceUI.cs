@@ -3,73 +3,59 @@ using TMPro;
 using UniRx;
 using System.Collections.Generic;
 using System;
-using static SmallPlaceNames;
-
 public class SmallPlaceUI : AnimationImage
 {
     [SerializeField] private ButtonGroup leftButtonGroup;
-    [SerializeField] private TextMeshProUGUI placeNameText; // ✅ 장소 이름
+    [SerializeField] private TextMeshProUGUI placeNameText;
 
     public void Init()
     {
-        // ✅ 초기 설정
-        FadeOut(0f); // ✅ 기본적으로 숨김
+        FadeOut(0f);
 
-        // ✅ SmallPlace의 변경을 감지하여 UI 업데이트
         PlaceManager.Instance.CurrentSmallPlaceNotifier
             .Subscribe(smallPlace =>
             {
-                if (smallPlace != null) // 스몰플레이스 입장
+                if (smallPlace != null)
                 {
-                    Debug.Log("[SmallPlaceUI] SmallPlace detected. Showing LeftPanel.");
+                    Debug.Log("[SmallPlaceUI] SmallPlace detected. Showing UI.");
                     FadeIn(0.3f);
-                    leftButtonGroup.SetButtonGroup(GetSmallPlaceButtonGroup(smallPlace.SmallPlaceName));
-                    placeNameText.text = smallPlace.SmallPlaceName.ToString(); // ✅ UI 업데이트
+
+                    // ✅ Exit 버튼을 마지막에 배치한 후 UI 업데이트
+                    leftButtonGroup.SetButtonGroup(SortActionsWithExitLast(smallPlace.GetActions()));
+                    placeNameText.text = smallPlace.SmallPlaceName.ToString();
                 }
-                else // 스몰플레이스 퇴장
+                else
                 {
-                    Debug.Log("[SmallPlaceUI] SmallPlace exited. Hiding LeftPanel.");
+                    Debug.Log("[SmallPlaceUI] SmallPlace exited. Hiding UI.");
                     FadeOut(0.3f);
-                    placeNameText.text = ""; // ✅ 장소 이름 초기화
+                    placeNameText.text = "";
                 }
             })
-            .AddTo(this); // 자동 구독 해제
+            .AddTo(this);
     }
 
-    private Dictionary<string, Action> GetSmallPlaceButtonGroup(ESmallPlaceName? smallPlace)
+    /// <summary>
+    /// ✅ Exit 버튼을 항상 마지막에 배치하는 메서드
+    /// </summary>
+    private Dictionary<string, Action> SortActionsWithExitLast(Dictionary<string, Action> actions)
     {
-        switch (smallPlace.Value)
+        var orderedActions = new Dictionary<string, Action>();
+
+        // ✅ "Exit"이 아닌 버튼 먼저 추가
+        foreach (var action in actions)
         {
-            case ESmallPlaceName.Bakery:
-                return new Dictionary<string, Action>
-                {
-                    { "Talk", () => Debug.Log("Talk at the Bakery") },
-                    { "Buy", () => Debug.Log("Buying at the Bakery") },
-                    { "Exit", () => PlaceManager.Instance.ExitSmallPlace(.3f) }
-                };
-
-            case ESmallPlaceName.Herbshop:
-                return new Dictionary<string, Action>
-                {
-                    { "Talk", () => Debug.Log("Talking in the Herbshop") },
-                    { "Buy", () => Debug.Log("Buying herbs") },
-                    { "Heal", () => Debug.Log("Healing at the Herbshop") },
-                    { "Exit", () => PlaceManager.Instance.ExitSmallPlace(.3f) }
-                };
-
-            case ESmallPlaceName.CafeSeabreeze:
-                return new Dictionary<string, Action>
-                {
-                    { "Talk", () => Debug.Log("Talking in the Cafe") },
-                    { "Order", () => Debug.Log("Ordering coffee") },
-                    { "Exit", () => PlaceManager.Instance.ExitSmallPlace(.3f) }
-                };
-
-            default:
-                return new Dictionary<string, Action>
-                {
-                    { "Exit", () => PlaceManager.Instance.ExitSmallPlace(.3f) }
-                };
+            if (action.Key != "Exit")
+            {
+                orderedActions[action.Key] = action.Value;
+            }
         }
+
+        // ✅ "Exit" 버튼 마지막으로 추가
+        if (actions.ContainsKey("Exit"))
+        {
+            orderedActions["Exit"] = actions["Exit"];
+        }
+
+        return orderedActions;
     }
 }

@@ -24,62 +24,42 @@ public class ScenarioManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// ✅ 외부에서 호출하여 스토리 체크를 실행하는 메서드 (시작 전/후 콜백 추가)
-    /// </summary>
-    public async UniTask TriggerScenarioIfExist(Action onBeforeStart = null, Action onAfterEnd = null)
+
+    public async UniTask ExecuteOneScenarioFromList(
+        List<Scenario> scenarioList,
+        Action onBeforeStart = null,
+        Action onAfterEnd = null
+    )
     {
-        if (_isScenarioPlayingNotifier.Value) 
+        if (_isScenarioPlayingNotifier.Value)
         {
-            Debug.LogWarning("[ScenarioManager] Scenario is already running. Skipping execution.");
-            return; // ✅ 실행 중이면 즉시 종료
+            Debug.LogWarning("[ScenarioManager] A scenario is already running. Skipping execution.");
+            return;
         }
 
-        BigPlace bigPlace = PlaceManager.Instance.CurrentBigPlaceNotifier.Value;
-        SmallPlace smallPlace = PlaceManager.Instance.CurrentSmallPlaceNotifier.Value;
-        int currentDay = TimeManager.Instance.CurrentDayNotifier.Value;
-        TimePhase currentTimePhase = TimeManager.Instance.CurrentTimePhaseNotifier.Value;
-
-        Debug.Log($"[ScenarioManager] Triggering Scenario Check...");
-        Debug.Log($"- BigPlace: {(bigPlace != null ? bigPlace.BigPlaceName.ToString() : "None")}");
-        Debug.Log($"- SmallPlace: {(smallPlace != null ? smallPlace.SmallPlaceName.ToString() : "None")}");
-        Debug.Log($"- Current Day: {currentDay}");
-        Debug.Log($"- TimePhase: {currentTimePhase}");
-
-        string scenarioName = GetMatchingScenarioName(bigPlace, smallPlace, currentDay, currentTimePhase);
-        if (string.IsNullOrEmpty(scenarioName))
+        if (scenarioList == null || scenarioList.Count == 0)
         {
-            Debug.LogWarning("[ScenarioManager] scenarioName is null");
-            return; // ✅ 실행 중이면 즉시 종료
-
+            Debug.LogWarning("[ScenarioManager] scenarioList is null or empty. No scenario to execute.");
+            return;
         }
-            
-        // ✅ 시작 전 콜백 실행
+
+        // 원하는 로직으로 시나리오 선택 (예: 첫 번째, 랜덤 등)
+        // 여기서는 첫 번째 시나리오 실행 예시:
+        var chosenScenario = scenarioList[0];
+
+        // 시작 전 콜백
         onBeforeStart?.Invoke();
-        Debug.Log($"[ScenarioManager] Executing Scenario: {scenarioName}");
-        await ExecuteScenario(scenarioName); // ✅ 스토리 실행을 기다림
-        // ✅ 스토리 종료 후 콜백 실행
+
+        _isScenarioPlayingNotifier.Value = true;
+        Debug.Log($"[ScenarioManager] Starting Scenario: {chosenScenario.ScenarioId}");
+
+        await chosenScenario.ExecuteAsync(); // 실제 시나리오 실행
+
+        _isScenarioPlayingNotifier.Value = false;
+        Debug.Log($"[ScenarioManager] Scenario Finished: {chosenScenario.ScenarioId}");
+
+        // 종료 후 콜백
         onAfterEnd?.Invoke();
-    }
-
-
-    /// <summary>
-    /// 현재 BigPlace, SmallPlace, 날짜, 시간 정보를 기반으로 스토리를 찾음
-    /// </summary>
-    private string GetMatchingScenarioName(BigPlace bigPlace, SmallPlace smallPlace, int currentDay, TimePhase currentTimePhase)
-    {
-        foreach (var mapping in _scenarioMappings)
-        {
-            bool isMatching = mapping.IsMatching(bigPlace, smallPlace, currentDay, currentTimePhase);
-            if (isMatching)
-            {
-                Debug.Log($"[ScenarioManager] ✅ Matched Scenario: {mapping.ScenarioName}");
-                return mapping.ScenarioName;
-            }
-        }
-
-        Debug.Log("[ScenarioManager] ❌ No matching scenario found.");
-        return null;
     }
 
     /// <summary>

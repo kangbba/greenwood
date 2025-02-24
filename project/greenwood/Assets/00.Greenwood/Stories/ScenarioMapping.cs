@@ -36,7 +36,7 @@ public class ScenarioMapping
     /// <summary>
     /// 현재 BigPlace, SmallPlace, 날짜, 시간에 대해 이 스토리가 실행 가능한지 확인
     /// </summary>
-    public bool IsMatching(BigPlace bigPlace, SmallPlace smallPlace, int currentDay, TimePhase currentTimePhase)
+    public bool IsMatching(BigPlace bigPlace, SmallPlaceBase smallPlace, int currentDay, TimePhase currentTimePhase)
     {
         Debug.Log($"[ScenarioMapping] Checking Scenario: {ScenarioName}");
         if (_useBigPlace)

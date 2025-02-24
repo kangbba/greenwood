@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
@@ -12,17 +13,17 @@ public class PlaceManager : MonoBehaviour
 
     [Header("BigPlace Prefabs")]
     [SerializeField] private List<BigPlace> _bigPlacePrefabs = new List<BigPlace>(); // ✅ BigPlace 프리팹 리스트
-    [SerializeField] private List<SmallPlace> _smallPlacePrefabs = new List<SmallPlace>(); // ✅ SmallPlace 프리팹 리스트
-    [SerializeField] private BigPlaceUI _bigPlaceUiPrefab; // ✅ SmallPlace 프리팹 리스트
-    [SerializeField] private SmallPlaceUI _smallPlaceUiPrefab; // ✅ SmallPlace 프리팹 리스트
+    [SerializeField] private List<SmallPlaceBase> _smallPlacePrefabs = new List<SmallPlaceBase>(); // ✅ SmallPlaceBase 프리팹 리스트
+    [SerializeField] private BigPlaceUI _bigPlaceUiPrefab; // ✅ SmallPlaceBase 프리팹 리스트
+    [SerializeField] private SmallPlaceUI _smallPlaceUiPrefab; // ✅ SmallPlaceBase 프리팹 리스트
 
-    private List<SmallPlace> _activeSmallPlaces = new List<SmallPlace>();
+    private List<SmallPlaceBase> _activeSmallPlaces = new List<SmallPlaceBase>();
 
     private ReactiveProperty<BigPlace> _currentBigPlaceNotifier = new ReactiveProperty<BigPlace>(null); // ✅ ReactiveProperty 적용
     public IReadOnlyReactiveProperty<BigPlace> CurrentBigPlaceNotifier => _currentBigPlaceNotifier; // ✅ ReadOnly로 외부 노출
 
-    private ReactiveProperty<SmallPlace> _currentSmallPlaceNotifier = new ReactiveProperty<SmallPlace>(null); // ✅ ReactiveProperty 적용
-    public IReadOnlyReactiveProperty<SmallPlace> CurrentSmallPlaceNotifier => _currentSmallPlaceNotifier; // ✅ ReadOnly로 외부 노출
+    private ReactiveProperty<SmallPlaceBase> _currentSmallPlaceNotifier = new ReactiveProperty<SmallPlaceBase>(null); // ✅ ReactiveProperty 적용
+    public IReadOnlyReactiveProperty<SmallPlaceBase> CurrentSmallPlaceNotifier => _currentSmallPlaceNotifier; // ✅ ReadOnly로 외부 노출
 
     private void Awake()
     {
@@ -72,35 +73,43 @@ public class PlaceManager : MonoBehaviour
         return newBigPlace;
     }
 
-    public void MoveBigPlace(EBigPlaceName placeName, float duration)
-    {   
+    public void MoveBigPlace(
+        EBigPlaceName placeName,
+        float duration,
+        List<SmallPlaceActionPlan> actionPlans
+    )
+    {
         if (_currentBigPlaceNotifier.Value != null)
         {
             ExitCurrentBigPlace(duration);
         }
 
-        // ✅ 기존 SmallPlaces 완전 제거
         DestroyAllActiveSmallPlaces();
 
         BigPlace bigPlace = InstantiateBigPlace(placeName);
         bigPlace.FadeIn(duration);
 
-        // ✅ 새로운 BigPlace에 연결된 SmallPlace 미리 생성
         foreach (var door in bigPlace.SmallPlaceDoors)
         {
             ESmallPlaceName smallPlaceName = door.SmallPlaceName;
-            SmallPlace smallPlace = InstantiateSmallPlace(smallPlaceName);
-
+            SmallPlaceBase smallPlace = InstantiateSmallPlace(smallPlaceName);
             _activeSmallPlaces.Add(smallPlace);
-            smallPlace.FadeOut(0f); // 기본적으로 숨김
+            smallPlace.FadeOut(0f);
 
-            // ✅ SmallPlace에 실행될 Scenario 미리 설정
-            Scenario assignedScenario = null; 
-            smallPlace.SetScenario(assignedScenario);
+            // ✅ List 기반으로 ActionPlan 찾기
+            SmallPlaceActionPlan plan = actionPlans.Find(
+                p => p.SmallPlaceName == smallPlaceName
+            );
+
+            if (plan != null)
+            {
+                plan.ApplyActions(smallPlace);
+            }
         }
 
-        _currentBigPlaceNotifier.Value = bigPlace; // ✅ ReactiveProperty 값 업데이트
+        _currentBigPlaceNotifier.Value = bigPlace;
     }
+
 
 
     public void ExitCurrentBigPlace(float duration)
@@ -122,19 +131,17 @@ public class PlaceManager : MonoBehaviour
             ExitSmallPlace(duration);
         }
 
-        // ✅ 기존에 생성된 SmallPlace 찾기
-        SmallPlace smallPlace = _activeSmallPlaces.FirstOrDefault(sp => sp.SmallPlaceName == smallPlaceName);
+        // ✅ 기존에 생성된 SmallPlaceBase 찾기
+        SmallPlaceBase smallPlace = _activeSmallPlaces.FirstOrDefault(sp => sp.SmallPlaceName == smallPlaceName);
         if (smallPlace == null)
         {
-            Debug.LogError($"[BigPlaceManager] ERROR - SmallPlace '{smallPlaceName}' not found in _activeSmallPlaces!");
+            Debug.LogError($"[BigPlaceManager] ERROR - SmallPlaceBase '{smallPlaceName}' not found in _activeSmallPlaces!");
             return;
         }
 
         // ✅ SmallPlace를 활성화하고 시각적으로 표시
         smallPlace.FadeIn(duration);
-
-        // ✅ 첫 장면을 준비
-        smallPlace.ReadyForScenarioStart();
+        
 
         _currentSmallPlaceNotifier.Value = smallPlace;
     }
@@ -143,7 +150,7 @@ public class PlaceManager : MonoBehaviour
     {
         if (_currentSmallPlaceNotifier.Value == null)
         {
-            Debug.LogWarning("[BigPlaceManager] No SmallPlace to exit from.");
+            Debug.LogWarning("[BigPlaceManager] No SmallPlaceBase to exit from.");
             return;
         }
 
@@ -153,7 +160,7 @@ public class PlaceManager : MonoBehaviour
     }
     
     /// <summary>
-    /// ✅ 현재 활성화된 모든 SmallPlace 오브젝트를 제거
+    /// ✅ 현재 활성화된 모든 SmallPlaceBase 오브젝트를 제거
     /// </summary>
     private void DestroyAllActiveSmallPlaces()
     {
@@ -169,14 +176,14 @@ public class PlaceManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 특정 SmallPlace 프리팹을 가져옴
+    /// 특정 SmallPlaceBase 프리팹을 가져옴
     /// </summary>
-    public SmallPlace GetSmallPlacePrefab(ESmallPlaceName smallPlaceName)
+    public SmallPlaceBase GetSmallPlacePrefab(ESmallPlaceName smallPlaceName)
     {
-        SmallPlace smallPlace = _smallPlacePrefabs.FirstOrDefault(sp => sp.SmallPlaceName == smallPlaceName);
+        SmallPlaceBase smallPlace = _smallPlacePrefabs.FirstOrDefault(sp => sp.SmallPlaceName == smallPlaceName);
 
         if (smallPlace == null)
-            Debug.LogError($"[SmallPlaceManager] ERROR - SmallPlace '{smallPlaceName}' not found in prefabs!");
+            Debug.LogError($"[SmallPlaceManager] ERROR - SmallPlaceBase '{smallPlaceName}' not found in prefabs!");
 
         return smallPlace;
     }
@@ -184,13 +191,13 @@ public class PlaceManager : MonoBehaviour
     /// <summary>
     /// SmallPlace를 생성하고 현재 장소로 설정
     /// </summary>
-    public SmallPlace InstantiateSmallPlace(ESmallPlaceName smallPlaceName)
+    public SmallPlaceBase InstantiateSmallPlace(ESmallPlaceName smallPlaceName)
     {
-        SmallPlace prefab = GetSmallPlacePrefab(smallPlaceName);
+        SmallPlaceBase prefab = GetSmallPlacePrefab(smallPlaceName);
         if (prefab == null) return null;
 
-        SmallPlace newSmallPlace = Instantiate(prefab, UIManager.Instance.GameCanvas.SmallPlaceLayer);
-        Debug.Log($"[SmallPlaceManager] Entering SmallPlace: {smallPlaceName}");
+        SmallPlaceBase newSmallPlace = Instantiate(prefab, UIManager.Instance.GameCanvas.SmallPlaceLayer);
+        Debug.Log($"[SmallPlaceManager] Entering SmallPlaceBase: {smallPlaceName}");
         newSmallPlace.Init();
 
         return newSmallPlace;

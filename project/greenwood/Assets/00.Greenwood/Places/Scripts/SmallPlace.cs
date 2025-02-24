@@ -1,46 +1,31 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
-using Cysharp.Threading.Tasks;
 using static SmallPlaceNames;
-
-public class SmallPlace : AnimationImage
+public class SmallPlaceBase : AnimationImage
 {
-    [Header("SmallPlace Settings")]
-    [SerializeField] private ESmallPlaceName smallPlaceName;
-    private Scenario _scenarioToPlay;
-    public ESmallPlaceName SmallPlaceName => smallPlaceName;
-    public Scenario ScenarioToPlay { get => _scenarioToPlay; }
+  
+    [SerializeField] private ESmallPlaceName _smallPlaceName;
+    private Dictionary<string, Action> _actions = new Dictionary<string, Action>();
+
+    public ESmallPlaceName SmallPlaceName => _smallPlaceName;
 
     public void Init()
     {
-        FadeOut(0f);
-    }   
-    
-    public void SetScenario(Scenario scenarioToPlay)
-    {
-        _scenarioToPlay = scenarioToPlay;
+        // 예: FadeOut(0f);
     }
 
-    public void ReadyForScenarioStart()
+    public void SetActions(Dictionary<string, Action> actions)
     {
-        if (_scenarioToPlay == null)
+        // 항상 Exit 버튼 추가
+        _actions = new Dictionary<string, Action>(actions)
         {
-            Debug.LogWarning($"[SmallPlace] WARNING - No Scenario assigned for {smallPlaceName}. ReadyForScenarioStart() skipped.");
-            return;
-        }
-
-        _scenarioToPlay.ReadyForScenarioStart();
+            ["Exit"] = () => PlaceManager.Instance.ExitSmallPlace(0.3f)
+        };
     }
 
-
-    public async UniTask PlayScenario()
+    public Dictionary<string, Action> GetActions()
     {
-        if (_scenarioToPlay == null)
-        {
-            Debug.LogWarning($"[SmallPlace] WARNING - No Scenario assigned for {smallPlaceName}. PlayScenario() skipped.");
-            return;
-        }
-
-        await _scenarioToPlay.ExecuteAsync();
+        return _actions;
     }
-
 }

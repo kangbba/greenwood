@@ -135,6 +135,9 @@ public class SoundManager : MonoBehaviour
     /// </summary>
     public void StopSFX()
     {
+        if(_sfxSource == null){
+            return;
+        }
         _sfxSource.Stop();
         _currentSFX = null;
     }
@@ -144,6 +147,9 @@ public class SoundManager : MonoBehaviour
     /// </summary>
     public void StopSFX(float fadeDuration)
     {
+        if(_sfxSource == null){
+            return;
+        }
         _sfxSource.DOFade(0, fadeDuration).OnComplete(() =>
         {
             _sfxSource.Stop();

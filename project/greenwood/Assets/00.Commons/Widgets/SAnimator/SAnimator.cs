@@ -38,7 +38,6 @@ public class SAnimator : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     }
     private void PlayAnimation(SituationType situationType)
     {
-        Debug.Log($"실행 {situationType}");
         foreach (var animPlan in animPlans)
         {
             var situationPlan = animPlan.GetSituationPlan(situationType);
