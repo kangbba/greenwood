@@ -38,7 +38,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 127.3994}
+  m_SizeDelta: {x: 0, y: 100}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &1969645808794975029
 CanvasRenderer:
@@ -93,7 +93,6 @@ MonoBehaviour:
   _standardBtnPrefab: {fileID: 3652836485596719002, guid: c2e12b4fe6d3f4b7d895e50213e9cc1f, type: 3}
   _useAlign: 1
   _isVertical: 0
-  _spacing: 100
   _groupContainer: {fileID: 6036941892917544478}
   _buttonEntries:
   - buttonId: GoOut
@@ -197,7 +196,6 @@ MonoBehaviour:
   _standardBtnPrefab: {fileID: 1257770945358925768, guid: e41c08d612fc54f0fb0460dab50a2e4e, type: 3}
   _useAlign: 0
   _isVertical: 0
-  _spacing: 10
   _groupContainer: {fileID: 2592632337654053486}
   _buttonEntries:
   - buttonId: Bakery

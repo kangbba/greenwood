@@ -31,6 +31,7 @@ public class ButtonGroup : AnimationImage
     [SerializeField] private bool _isVertical; // 정렬 방향 (가로/세로)
 
     [SerializeField] private Transform _groupContainer; // 버튼 그룹의 부모 오브젝트
+    [SerializeField] private float spaceMultiplier = 1f; // 버튼 그룹의 부모 오브젝트
     [SerializeField] private List<ButtonEntry> _buttonEntries = new List<ButtonEntry>(); // ✅ 버튼 바인딩 리스트
 
     private Dictionary<string, Button> _activeButtons = new Dictionary<string, Button>(); // 현재 활성화된 버튼들
@@ -144,12 +145,12 @@ public class ButtonGroup : AnimationImage
             if (_isVertical)
             {
                 buttonTransform.anchoredPosition = new Vector2(0, -positionOffset + (buttonSize / 2));
-                positionOffset += buttonSize * 3f;
+                positionOffset += buttonSize * spaceMultiplier;
             }
             else
             {
                 buttonTransform.anchoredPosition = new Vector2(positionOffset + (buttonSize / 2), 0);
-                positionOffset += buttonSize * 1.5f;
+                positionOffset += buttonSize * spaceMultiplier;
             }
         }
     }

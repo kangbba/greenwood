@@ -12,7 +12,7 @@ public class ActionPointDisplayer : MonoBehaviour
         ActionManager.Instance.CurrentActionPointNotifier
             .Subscribe(actionPoints =>
             {
-                _actionPointText.text = $"AP: {actionPoints}";
+                _actionPointText.text = $"{actionPoints} / 100";
             })
             .AddTo(this);
     }

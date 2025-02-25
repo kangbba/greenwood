@@ -3,8 +3,6 @@ public class CharacterEnums
     public enum KatePoseType
     {
         HandsFront,
-        HandsBack,
-        ArmCrossed,
     }
     public enum LisaEmotionType
     {

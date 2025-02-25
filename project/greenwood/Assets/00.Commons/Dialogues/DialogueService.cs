@@ -41,6 +41,9 @@ public static class DialogueService
 
     public static void HideDialogue(float duration)
     {
+        if(_dialoguePlayer == null){
+            return;
+        }
         _dialoguePlayer.FadeOut(duration);
     }
 
@@ -49,9 +52,10 @@ public static class DialogueService
     /// </summary>
     public static void SkipCurrentDialogue()
     {
-        if(_dialoguePlayer != null){
-            _dialoguePlayer.SkipCurrentDialogue();
+        if(_dialoguePlayer == null){
+            return;
         }
+        _dialoguePlayer.SkipCurrentDialogue();
     }
 
     /// <summary>
@@ -59,10 +63,10 @@ public static class DialogueService
     /// </summary>
     public static void ForceCloseDialogue()
     {
-        if (_dialoguePlayer != null)
-        {
-            Object.Destroy(_dialoguePlayer.gameObject);
-            _dialoguePlayer = null;
+        if(_dialoguePlayer == null){
+            return;
         }
+        Object.Destroy(_dialoguePlayer.gameObject);
+        _dialoguePlayer = null;
     }
 }

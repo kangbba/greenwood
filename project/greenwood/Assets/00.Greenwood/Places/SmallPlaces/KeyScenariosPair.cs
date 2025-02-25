@@ -13,16 +13,6 @@ public class KeyScenariosPair
 
     public KeyScenariosPair(string key, List<Scenario> scenarios)
     {
-        if (string.IsNullOrEmpty(key))
-        {
-            throw new ArgumentNullException(nameof(key), "Key cannot be null or empty.");
-        }
-
-        if (scenarios.IsNullOrEmpty())
-        {
-            throw new ArgumentNullException(nameof(scenarios), "Scenarios cannot be null or empty.");
-        }
-
         _key = key;
         _scenarios = new List<Scenario>(scenarios); // ✅ 내부 리스트 복사하여 유지
     }
