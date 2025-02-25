@@ -27,6 +27,7 @@ public class Emotion : AnimationImage
     {
         if (isActive)
         {
+            _mouth.Stop();
             _mouth.Play().Forget();
         }
         else
@@ -39,6 +40,7 @@ public class Emotion : AnimationImage
     {
         if (isActive)
         {
+            _eyes.Stop();
             _eyes.Play().Forget();
         }
         else

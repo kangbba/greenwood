@@ -13,7 +13,6 @@ public class ActionPointDisplayer : MonoBehaviour
             .Subscribe(actionPoints =>
             {
                 _actionPointText.text = $"AP: {actionPoints}";
-                Debug.Log($"[ActionPointDisplayer] Updated Action Points: {actionPoints}");
             })
             .AddTo(this);
     }

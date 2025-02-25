@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using DG.Tweening;
+using System.Linq;
 
 public class AllCharactersClear : Element
 {
@@ -19,11 +20,11 @@ public class AllCharactersClear : Element
 
     public override async UniTask ExecuteAsync()
     {
-        // ✅ 현재 활성화된 캐릭터 리스트 가져오기
-        var activeCharacters = CharacterManager.Instance.ActiveCharacters;
+        // ✅ 현재 활성화된 캐릭터 리스트 복사 (ToList)
+        var activeCharactersCopy = CharacterManager.Instance.ActiveCharacters.ToList();
 
         // ✅ 각 캐릭터에 대해 CharacterExit 실행
-        foreach (var character in activeCharacters)
+        foreach (var character in activeCharactersCopy)
         {
             new CharacterExit(character.CharacterName, _duration).Execute();
         }

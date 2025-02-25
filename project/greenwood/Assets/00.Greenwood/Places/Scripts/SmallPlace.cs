@@ -1,31 +1,44 @@
 using System;
 using System.Collections.Generic;
+using Sirenix.Utilities;
 using UnityEngine;
 using static SmallPlaceNames;
-public class SmallPlaceBase : AnimationImage
+
+public class SmallPlace : AnimationImage
 {
-  
     [SerializeField] private ESmallPlaceName _smallPlaceName;
-    private Dictionary<string, Action> _actions = new Dictionary<string, Action>();
+
+    private List<Character> _activeCharacters = new List<Character>();
+
+    private List<KeyScenariosPair> _keyScenarioPairs = new List<KeyScenariosPair>();
 
     public ESmallPlaceName SmallPlaceName => _smallPlaceName;
+
+    public List<KeyScenariosPair> KeyScenariosPairs { get => _keyScenarioPairs; }
 
     public void Init()
     {
         // 예: FadeOut(0f);
     }
-
-    public void SetActions(Dictionary<string, Action> actions)
+    
+    public void SetKeyScenariosPairs( List<KeyScenariosPair> ksps)
     {
-        // 항상 Exit 버튼 추가
-        _actions = new Dictionary<string, Action>(actions)
+        if (ksps.IsNullOrEmpty())
         {
-            ["Exit"] = () => PlaceManager.Instance.ExitSmallPlace(0.3f)
-        };
+            Debug.LogError("[SmallPlace] ❌ ksps nullorempty");
+            return;
+        }
+        
+        _keyScenarioPairs = ksps;
     }
 
-    public Dictionary<string, Action> GetActions()
+    /// <summary>
+    /// ✅ 특정 키(Key)에 해당하는 시나리오 리스트 반환
+    /// </summary>
+    public List<Scenario> GetKeyScenarios(string key)
     {
-        return _actions;
+        var pair = _keyScenarioPairs.Find(p => p.Key == key);
+        return pair?.Scenarios ?? new List<Scenario>(); // 없으면 빈 리스트 반환
     }
+
 }

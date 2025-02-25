@@ -18,7 +18,6 @@ public abstract class Scenario : Element
         {
             await UpdateElements[i].ExecuteAsync();
         }
-        await new AllScenarioElementsClear(1f).ExecuteAsync();
     }
 
     public override void ExecuteInstantly()

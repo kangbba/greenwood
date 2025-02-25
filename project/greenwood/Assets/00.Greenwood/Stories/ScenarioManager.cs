@@ -26,7 +26,7 @@ public class ScenarioManager : MonoBehaviour
 
 
     public async UniTask ExecuteOneScenarioFromList(
-        List<Scenario> scenarioList,
+        IReadOnlyList<Scenario> scenarioList,
         Action onBeforeStart = null,
         Action onAfterEnd = null
     )
@@ -43,15 +43,15 @@ public class ScenarioManager : MonoBehaviour
             return;
         }
 
-        // 원하는 로직으로 시나리오 선택 (예: 첫 번째, 랜덤 등)
-        // 여기서는 첫 번째 시나리오 실행 예시:
-        var chosenScenario = scenarioList[0];
+        // ✅ 랜덤으로 시나리오 선택
+        int randomIndex = UnityEngine.Random.Range(0, scenarioList.Count);
+        var chosenScenario = scenarioList[randomIndex];
 
         // 시작 전 콜백
         onBeforeStart?.Invoke();
 
         _isScenarioPlayingNotifier.Value = true;
-        Debug.Log($"[ScenarioManager] Starting Scenario: {chosenScenario.ScenarioId}");
+        Debug.Log($"[ScenarioManager] Starting Scenario (Random): {chosenScenario.ScenarioId}");
 
         await chosenScenario.ExecuteAsync(); // 실제 시나리오 실행
 
@@ -61,6 +61,7 @@ public class ScenarioManager : MonoBehaviour
         // 종료 후 콜백
         onAfterEnd?.Invoke();
     }
+
 
     /// <summary>
     /// 스토리 실행 (비동기)

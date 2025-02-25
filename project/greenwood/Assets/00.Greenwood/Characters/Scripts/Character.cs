@@ -31,7 +31,6 @@ public class Character : AnimationImage
         _poseHandler?.FetchPoses();
     }
     public void Init(string initialEmotionID, string initialPoseID, float duration){
-        FadeOut(0f);
         FadeIn(duration);
         SetEmotion(initialEmotionID, 0f);
         SetPose(initialPoseID, 0f);

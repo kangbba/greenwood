@@ -3,59 +3,62 @@ using TMPro;
 using UniRx;
 using System.Collections.Generic;
 using System;
+using Cysharp.Threading.Tasks;
+
 public class SmallPlaceUI : AnimationImage
 {
-    [SerializeField] private ButtonGroup leftButtonGroup;
-    [SerializeField] private TextMeshProUGUI placeNameText;
+    [SerializeField] private ButtonGroup _leftButtonGroup;
+    [SerializeField] private TextMeshProUGUI _placeNameText;
+
+    // // ✅ 현재 SmallPlace의 시나리오 정보를 저장 (Editor 빌드에서 OnGUI로 표시)
+    // private List<KeyScenariosPair> _currentScenarioPairs = new List<KeyScenariosPair>();
 
     public void Init()
     {
         FadeOut(0f);
 
+        // ✅ smallPlace와 isScenarioPlaying을 구독
         PlaceManager.Instance.CurrentSmallPlaceNotifier
-            .Subscribe(smallPlace =>
+            .CombineLatest(ScenarioManager.Instance.IsScenarioPlayingNotifier,
+                (smallPlace, isScenarioPlaying) => (smallPlace, isScenarioPlaying))
+            .Subscribe(tuple =>
             {
+                var (smallPlace, isScenarioPlaying) = tuple;
+
+                // ✅ smallPlace가 null이 아닐 때만
                 if (smallPlace != null)
                 {
-                    Debug.Log("[SmallPlaceUI] SmallPlace detected. Showing UI.");
-                    FadeIn(0.3f);
-
-                    // ✅ Exit 버튼을 마지막에 배치한 후 UI 업데이트
-                    leftButtonGroup.SetButtonGroup(SortActionsWithExitLast(smallPlace.GetActions()));
-                    placeNameText.text = smallPlace.SmallPlaceName.ToString();
+                    Debug.Log("smallPlace keyscnariopairs count : " + smallPlace.KeyScenariosPairs.Count);
+                    _placeNameText.text = smallPlace.SmallPlaceName.ToString();
+                    // ✅ 버튼 설정
+                    ConsistKspButtons(smallPlace.KeyScenariosPairs);
+                    // ✅ 시나리오 진행 중이면 UI 감추기, 아니면 UI 표시
+                    if (isScenarioPlaying)
+                    {
+                        FadeOut(0.3f);
+                    }
+                    else
+                    {
+                        FadeIn(0.3f);
+                    }
                 }
                 else
                 {
-                    Debug.Log("[SmallPlaceUI] SmallPlace exited. Hiding UI.");
+                    // ✅ smallPlace == null 이면 UI 감추기
                     FadeOut(0.3f);
-                    placeNameText.text = "";
+                    _placeNameText.text = "";
                 }
             })
             .AddTo(this);
     }
 
-    /// <summary>
-    /// ✅ Exit 버튼을 항상 마지막에 배치하는 메서드
-    /// </summary>
-    private Dictionary<string, Action> SortActionsWithExitLast(Dictionary<string, Action> actions)
+    public void ConsistKspButtons(List<KeyScenariosPair> ksps)
     {
-        var orderedActions = new Dictionary<string, Action>();
-
-        // ✅ "Exit"이 아닌 버튼 먼저 추가
-        foreach (var action in actions)
-        {
-            if (action.Key != "Exit")
-            {
-                orderedActions[action.Key] = action.Value;
-            }
+        _leftButtonGroup.ClearButtons();
+        foreach(KeyScenariosPair ksp in ksps)
+        {   
+            _leftButtonGroup.AddButton(ksp.Key, () => ScenarioManager.Instance.ExecuteOneScenarioFromList(ksp.Scenarios).Forget());
         }
-
-        // ✅ "Exit" 버튼 마지막으로 추가
-        if (actions.ContainsKey("Exit"))
-        {
-            orderedActions["Exit"] = actions["Exit"];
-        }
-
-        return orderedActions;
+        _leftButtonGroup.AddButton(CommonActionTypes.Exit, () => PlaceManager.Instance.ExitSmallPlace(.5f));
     }
 }

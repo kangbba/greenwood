@@ -87,7 +87,8 @@ public class PoseHandler : MonoBehaviour
             bool isTarget = p == newPose;
             if(isTarget){
                 p.gameObject.SetActive(true);
-                p.FadeFrom(target : 1f, 0f, duration);
+              //  p.FadeFrom(target : 1f, 0f, duration);
+                p.FadeIn(duration);
             }
             else{
                 p.FadeOut(duration);

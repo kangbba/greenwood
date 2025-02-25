@@ -24,7 +24,6 @@ public class BigPlaceUI : AnimationImage
             {
                 if (placeState.bigPlace != null && placeState.smallPlace == null) // ✅ BigPlace만 존재할 때만 UI 업데이트
                 {
-                    Debug.Log("[BigPlaceUI] BigPlace detected. Updating UI.");
 
                     // ✅ CenterButtonGroup 업데이트
                     UpdateCenterButtonGroup(placeState.bigPlace);
@@ -35,7 +34,7 @@ public class BigPlaceUI : AnimationImage
                     {
                         { 
                             "GoOut", () => { 
-                             //  CreateAndShowMap();
+                                CreateAndShowMap();
                                 Debug.Log("GoOut button clicked"); 
                             } 
                         },
@@ -48,14 +47,13 @@ public class BigPlaceUI : AnimationImage
                 }
                 else // ✅ SmallPlace가 활성화된 경우 UI 숨김
                 {
-                    Debug.Log("[BigPlaceUI] SmallPlace is active, hiding BigPlace UI.");
                     FadeOut(0.3f);
                 }
             })
             .AddTo(this); // 자동 구독 해제   
     }
 
-    private async void CreateAndShowMap(Action action)
+    private async void CreateAndShowMap()
     {
         // ✅ 기존 맵이 존재하면 제거
         if (_currentMap != null)
@@ -68,14 +66,13 @@ public class BigPlaceUI : AnimationImage
         _currentMap.InitMap(useRestrict: false); // 전체 맵 표시 (제한 없음)
 
         // ✅ 맵을 표시하고 선택 결과 반환 대기
-        EBigPlaceName? selectedPlace = await _currentMap.ShowMap();
+        EBigPlaceName? selectedPlaceName = await _currentMap.ShowMap();
 
         // ✅ 선택된 장소 처리
-        if (selectedPlace.HasValue)
+        if (selectedPlaceName.HasValue)
         {
-            Debug.Log($"[BigPlaceUI] Moving to {selectedPlace.Value}");
-            action?.Invoke();
-       //     PlaceManager.Instance.MoveBigPlace(selectedPlace.Value, .5f);
+            Debug.Log($"[BigPlaceUI] Moving to {selectedPlaceName.Value}");
+            PlaceManager.Instance.MoveBigPlace(selectedPlaceName.Value, .5f);
         }
         else
         {
