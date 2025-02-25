@@ -8,6 +8,7 @@ using UnityEditor;
 public class Cheek : MonoBehaviour
 {
     [SerializeField] private Image _cheekImg; // 볼터치 효과 이미지
+    [SerializeField] private float _targetAlpha;
 
     private bool _isFlushActive = false; // 현재 Flush 상태
 
@@ -22,7 +23,7 @@ public class Cheek : MonoBehaviour
             return;
         }
 
-        float targetAlpha = isActive ? 0.6f : 0f; // 볼터치 활성화 시 0.6, 비활성화 시 0
+        float targetAlpha = isActive ? _targetAlpha : 0f; // 볼터치 활성화 시 0.6, 비활성화 시 0
         if (duration <= 0f)
         {
             Color instantColor = _cheekImg.color;
