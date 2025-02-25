@@ -28,7 +28,9 @@ public class GameManager : MonoBehaviour
         
         // 최초 PlaceGroup 설정 (Town)
 
+        // ✅ GameSaveDataProvider를 ItemManager에 주입
+        ItemManager.Instance.SetItemProvider(new GameSaveDataProvider());
          // ✅ BigPlace 이동 시, 이 Dictionary를 넘김
-         PlaceManager.Instance.MoveBigPlace(EBigPlaceName.Town, 0);
+        PlaceManager.Instance.MoveBigPlace(EBigPlaceName.Town, 0);
     }
 }

@@ -12,6 +12,8 @@ public class KateEmotionChangePractice : Scenario
             "뭐야, 장난해?",
         }),
 
+        new ItemGain("TestItem"),
+
         new EmotionChange(ECharacterName.Kate, KateEmotionType.Anyway, KatePoseType.HandsFront),
         new Dialogue(ECharacterName.Kate, new List<string>
         {
