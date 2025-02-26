@@ -2703,17 +2703,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c87ea03dd02946aebcad711d1ef2c08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _eventConditions:
-    _conditions:
-    - _type: 1
-      _flagKey: 
-      _targetSmallPlace: 0
-      _visitedBigPlace: 0
-      _visitedSmallPlace: 0
-      _targetItemId: 
-  _eventResults:
-    _eventResults:
-    - _scenarioName: TestStory1
+  _eventPairs: []
 --- !u!1 &1355950210
 GameObject:
   m_ObjectHideFlags: 0

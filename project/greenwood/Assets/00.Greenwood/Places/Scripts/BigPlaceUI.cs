@@ -26,7 +26,7 @@ public class BigPlaceUI : AnimationImage
 
                 if (bigPlace != null && smallPlace == null) // ✅ BigPlace만 존재할 때만 UI 업데이트
                 {
-                    Debug.Log($"[BigPlaceUI] 현재 BigPlace: {bigPlace.BigPlaceName}");
+                  //  Debug.Log($"[BigPlaceUI] 현재 BigPlace: {bigPlace.BigPlaceName}");
 
                     // ✅ CenterButtonGroup 업데이트
                     UpdateCenterButtonGroup(bigPlace);

@@ -1,29 +1,35 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
-using Sirenix.OdinInspector;
 
 [Serializable]
 public class EventResults
 {
-    [SerializeField, LabelText("이벤트 결과 리스트")]
-    private List<EventResult> _eventResults = new List<EventResult>();
+    [SerializeField] private List<EventResult> _eventResults = new List<EventResult>();
+    [SerializeField] private bool _isSequential; // ✅ 기본값: 순차 실행
+
+    public bool IsSequential => _isSequential; // ✅ 실행 방식 외부에서 접근 가능
 
     /// <summary>
-    /// ✅ 모든 EventResult 실행
+    /// ✅ 모든 이벤트 결과를 순차 실행
     /// </summary>
-    public void ExecuteAll()
+    public async UniTask ExecuteAllSequentiallyAsync()
     {
-        if (_eventResults.Count == 0)
+        foreach (var eventResult in _eventResults)
         {
-            Debug.LogWarning("⚠ [EventResults] 실행할 이벤트가 없음!");
-            return;
+            await eventResult.ExecuteAsync();
         }
+    }
 
-        Debug.Log("🎬 [EventResults] 모든 이벤트 실행!");
-        foreach (var result in _eventResults)
+    /// <summary>
+    /// ✅ 모든 이벤트 결과를 동시에 실행
+    /// </summary>
+    public void ExecuteAllInParallel()
+    {
+        foreach (var eventResult in _eventResults)
         {
-            result.Execute();
+            eventResult.ExecuteAsync().Forget();
         }
     }
 }

@@ -43,7 +43,6 @@ public class ChapterManager : MonoBehaviour
         StartChapter(0);
     }
 
-    /// <summary>
     /// ✅ 챕터 시작 메서드 (이전 구독 해지 & 방문 기록 초기화 포함)
     /// </summary>
     private void StartChapter(int chapterIndex)
@@ -65,14 +64,12 @@ public class ChapterManager : MonoBehaviour
         // ✅ 이전 방문 기록 초기화
         ResetVisitedPlaces();
 
-        // ✅ PlaceManager 및 PlayerManager 초기화
+        // ✅ 장소 및 플레이어 위치 재설정
         PlaceManager.Instance.RecreateBigPlaces();
         PlayerManager.Instance.MoveBigPlace(_currentChapter.Value.BigPlaceToStart);
 
-
-        // ✅ 챕터의 클리어 조건 감지
-        _currentChapter.Value.ClearConditions.Initialize();
-        _currentChapter.Value.ClearConditions.IsCleared
+        // ✅ 챕터 클리어 조건 감지
+        _currentChapter.Value.ClearConditions.IsSatisfiedAllStream()
             .Subscribe(isCleared =>
             {
                 if (isCleared)
@@ -81,8 +78,9 @@ public class ChapterManager : MonoBehaviour
                     MoveToNextChapter();
                 }
             })
-            .AddTo(_currentChapterSubscriptions); // ✅ 새 구독 추가
+            .AddTo(_currentChapterSubscriptions);
     }
+
 
     /// <summary>
     /// ✅ 다음 챕터로 이동
