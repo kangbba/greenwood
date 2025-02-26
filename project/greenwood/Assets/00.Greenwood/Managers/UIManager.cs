@@ -13,8 +13,8 @@ public class UIManager : MonoBehaviour
 
     [Header("UI Prefabs")]
     [SerializeField] private AskDialog _askDialogPrefab;
-    [SerializeField] private ChoiceSetWindowDouble _choiceSetDoublePrefab;
-    [SerializeField] private ChoiceSetWindowMultiple _choiceWindowMultiplePrefab;
+    [SerializeField] private ChoiceWindowDouble _ChoiceDoublePrefab;
+    [SerializeField] private ChoiceWindowMultiple _choiceWindowMultiplePrefab;
     [SerializeField] private DialoguePlayer _dialoguePlayerPrefab;
 
     public GameCanvas GameCanvas => _gameCanvas;
@@ -23,8 +23,8 @@ public class UIManager : MonoBehaviour
     public HighestCanvas HighestCanvas => _highestCanvas;
     public DialoguePlayer DialoguePlayerPrefab => _dialoguePlayerPrefab;
 
-    public ChoiceSetWindowDouble ChoiceSetWindowDoublePrefab { get => _choiceSetDoublePrefab; }
-    public ChoiceSetWindowMultiple ChoiceSetWindowMultiplePrefab { get => _choiceWindowMultiplePrefab; }
+    public ChoiceWindowDouble ChoiceWindowDoublePrefab { get => _ChoiceDoublePrefab; }
+    public ChoiceWindowMultiple ChoiceWindowMultiplePrefab { get => _choiceWindowMultiplePrefab; }
 
     private void Awake()
     {

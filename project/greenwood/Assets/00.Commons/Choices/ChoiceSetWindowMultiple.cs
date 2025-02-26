@@ -4,7 +4,7 @@ using TMPro;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
-public class ChoiceSetWindowMultiple : AnimationImage
+public class ChoiceWindowMultiple : AnimationImage
 {
     [SerializeField] private TextMeshProUGUI _questionText;
     [SerializeField] private Transform _choiceContainer;
@@ -25,11 +25,11 @@ public class ChoiceSetWindowMultiple : AnimationImage
     /// <summary>
     /// ✅ 선택지를 설정하고 사용자의 선택을 기다림
     /// </summary>
-    public async UniTask<int> ShowChoices(List<ChoiceContent> choices)
+    public async UniTask<int> ShowChoices(List<ChoiceOption> choices)
     {
         if (choices.Count < 3)
         {
-            Debug.LogError("❌ ChoiceSetWindowMultiple requires at least 3 choices.");
+            Debug.LogError("❌ ChoiceWindowMultiple requires at least 3 choices.");
             return -1;
         }
 

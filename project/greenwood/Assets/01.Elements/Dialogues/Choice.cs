@@ -2,15 +2,15 @@ using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ChoiceSet : Element
+public class Choice : Element
 {
     private string _question;
-    private List<ChoiceContent> _choiceContents;
+    private List<ChoiceOption> _choiceContents;
 
-    public ChoiceSet(string question, List<ChoiceContent> choices)
+    public Choice(string question, List<ChoiceOption> choices)
     {
         _question = question;
-        _choiceContents = choices ?? new List<ChoiceContent>();
+        _choiceContents = choices ?? new List<ChoiceOption>();
     }
 
     public override void ExecuteInstantly()
@@ -19,24 +19,24 @@ public class ChoiceSet : Element
     }
     public override async UniTask ExecuteAsync()
     {
-        Debug.Log($"[ChoiceSet] 질문 표시: {_question}");
+        Debug.Log($"[Choice] 질문 표시: {_question}");
 
         // UIManager를 통해 선택지 UI 실행
-        int selectedChoiceIndex = await ChoiceService.WaitForChoiceSetWindowResult(this);
+        int selectedChoiceIndex = await ChoiceService.WaitForChoiceWindowResult(this);
 
         if (selectedChoiceIndex >= 0 && selectedChoiceIndex < _choiceContents.Count)
         {
-            Debug.Log($"[ChoiceSet] 선택된 인덱스: {selectedChoiceIndex}");
-            ChoiceService.CloseCurrentChoiceSet(1f);
+            Debug.Log($"[Choice] 선택된 인덱스: {selectedChoiceIndex}");
+            ChoiceService.CloseCurrentChoice(1f);
             await UniTask.WaitForSeconds(1f);
             await _choiceContents[selectedChoiceIndex].ExecuteAsync();
         }
         else
         {
-            Debug.LogWarning("[ChoiceSet] 유효하지 않은 선택");
+            Debug.LogWarning("[Choice] 유효하지 않은 선택");
         }
     }
 
     public string Question => _question;
-    public List<ChoiceContent> Choices => _choiceContents;
+    public List<ChoiceOption> Choices => _choiceContents;
 }

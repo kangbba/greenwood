@@ -1672,7 +1672,7 @@ MonoBehaviour:
   _popupCanvas: {fileID: 1355950215}
   _highestCanvas: {fileID: 96283050}
   _askDialogPrefab: {fileID: 7332892933186677054, guid: ff49afdf709214978b3ce7d226e47261, type: 3}
-  _choiceSetDoublePrefab: {fileID: 4401194865097822410, guid: 80578e5a6ad494ec083826f8074ba611, type: 3}
+  _ChoiceDoublePrefab: {fileID: 4401194865097822410, guid: 80578e5a6ad494ec083826f8074ba611, type: 3}
   _choiceWindowMultiplePrefab: {fileID: 6813970754565819027, guid: 277be1f20c3de4727ae448dad3980007, type: 3}
   _dialoguePlayerPrefab: {fileID: 4452149719273969693, guid: a4a6105a27ddf4cacaee2b5fffe022ee, type: 3}
 --- !u!4 &757106309
@@ -2703,7 +2703,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c87ea03dd02946aebcad711d1ef2c08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _eventPairs: []
+  _eventPairs:
+  - _eventConditions:
+      _conditions:
+      - _type: 5
+        _flagKey: 
+        _targetSmallPlace: 0
+        _visitedBigPlace: 0
+        _visitedSmallPlace: 0
+        _targetItemId: 
+        _firstVisitSmallPlace: 0
+        _notFirstVisitSmallPlace: 0
+        _invertCondition: 0
+    _eventResults:
+      _eventResults:
+      - _scenarioName: FirstBakeryVisit
+      _isSequential: 0
+  - _eventConditions:
+      _conditions:
+      - _type: 6
+        _flagKey: 
+        _targetSmallPlace: 0
+        _visitedBigPlace: 0
+        _visitedSmallPlace: 0
+        _targetItemId: 
+        _firstVisitSmallPlace: 0
+        _notFirstVisitSmallPlace: 0
+        _invertCondition: 0
+    _eventResults:
+      _eventResults:
+      - _scenarioName: BakeryVisit
+      _isSequential: 0
 --- !u!1 &1355950210
 GameObject:
   m_ObjectHideFlags: 0

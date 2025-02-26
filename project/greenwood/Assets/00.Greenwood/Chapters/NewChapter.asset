@@ -17,15 +17,10 @@ MonoBehaviour:
   BigPlaceToStart: 1
   ClearConditions:
     _conditions:
-    - _type: 3
-      _flagKey: 
-      _targetSmallPlace: 0
-      _visitedBigPlace: 0
-      _visitedSmallPlace: 0
-      _targetItemId: 
     - _type: 0
-      _flagKey: abcd
+      _flagKey: chapter1clear
       _targetSmallPlace: 0
       _visitedBigPlace: 0
       _visitedSmallPlace: 0
       _targetItemId: 
+      _invertCondition: 0

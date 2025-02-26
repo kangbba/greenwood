@@ -4,7 +4,7 @@ using TMPro;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
-public class ChoiceSetWindowDouble : AnimationImage
+public class ChoiceWindowDouble : AnimationImage
 {
     [SerializeField] private TextMeshProUGUI _questionText;
     [SerializeField] private ChoiceButton _leftChoiceButton;
@@ -25,11 +25,11 @@ public class ChoiceSetWindowDouble : AnimationImage
     /// <summary>
     /// ✅ 두 개의 선택지를 설정하고 사용자의 선택을 기다림
     /// </summary>
-    public async UniTask<int> ShowChoices(List<ChoiceContent> choices)
+    public async UniTask<int> ShowChoices(List<ChoiceOption> choices)
     {
         if (choices == null || choices.Count != 2)
         {
-            Debug.LogError("❌ ChoiceSetWindowDouble requires exactly 2 choices.");
+            Debug.LogError("❌ ChoiceWindowDouble requires exactly 2 choices.");
             return -1;
         }
 

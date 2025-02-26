@@ -44,12 +44,6 @@ public class PlayerManager : MonoBehaviour
         {
             _currentBigPlace.Value = place;
             _currentSmallPlace.Value = null;
-
-            if (!_visitedBigPlaces.Value.Contains(placeName))
-            {
-                _visitedBigPlaces.Value = new HashSet<EBigPlaceName>(_visitedBigPlaces.Value) { placeName };
-                Debug.Log($"🚀 [PlayerManager] BigPlace '{placeName}' 방문 기록 추가됨!");
-            }
         }
         else
         {
@@ -63,12 +57,6 @@ public class PlayerManager : MonoBehaviour
         if (smallPlace != null)
         {
             _currentSmallPlace.Value = smallPlace;
-
-            if (!_visitedSmallPlaces.Value.Contains(smallPlaceName))
-            {
-                _visitedSmallPlaces.Value = new HashSet<ESmallPlaceName>(_visitedSmallPlaces.Value) { smallPlaceName };
-                Debug.Log($"🚀 [PlayerManager] SmallPlace '{smallPlaceName}' 방문 기록 추가됨!");
-            }
         }
         else
         {
@@ -82,15 +70,25 @@ public class PlayerManager : MonoBehaviour
     /// </summary>
     public void ExitCurrentBigPlace()
     {
+
         _currentBigPlace.Value = null;
         _currentSmallPlace.Value = null;
     }
-
-    /// <summary>
-    /// ✅ 현재 SmallPlace에서 나가기
-    /// </summary>
     public void ExitSmallPlace()
     {
+        if (_currentSmallPlace.Value != null)
+        {
+            var smallPlaceName = _currentSmallPlace.Value.SmallPlaceName;
+
+            // ✅ 방문 기록 추가 (나갈 때)
+            if (!_visitedSmallPlaces.Value.Contains(smallPlaceName))
+            {
+                _visitedSmallPlaces.Value.Add(smallPlaceName);
+                _visitedSmallPlaces.SetValueAndForceNotify(_visitedSmallPlaces.Value); // ✅ 강제 업데이트
+                Debug.Log($"🚀 [PlayerManager] SmallPlace '{smallPlaceName}' 방문 기록 추가됨!");
+            }
+        }
+
         _currentSmallPlace.Value = null;
     }
     public void ClearVisitedPlaces()
