@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
+using static CharacterEnums;
 
 public class AffinityManager : MonoBehaviour
 {
     public static AffinityManager Instance { get; private set; }
 
-    private Dictionary<string, ReactiveProperty<int>> _affinityData = new Dictionary<string, ReactiveProperty<int>>();
+    private Dictionary<ECharacterName, ReactiveProperty<int>> _affinityData = new();
 
     private void Awake()
     {
@@ -19,34 +20,34 @@ public class AffinityManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 특정 캐릭터의 친밀도를 가져옴 (기본값 0)
+    /// ✅ 특정 캐릭터의 친밀도를 가져옴 (기본값 0)
     /// </summary>
-    public int GetAffinity(string characterName)
+    public int GetAffinity(ECharacterName character)
     {
-        return _affinityData.ContainsKey(characterName) ? _affinityData[characterName].Value : 0;
+        return _affinityData.ContainsKey(character) ? _affinityData[character].Value : 0;
     }
 
     /// <summary>
-    /// 특정 캐릭터의 친밀도를 증가
+    /// ✅ 특정 캐릭터의 친밀도를 증가
     /// </summary>
-    public void IncreaseAffinity(string characterName, int amount)
+    public void IncreaseAffinity(ECharacterName character, int amount)
     {
-        if (!_affinityData.ContainsKey(characterName))
-            _affinityData[characterName] = new ReactiveProperty<int>(0);
+        if (!_affinityData.ContainsKey(character))
+            _affinityData[character] = new ReactiveProperty<int>(0);
 
-        _affinityData[characterName].Value += amount;
-        Debug.Log($"[AffinityManager] {characterName}의 친밀도가 {amount} 증가 → 현재 친밀도: {_affinityData[characterName].Value}");
+        _affinityData[character].Value += amount;
+        Debug.Log($"[AffinityManager] {character}의 친밀도가 {amount} 증가 → 현재 친밀도: {_affinityData[character].Value}");
     }
 
     /// <summary>
-    /// 특정 캐릭터의 친밀도를 감소 (최소 0)
+    /// ✅ 특정 캐릭터의 친밀도를 감소 (최소 0)
     /// </summary>
-    public void DecreaseAffinity(string characterName, int amount)
+    public void DecreaseAffinity(ECharacterName character, int amount)
     {
-        if (!_affinityData.ContainsKey(characterName))
-            _affinityData[characterName] = new ReactiveProperty<int>(0);
+        if (!_affinityData.ContainsKey(character))
+            _affinityData[character] = new ReactiveProperty<int>(0);
 
-        _affinityData[characterName].Value = Mathf.Max(0, _affinityData[characterName].Value - amount);
-        Debug.Log($"[AffinityManager] {characterName}의 친밀도가 {amount} 감소 → 현재 친밀도: {_affinityData[characterName].Value}");
+        _affinityData[character].Value = Mathf.Max(0, _affinityData[character].Value - amount);
+        Debug.Log($"[AffinityManager] {character}의 친밀도가 {amount} 감소 → 현재 친밀도: {_affinityData[character].Value}");
     }
 }

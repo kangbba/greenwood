@@ -16,6 +16,8 @@ public class PlaceManager : MonoBehaviour
     private List<BigPlace> _activeBigPlaces = new();
     private List<SmallPlace> _activeSmallPlaces = new();
 
+    private CompositeDisposable _subscriptions = new CompositeDisposable(); // ✅ 구독 관리
+
     [Header("UI Prefabs")]
     [SerializeField] private BigPlaceUI _bigPlaceUiPrefab;
     [SerializeField] private SmallPlaceUI _smallPlaceUiPrefab;
@@ -61,8 +63,21 @@ public class PlaceManager : MonoBehaviour
         }
     }
 
-    public void Init()
+    /// <summary>
+    /// ✅ 기존 BigPlace/SmallPlace를 제거하고 새로 생성
+    /// </summary>
+    public void RecreateBigPlaces()
     {
+        Debug.Log("♻️ [PlaceManager] BigPlace/SmallPlace 재생성 시작");
+
+        // ✅ 기존 구독 해제
+        _subscriptions.Clear();
+
+        // ✅ 기존 BigPlace/SmallPlace 제거
+        DestroyAllActiveBigPlaces();
+        DestroyAllActiveSmallPlaces();
+
+        // ✅ 새로운 BigPlace 생성
         foreach (EBigPlaceName bigPlaceName in Enum.GetValues(typeof(EBigPlaceName)))
         {
             BigPlace prefab = GetBigPlacePrefab(bigPlaceName);
@@ -74,19 +89,26 @@ public class PlaceManager : MonoBehaviour
             _activeBigPlaces.Add(newBigPlace);
         }
 
+        // ✅ 구독 다시 설정
         SubscribeToPlayerNotifications();
+
+        Debug.Log("✅ [PlaceManager] BigPlace/SmallPlace 재생성 완료");
     }
 
+    /// <summary>
+    /// ✅ 플레이어의 장소 변경 감지 및 처리
+    /// </summary>
     private void SubscribeToPlayerNotifications()
     {
-        Debug.Log("주의 : 구독시작");
+        Debug.Log("📡 [PlaceManager] 구독 시작");
+
         PlayerManager.Instance.CurrentBigPlace
             .Subscribe(OnBigPlaceChanged)
-            .AddTo(this);
+            .AddTo(_subscriptions);
 
         PlayerManager.Instance.CurrentSmallPlace
             .Subscribe(OnSmallPlaceChanged)
-            .AddTo(this);
+            .AddTo(_subscriptions);
     }
 
     private void OnBigPlaceChanged(BigPlace newBigPlace)
@@ -157,7 +179,7 @@ public class PlaceManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"[PlaceManager] `{placeName}` BigPlace 인스턴스 없음!");
+            Debug.LogError($"❌ [PlaceManager] `{placeName}` BigPlace 인스턴스 없음!");
         }
     }
 
@@ -166,7 +188,7 @@ public class PlaceManager : MonoBehaviour
         SmallPlace prefab = GetSmallPlacePrefab(smallPlaceName);
         if (prefab == null)
         {
-            Debug.LogError($"[PlaceManager] `{smallPlaceName}` SmallPlace 프리팹 없음!");
+            Debug.LogError($"❌ [PlaceManager] `{smallPlaceName}` SmallPlace 프리팹 없음!");
             return null;
         }
 
@@ -190,7 +212,7 @@ public class PlaceManager : MonoBehaviour
         SmallPlace smallPlace = GetSmallPlace(smallPlaceName);
         if (smallPlace == null)
         {
-            Debug.LogError($"[PlaceManager] `{smallPlaceName}` SmallPlace 인스턴스 없음!");
+            Debug.LogError($"❌ [PlaceManager] `{smallPlaceName}` SmallPlace 인스턴스 없음!");
             return;
         }
 
@@ -203,6 +225,18 @@ public class PlaceManager : MonoBehaviour
         {
             smallPlace.FadeOut(duration);
         }
+    }
+
+    private void DestroyAllActiveBigPlaces()
+    {
+        foreach (var bigPlace in _activeBigPlaces)
+        {
+            if (bigPlace != null)
+            {
+                Destroy(bigPlace.gameObject);
+            }
+        }
+        _activeBigPlaces.Clear();
     }
 
     private void DestroyAllActiveSmallPlaces()

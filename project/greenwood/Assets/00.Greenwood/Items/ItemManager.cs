@@ -1,29 +1,21 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using UniRx;
 using UnityEngine;
-
-/// <summary>
-/// ✅ 아이템 보유 데이터를 관리하는 인터페이스 (ItemManager가 직접 SaveData를 참조하지 않도록 분리)
-/// </summary>
-public interface IOwnedItemProvider
-{
-    void AddItem(string itemId, int amount);
-    bool RemoveItem(string itemId, int amount);
-    int GetItemCount(string itemId);
-}
 
 public class ItemManager : MonoBehaviour
 {
     public static ItemManager Instance { get; private set; }
 
     [SerializeField] private ItemUI _itemUiPrefab; // ✅ ItemUI 프리팹 바인딩
-    private Dictionary<string, ItemData> _itemDictionary = new Dictionary<string, ItemData>();
+    private Dictionary<string, ItemData> _allItemDataDictionary = new Dictionary<string, ItemData>(); // ✅ 모든 아이템 정보
+    private ReactiveProperty<HashSet<string>> _ownedItemData = new ReactiveProperty<HashSet<string>>(new HashSet<string>()); // ✅ 보유 아이템
 
-    private IOwnedItemProvider _itemProvider; // ✅ 아이템 저장소
+    public IReadOnlyReactiveProperty<HashSet<string>> OwnedItemData => _ownedItemData;
 
     private void Awake()
     {
-        if (Instance == null)
+        if (Instance == null) 
         {
             Instance = this;
             LoadAllItems();
@@ -36,26 +28,18 @@ public class ItemManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ✅ `IOwnedItemProvider`를 설정 (외부에서 주입 가능)
-    /// </summary>
-    public void SetItemProvider(IOwnedItemProvider provider)
-    {
-        _itemProvider = provider;
-    }
-
-    /// <summary>
     /// ✅ Resources/Items 폴더에서 모든 ItemData 로드
     /// </summary>
     private void LoadAllItems()
     {
-        _itemDictionary.Clear();
+        _allItemDataDictionary.Clear();
         ItemData[] items = Resources.LoadAll<ItemData>("Items");
 
         foreach (var item in items)
         {
-            if (!_itemDictionary.ContainsKey(item.ItemId))
+            if (!_allItemDataDictionary.ContainsKey(item.ItemId))
             {
-                _itemDictionary[item.ItemId] = item;
+                _allItemDataDictionary[item.ItemId] = item;
             }
             else
             {
@@ -71,35 +55,36 @@ public class ItemManager : MonoBehaviour
     /// </summary>
     public ItemData GetItemData(string itemId)
     {
-        if (_itemDictionary.TryGetValue(itemId, out var itemData))
-        {
-            return itemData;
-        }
-        else
-        {
-            Debug.LogWarning($"[ItemManager] ❌ 아이템 ID '{itemId}' 찾을 수 없음!");
-            return null;
-        }
+        return _allItemDataDictionary.TryGetValue(itemId, out var itemData) ? itemData : null;
     }
 
     /// <summary>
-    /// ✅ 아이템 추가 (UI 표시 없이 저장만)
+    /// ✅ 아이템 추가
     /// </summary>
-    public void AddItem(string itemId, int amount = 1)
+    public void AddItem(string itemId)
     {
-        if (_itemProvider == null)
-        {
-            Debug.LogError("[ItemManager] ❌ 아이템 저장소가 설정되지 않음!");
-            return;
-        }
-
-        if (!_itemDictionary.ContainsKey(itemId))
+        if (!_allItemDataDictionary.ContainsKey(itemId))
         {
             Debug.LogError($"[ItemManager] ❌ 존재하지 않는 아이템 ID: {itemId}");
             return;
         }
 
-        _itemProvider.AddItem(itemId, amount);
+        if (!_ownedItemData.Value.Contains(itemId))
+        {
+            // ✅ 변경 감지를 위해 새 HashSet 생성 후 할당
+            var updatedOwnedItems = new HashSet<string>(_ownedItemData.Value) { itemId };
+            _ownedItemData.SetValueAndForceNotify(updatedOwnedItems);
+            
+            Debug.Log($"🛒 [ItemManager] 아이템 획득: {itemId}");
+        }
+    }
+
+    /// <summary>
+    /// ✅ 아이템 보유 여부 확인
+    /// </summary>
+    public bool HasItem(string itemId)
+    {
+        return _ownedItemData.Value.Contains(itemId);
     }
 
     /// <summary>
@@ -123,33 +108,5 @@ public class ItemManager : MonoBehaviour
 
         // ✅ UI 제거
         Destroy(itemUI.gameObject);
-    }
-
-    /// <summary>
-    /// ✅ 아이템 사용 / 삭제
-    /// </summary>
-    public bool RemoveItem(string itemId, int amount = 1)
-    {
-        if (_itemProvider == null)
-        {
-            Debug.LogError("[ItemManager] ❌ 아이템 저장소가 설정되지 않음!");
-            return false;
-        }
-
-        return _itemProvider.RemoveItem(itemId, amount);
-    }
-
-    /// <summary>
-    /// ✅ 아이템 개수 조회
-    /// </summary>
-    public int GetItemCount(string itemId)
-    {
-        if (_itemProvider == null)
-        {
-            Debug.LogError("[ItemManager] ❌ 아이템 저장소가 설정되지 않음!");
-            return 0;
-        }
-
-        return _itemProvider.GetItemCount(itemId);
     }
 }
