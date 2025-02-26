@@ -5,7 +5,9 @@ public static class SmallPlaceNames
     {
         Bakery,
         Herbshop,
-        Cafe
+        Cafe,
+        AntiqueShop,
+        Restaurant
     }
 
 }

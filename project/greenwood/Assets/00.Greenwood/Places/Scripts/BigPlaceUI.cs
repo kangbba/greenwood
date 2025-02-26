@@ -1,10 +1,10 @@
 using UnityEngine;
 using TMPro;
-using static BigPlaceNames;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UniRx;
 using System;
+using static BigPlaceNames;
 
 public class BigPlaceUI : AnimationImage
 {
@@ -17,32 +17,26 @@ public class BigPlaceUI : AnimationImage
     {
         FadeOut(0f);
 
-        // ✅ BigPlace 및 SmallPlace 상태 감지하여 UI 업데이트
-        PlaceManager.Instance.CurrentBigPlaceNotifier
-            .CombineLatest(PlaceManager.Instance.CurrentSmallPlaceNotifier, (bigPlace, smallPlace) => new { bigPlace, smallPlace })
-            .Subscribe(placeState =>
+        // ✅ 플레이어의 현재 위치 상태 감지하여 UI 업데이트
+        PlayerManager.Instance.CurrentBigPlace
+            .CombineLatest(PlayerManager.Instance.CurrentSmallPlace, (bigPlace, smallPlace) => (bigPlace, smallPlace))
+            .Subscribe(tuple =>
             {
-                if (placeState.bigPlace != null && placeState.smallPlace == null) // ✅ BigPlace만 존재할 때만 UI 업데이트
+                (BigPlace bigPlace, SmallPlace smallPlace) = tuple;
+
+                if (bigPlace != null && smallPlace == null) // ✅ BigPlace만 존재할 때만 UI 업데이트
                 {
+                    Debug.Log($"[BigPlaceUI] 현재 BigPlace: {bigPlace.BigPlaceName}");
 
                     // ✅ CenterButtonGroup 업데이트
-                    UpdateCenterButtonGroup(placeState.bigPlace);
+                    UpdateCenterButtonGroup(bigPlace);
                     FadeIn(.3f);
 
-                    // ✅ "이동" 버튼 추가 (null 방지)
+                    // ✅ "이동" 버튼 추가
                     bottomButtonGroup.SetButtonGroup(new Dictionary<string, Action>
                     {
-                        { 
-                            "GoOut", () => { 
-                                CreateAndShowMap();
-                                Debug.Log("GoOut button clicked"); 
-                            } 
-                        },
-                        { 
-                            "GoHome", () => { 
-                                Debug.Log("GoHome button clicked"); 
-                            } 
-                        }
+                        { "GoOut", () => { CreateAndShowMap(); Debug.Log("GoOut button clicked"); } },
+                        { "GoHome", () => { Debug.Log("GoHome button clicked"); } }
                     });
                 }
                 else // ✅ SmallPlace가 활성화된 경우 UI 숨김
@@ -72,7 +66,7 @@ public class BigPlaceUI : AnimationImage
         if (selectedPlaceName.HasValue)
         {
             Debug.Log($"[BigPlaceUI] Moving to {selectedPlaceName.Value}");
-            PlaceManager.Instance.MoveBigPlace(selectedPlaceName.Value, .5f);
+            PlayerManager.Instance.MoveBigPlace(selectedPlaceName.Value);
         }
         else
         {
@@ -109,7 +103,7 @@ public class BigPlaceUI : AnimationImage
 
             Button doorBtn = centerButtonGroup.AddButton(doorId, () =>
             {
-                PlaceManager.Instance.EnterSmallPlace(door.SmallPlaceName, .5f);
+                PlayerManager.Instance.EnterSmallPlace(door.SmallPlaceName);
             });
 
             doorBtn.transform.position = doorTrPosition;

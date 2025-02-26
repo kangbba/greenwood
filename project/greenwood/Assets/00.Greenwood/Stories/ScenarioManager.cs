@@ -11,8 +11,8 @@ public class ScenarioManager : MonoBehaviour
     [Header("스토리 매핑")]
     [SerializeField] private List<ScenarioMapping> _scenarioMappings;
 
-    private ReactiveProperty<bool> _isScenarioPlayingNotifier = new ReactiveProperty<bool>(false);
-    public IReadOnlyReactiveProperty<bool> IsScenarioPlayingNotifier => _isScenarioPlayingNotifier;
+    private ReactiveProperty<bool> _isScenarioPlaying = new ReactiveProperty<bool>(false);
+    public IReadOnlyReactiveProperty<bool> IsScenarioPlaying => _isScenarioPlaying;
 
     private void Awake()
     {
@@ -23,6 +23,38 @@ public class ScenarioManager : MonoBehaviour
             return;
         }
     }
+    public async UniTask ExecuteOneScenario(
+        Scenario scenario,
+        Action onBeforeStart = null,
+        Action onAfterEnd = null
+    )
+    {
+        if (_isScenarioPlaying.Value)
+        {
+            Debug.LogWarning("[ScenarioManager] A scenario is already running. Skipping execution.");
+            return;
+        }
+
+        if (scenario == null)
+        {
+            Debug.LogWarning("[ScenarioManager] scenario is null. No scenario to execute.");
+            return;
+        }
+
+        // 시작 전 콜백
+        onBeforeStart?.Invoke();
+
+        _isScenarioPlaying.Value = true;
+        Debug.Log($"[ScenarioManager] Starting Scenario: {scenario.ScenarioId}");
+
+        await scenario.ExecuteAsync(); // ✅ 실제 시나리오 실행
+
+        _isScenarioPlaying.Value = false;
+        Debug.Log($"[ScenarioManager] Scenario Finished: {scenario.ScenarioId}");
+
+        // 종료 후 콜백
+        onAfterEnd?.Invoke();
+    }
 
     public async UniTask ExecuteOneScenarioFromList(
         IReadOnlyList<Scenario> scenarioList,
@@ -30,7 +62,7 @@ public class ScenarioManager : MonoBehaviour
         Action onAfterEnd = null
     )
     {
-        if (_isScenarioPlayingNotifier.Value)
+        if (_isScenarioPlaying.Value)
         {
             Debug.LogWarning("[ScenarioManager] A scenario is already running. Skipping execution.");
             return;
@@ -49,12 +81,12 @@ public class ScenarioManager : MonoBehaviour
         // 시작 전 콜백
         onBeforeStart?.Invoke();
 
-        _isScenarioPlayingNotifier.Value = true;
+        _isScenarioPlaying.Value = true;
         Debug.Log($"[ScenarioManager] Starting Scenario (Random): {chosenScenario.ScenarioId}");
 
         await chosenScenario.ExecuteAsync(); // 실제 시나리오 실행
 
-        _isScenarioPlayingNotifier.Value = false;
+        _isScenarioPlaying.Value = false;
         Debug.Log($"[ScenarioManager] Scenario Finished: {chosenScenario.ScenarioId}");
 
         // 종료 후 콜백
@@ -67,7 +99,7 @@ public class ScenarioManager : MonoBehaviour
     /// </summary>
     private async UniTask ExecuteScenario(string scenarioName)
     {
-        _isScenarioPlayingNotifier.Value = true;
+        _isScenarioPlaying.Value = true;
         Debug.Log($"[ScenarioManager] Starting Scenario: {scenarioName}");
 
         Scenario scenarioInstance = CreateScenarioInstance(scenarioName);
@@ -80,7 +112,7 @@ public class ScenarioManager : MonoBehaviour
             Debug.LogWarning($"[ScenarioManager] Scenario '{scenarioName}' could not be instantiated.");
         }
 
-        _isScenarioPlayingNotifier.Value = false;
+        _isScenarioPlaying.Value = false;
         Debug.Log($"[ScenarioManager] Scenario Finished: {scenarioName}");
     }
 

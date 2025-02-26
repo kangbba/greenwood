@@ -477,6 +477,10 @@ MonoBehaviour:
   _groupContainer: {fileID: 1995637971852763843}
   spaceMultiplier: 1.5
   _buttonEntries:
+  - _buttonId: Exit
+    _buttonText: "\uB098\uAC00\uAE30"
+    _useCustomPrefab: 0
+    _buttonPrefab: {fileID: 0}
   - _buttonId: Order
     _buttonText: "\uC8FC\uBB38\uD558\uAE30"
     _useCustomPrefab: 0
@@ -491,14 +495,6 @@ MonoBehaviour:
     _buttonPrefab: {fileID: 0}
   - _buttonId: Search
     _buttonText: "\uC870\uC0AC\uD558\uAE30"
-    _useCustomPrefab: 0
-    _buttonPrefab: {fileID: 0}
-  - _buttonId: 
-    _buttonText: 
-    _useCustomPrefab: 0
-    _buttonPrefab: {fileID: 0}
-  - _buttonId: 
-    _buttonText: 
     _useCustomPrefab: 0
     _buttonPrefab: {fileID: 0}
 --- !u!1 &7758444692238972782

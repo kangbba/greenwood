@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using static BigPlaceNames;
+using static CharacterEnums;
 using static SmallPlaceNames;
 
 public class GameManager : MonoBehaviour
@@ -31,6 +32,8 @@ public class GameManager : MonoBehaviour
         // ✅ GameSaveDataProvider를 ItemManager에 주입
         ItemManager.Instance.SetItemProvider(new GameSaveDataProvider());
          // ✅ BigPlace 이동 시, 이 Dictionary를 넘김
-        PlaceManager.Instance.MoveBigPlace(EBigPlaceName.Town, 0);
+
+        PlaceManager.Instance.Init();
+        PlayerManager.Instance.MoveBigPlace(EBigPlaceName.Town);
     }
 }

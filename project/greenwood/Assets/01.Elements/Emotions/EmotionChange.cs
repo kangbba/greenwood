@@ -16,7 +16,6 @@ public class EmotionChange : Element
         _emotionID = emotionID;
         _poseID = poseID;
         _duration = duration;
-        Debug.Log($"[EmotionChange] Initialized - Character: {_characterName}, Emotion: {_emotionID}, Pose: {_poseID}");
     }
 
     // 생성자: KateEmotionType & KatePoseType 사용
@@ -26,7 +25,6 @@ public class EmotionChange : Element
         _emotionID = emotionType.ToString();
         _poseID = poseType.ToString();
         _duration = duration;
-        Debug.Log($"[EmotionChange] Initialized - Character: {_characterName}, Emotion: {_emotionID}, Pose: {_poseID}");
     }
 
     // 생성자: KateEmotionType & KatePoseType 사용
@@ -36,7 +34,6 @@ public class EmotionChange : Element
         _emotionID = emotionType.ToString();
         _poseID = poseType.ToString();
         _duration = duration;
-        Debug.Log($"[EmotionChange] Initialized - Character: {_characterName}, Emotion: {_emotionID}, Pose: {_poseID}");
     }
 
     public override void ExecuteInstantly()

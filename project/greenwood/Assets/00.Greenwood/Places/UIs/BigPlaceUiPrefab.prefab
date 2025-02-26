@@ -94,15 +94,16 @@ MonoBehaviour:
   _useAlign: 1
   _isVertical: 0
   _groupContainer: {fileID: 6036941892917544478}
+  spaceMultiplier: 1
   _buttonEntries:
-  - buttonId: GoOut
-    useCustomPrefab: 0
-    buttonPrefab: {fileID: 3652836485596719002, guid: d183dcc62ca764639a70c2c072d79941, type: 3}
-    buttonText: "\uC678\uCD9C\uD558\uAE30"
-  - buttonId: GoHome
-    useCustomPrefab: 0
-    buttonPrefab: {fileID: 3652836485596719002, guid: e5be2654fc6ce4c9ca9a446ecaf27450, type: 3}
-    buttonText: "\uADC0\uAC00\uD558\uAE30"
+  - _buttonId: GoOut
+    _buttonText: "\uC678\uCD9C"
+    _useCustomPrefab: 0
+    _buttonPrefab: {fileID: 0}
+  - _buttonId: GoHome
+    _buttonText: "\uADC0\uAC00"
+    _useCustomPrefab: 0
+    _buttonPrefab: {fileID: 0}
 --- !u!1 &916387444525262739
 GameObject:
   m_ObjectHideFlags: 0
@@ -197,19 +198,20 @@ MonoBehaviour:
   _useAlign: 0
   _isVertical: 0
   _groupContainer: {fileID: 2592632337654053486}
+  spaceMultiplier: 1
   _buttonEntries:
-  - buttonId: Bakery
-    useCustomPrefab: 0
-    buttonPrefab: {fileID: 1257770945358925768, guid: e41c08d612fc54f0fb0460dab50a2e4e, type: 3}
-    buttonText: "\uBCA0\uC774\uCEE4\uB9AC"
-  - buttonId: Herbshop
-    useCustomPrefab: 0
-    buttonPrefab: {fileID: 0}
-    buttonText: "\uD5C8\uBE0C\uC0F5"
-  - buttonId: CafeSeabreeze
-    useCustomPrefab: 0
-    buttonPrefab: {fileID: 0}
-    buttonText: "\uC528\uBE0C\uB9AC\uC988"
+  - _buttonId: Bakery
+    _buttonText: "\uBCA0\uC774\uCEE4\uB9AC"
+    _useCustomPrefab: 0
+    _buttonPrefab: {fileID: 0}
+  - _buttonId: Herbshop
+    _buttonText: "\uD5C8\uBE0C\uC0F5"
+    _useCustomPrefab: 0
+    _buttonPrefab: {fileID: 0}
+  - _buttonId: AntiqueShop
+    _buttonText: "\uACE8\uB3D9\uD488\uC810"
+    _useCustomPrefab: 0
+    _buttonPrefab: {fileID: 0}
 --- !u!1 &3024896423821101427
 GameObject:
   m_ObjectHideFlags: 0
