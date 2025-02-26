@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System;
 using TMPro;
 using UnityEngine.UI;
+using UniRx;
 
 public class DialoguePlayer : AnimationImage
 {
@@ -11,37 +12,41 @@ public class DialoguePlayer : AnimationImage
     [SerializeField] private DialogueArrow _arrowPrefab;
     [SerializeField] private TextMeshProUGUI _ownerText;
     [SerializeField] private Image _ownerBackground;
-    private DialogueArrow _activeArrow; // 현재 활성화된 화살표 인스턴스 저장
+    private DialogueArrow _activeArrow;
 
     [Header("Revealing Sentence")]
     [SerializeField] private RevealingSentence _revealingSentence;
     [SerializeField] private Transform _parent;
-    private bool _isOn;
-
+    
     private List<string> _sentences;
-    private List<string> _importantWords;
-    private float _currentSpeed;
     private float _initialSpeed;
     private bool _isSkipping;
 
-    /// <summary>
-    /// 다이얼로그 초기화
-    /// </summary>
+    private readonly ReactiveProperty<float> _currentSpeedNotifier = new ReactiveProperty<float>();
+
     public void Init(string ownerName, Color ownerTextColor, Color ownerBackgroundColor, List<string> sentences, float speed)
-    {   
+    {
         _sentences = sentences;
         _initialSpeed = speed;
+        _currentSpeedNotifier.Value = _initialSpeed;
 
         _ownerText.SetText(ownerName);
         _ownerText.color = ownerTextColor;
         _ownerBackground.color = ownerBackgroundColor;
-        
-        ChangeSpeed(_initialSpeed);
+
+        SetupSpeedListener();
         FadeOut(0f);
     }
 
-    private void ChangeSpeed(float speed){
-        _currentSpeed = speed;
+    private void SetupSpeedListener()
+    {
+        KeyboardInputManager.Instance.GetKeyNotifier(KeyboardInputManager.KeyboardActionType.SpeedUp)
+            .Subscribe(isSpeedUp =>
+            {
+                _isSkipping = isSpeedUp;
+                _currentSpeedNotifier.Value = isSpeedUp ? _initialSpeed * 5 : _initialSpeed;
+            })
+            .AddTo(this);
     }
 
     public async UniTask PlayDialogue(Action OnStart, Action OnPunctuationPause, Action OnPunctuationResume, Action OnComplete)
@@ -53,11 +58,10 @@ public class DialoguePlayer : AnimationImage
         {
             string sentence = _sentences[i];
             _revealingSentence.ClearSentence();
-            _revealingSentence.SetPlaySpeed(_currentSpeed);
+            _revealingSentence.SetPlaySpeed(_currentSpeedNotifier.Value);
             _revealingSentence.SetPunctuationStop(true);
             _revealingSentence.SetText(sentence);
 
-            // PlaySentence() 실행 시 개별 상황에 대한 async 메서드 전달
             await _revealingSentence.PlaySentence(
                 OnStart: async () =>
                 {
@@ -68,7 +72,8 @@ public class DialoguePlayer : AnimationImage
                 {
                     OnPunctuationPause?.Invoke();
 
-                    if(!_isSkipping){
+                    if (!_isSkipping)
+                    {
                         SpawnArrow(90);
                         await UniTask.WaitUntil(() => Input.GetMouseButtonDown(0));
                     }
@@ -91,18 +96,6 @@ public class DialoguePlayer : AnimationImage
         FadeOut(.2f);
         await UniTask.WaitForSeconds(.3f);
         _revealingSentence.ClearSentence();
-    }
-
-    private void Update()
-    {
-        if(Input.GetKey(KeyCode.LeftControl | KeyCode.RightControl | KeyCode.LeftCommand | KeyCode.RightCommand)){
-            _isSkipping = true;
-            ChangeSpeed(_initialSpeed * 5);
-        }
-        else{
-            _isSkipping = false;
-            ChangeSpeed(_initialSpeed);
-        }
     }
 
     public void SkipCurrentDialogue()

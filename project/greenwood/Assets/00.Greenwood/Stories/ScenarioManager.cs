@@ -24,7 +24,6 @@ public class ScenarioManager : MonoBehaviour
         }
     }
 
-
     public async UniTask ExecuteOneScenarioFromList(
         IReadOnlyList<Scenario> scenarioList,
         Action onBeforeStart = null,

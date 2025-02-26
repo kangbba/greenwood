@@ -25,7 +25,7 @@ public class PlaceEventScheduler : MonoBehaviour
         // ✅ Cafe
         var cafeScenarios = new List<KeyScenariosPair>
         {
-            new KeyScenariosPair(CafeActionTypes.Talk, ScenarioData.CafeTalk),
+            new KeyScenariosPair(CommonActionTypes.SoloTalk, ScenarioData.CafeTalk),
             new KeyScenariosPair(CafeActionTypes.Order, ScenarioData.CafeOrder)
         };
         kapsDict[ESmallPlaceName.Cafe] = cafeScenarios;
@@ -35,7 +35,7 @@ public class PlaceEventScheduler : MonoBehaviour
         // ✅ Bakery
         var bakeryScenarios = new List<KeyScenariosPair>
         {
-            new KeyScenariosPair(BakeryActionTypes.Talk, ScenarioData.BakeryTalk),
+            new KeyScenariosPair(CommonActionTypes.SoloTalk, ScenarioData.BakeryTalk),
             new KeyScenariosPair(BakeryActionTypes.Buy, ScenarioData.BakeryBuy)
         };
         kapsDict[ESmallPlaceName.Bakery] = bakeryScenarios;

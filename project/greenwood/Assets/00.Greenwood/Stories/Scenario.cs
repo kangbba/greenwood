@@ -18,6 +18,7 @@ public abstract class Scenario : Element
         {
             await UpdateElements[i].ExecuteAsync();
         }
+        await new AllScenarioElementsClear(.3f).ExecuteAsync();
     }
 
     public override void ExecuteInstantly()
@@ -27,7 +28,22 @@ public abstract class Scenario : Element
             Debug.Log($"{i}번째 엘리먼트인 {element.GetType().Name}은 스킵");
             element.ExecuteInstantly();
         }
+        new AllScenarioElementsClear(0f).ExecuteInstantly();
     }
+
+    public CharacterEnter GetFirstCharacterEnter()
+    {
+        foreach (var element in UpdateElements)
+        {
+            if (element is CharacterEnter characterEnter)
+            {
+                return characterEnter;
+            }
+        }
+        return null;
+    }
+
+
     public void ReadyForScenarioStart()
     {
         foreach (Element element in UpdateElements)

@@ -14,6 +14,9 @@ public class CharacterEnter : Element
     private string _initialPoseID;
     private CharacterLocation _location;
     private float _duration;
+
+    public ECharacterName CharacterName { get => _characterName; }
+
     public CharacterEnter(ECharacterName characterName, string emotionID, string poseID, CharacterLocation location, float duration = 1f)
     {
         _characterName = characterName;
@@ -67,6 +70,13 @@ public class CharacterEnter : Element
             Debug.LogError($"[CharacterEnter] 캐릭터 `{_characterName}` 생성 실패");
             return;
         }
+        CharacterSetting characterSetting = CharacterManager.Instance.GetCharacterSetting(_characterName);
+        if (characterSetting == null)
+        {
+            Debug.LogError($"[CharacterEnter] characterSetting 반환 실패");
+            return;
+        }
+        character.MoveToLocationY(characterSetting.Height, 0f);
         character.MoveToLocationX(_location ,0f);
         character.Init(_initialEmotionID, _initialPoseID, _duration);
         // 페이드 인 애니메이션 (캐릭터가 처음 등장할 때)

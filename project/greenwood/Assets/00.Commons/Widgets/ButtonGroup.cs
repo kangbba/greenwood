@@ -9,17 +9,27 @@ using Sirenix.OdinInspector;
 [Serializable]
 public class ButtonEntry
 {
-    public string buttonId;  // 버튼 ID (외부에서 바인딩)
+    [SerializeField] private string _buttonId;  // 버튼 ID (ECharacterName.ToString())
+    [SerializeField] private string _buttonText; // ✅ UI에 표시될 버튼 텍스트 (DisplayName)
+    [SerializeField] private bool _useCustomPrefab = false; // ✅ 개별 버튼 프리팹 사용 여부
 
-    [Tooltip("개별 버튼 프리팹을 사용할 경우 체크")]
-    public bool useCustomPrefab = false; // ✅ 개별 버튼 프리팹 사용 여부
+    [ShowIf(nameof(_useCustomPrefab))]
+    [SerializeField] private Button _buttonPrefab; // ✅ 개별 프리팹 (선택적)
 
-    [ShowIf(nameof(useCustomPrefab))] // ✅ 개별 프리팹을 사용할 때만 노출
-    public Button buttonPrefab;
+    public string ButtonId => _buttonId;
+    public string ButtonText => _buttonText;
+    public bool UseCustomPrefab => _useCustomPrefab;
+    public Button ButtonPrefab => _buttonPrefab;
 
-    [HideIf(nameof(useCustomPrefab))] // ✅ 기본 버튼을 사용할 때만 노출
-    public string buttonText;
+    public ButtonEntry(string buttonId, string buttonText, bool useCustomPrefab = false, Button buttonPrefab = null)
+    {
+        _buttonId = buttonId;
+        _buttonText = buttonText;
+        _useCustomPrefab = useCustomPrefab;
+        _buttonPrefab = buttonPrefab;
+    }
 }
+
 
 public class ButtonGroup : AnimationImage
 {
@@ -35,6 +45,8 @@ public class ButtonGroup : AnimationImage
     [SerializeField] private List<ButtonEntry> _buttonEntries = new List<ButtonEntry>(); // ✅ 버튼 바인딩 리스트
 
     private Dictionary<string, Button> _activeButtons = new Dictionary<string, Button>(); // 현재 활성화된 버튼들
+
+    public List<ButtonEntry> ButtonEntries { get => _buttonEntries; set => _buttonEntries = value; }
 
     /// <summary>
     /// ✅ 버튼 그룹을 한 번에 설정 (기존 버튼 제거 후 갱신)
@@ -58,9 +70,9 @@ public class ButtonGroup : AnimationImage
         if (_activeButtons.ContainsKey(buttonId)) return null; // ✅ 중복 추가 방지
 
         // ✅ ButtonEntry에서 해당 버튼 ID를 찾아 프리팹 확인
-        ButtonEntry entry = _buttonEntries.Find(e => e.buttonId == buttonId);
-        Button prefabToUse = (entry != null && entry.useCustomPrefab && entry.buttonPrefab != null) 
-            ? entry.buttonPrefab 
+        ButtonEntry entry = _buttonEntries.Find(e => e.ButtonId == buttonId);
+        Button prefabToUse = (entry != null && entry.UseCustomPrefab && entry.ButtonPrefab != null) 
+            ? entry.ButtonPrefab 
             : _standardBtnPrefab;
 
         if (prefabToUse == null)
@@ -73,12 +85,12 @@ public class ButtonGroup : AnimationImage
         Button newButton = Instantiate(prefabToUse, _groupContainer);
 
         // ✅ 기본 버튼을 사용하는 경우 텍스트 변경
-        if (entry != null && !entry.useCustomPrefab)
+        if (entry != null && !entry.UseCustomPrefab)
         {
             TextMeshProUGUI buttonText = newButton.GetComponentInChildren<TextMeshProUGUI>();
             if (buttonText != null)
             {
-                buttonText.text = entry.buttonText;
+                buttonText.text = entry.ButtonText;
             }
         }
 

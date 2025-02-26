@@ -65,11 +65,25 @@ public class Character : AnimationImage
             return;
         }
 
-        float screenWidth = UIManager.Instance.GameCanvas.GetComponent<RectTransform>().rect.width;
-        float targetX = GetPositionX(targetLocation, screenWidth);
+        float targetX = GetPositionX(targetLocation);
 
         // ✅ DOTween을 사용하여 X축 이동
         _rectTransform.DOAnchorPosX(targetX, duration).SetEase(easeType);
+    }
+    /// <summary>
+    /// 캐릭터를 특정 위치(CharacterLocation)로 부드럽게 이동
+    /// </summary>
+    public void MoveToLocationY(float anchordPosY, float duration, Ease easeType = Ease.Linear)
+    {
+        if (_rectTransform == null)
+        {
+            Debug.LogError($"[Character] {_rectTransform.gameObject.name} - RectTransform is null!");
+            return;
+        }
+
+
+        // ✅ DOTween을 사용하여 X축 이동
+        _rectTransform.DOAnchorPosY(anchordPosY, duration).SetEase(easeType);
     }
     /// <summary>
     /// 캐릭터 점프 애니메이션
@@ -95,7 +109,7 @@ public class Character : AnimationImage
     /// <summary>
     /// `CharacterLocation` Enum에 따라 X 좌표 계산
     /// </summary>
-    private float GetPositionX(CharacterLocation location, float screenWidth)
+    private float GetPositionX(CharacterLocation location)
     {
         return location switch
         {
